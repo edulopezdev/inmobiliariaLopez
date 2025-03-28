@@ -1,31 +1,48 @@
-using System.Data; //Esto es para usar conexiones genéricas a bases de datos
-using MySql.Data.MySqlClient; //Esto es para trabajar específicamente con MySQL
-using Microsoft.Extensions.Configuration; //Esto para leer la configuración del archivo appsettings.json
+using System;
+using System.Data; // Para trabajar con conexiones a bases de datos genéricas
+using MySql.Data.MySqlClient; // Para conectarnos específicamente a MySQL
+using Microsoft.Extensions.Configuration; // Para leer la configuración del archivo appsettings.json
 
-namespace InmobiliariaLopez.Data //Esto lo que hace es que la clase DatabaseConnection se encuentre en la carpeta Data
+namespace InmobiliariaLopez.Data
 {
-    public class DatabaseConnection  //Aca esta la clase que se encarga de crear la conexion
+    public class DatabaseConnection
     {
-        private readonly string _connectionString; //Aca vamos a guardar la cadena de conexion
+        private readonly string _connectionString;
 
-        public DatabaseConnection(IConfiguration configuration) //Este es el constructor
+        /// <summary>
+        /// Constructor que inicializa la cadena de conexión.
+        /// </summary>
+        /// <param name="configuration">Instancia de IConfiguration para acceder a la configuración.</param>
+        public DatabaseConnection(IConfiguration configuration)
         {
-            //Aca vamos a obtener la cadena de conexion
             var connectionString = configuration.GetConnectionString("MySql");
 
-            //Comprobamos que la cadena de conexion no este vacia
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new InvalidOperationException("La cadena de conexión 'MySql' no está configurada en appsettings.json.");
             }
 
-            //aca asignamos la cadena de conexion a la variable privada
             _connectionString = connectionString;
         }
 
-        public IDbConnection CreateConnection() //Este es el metodo que se encarga de crear la conexion
+        /// <summary>
+        /// Crea y devuelve una nueva conexión a la base de datos.
+        /// </summary>
+        /// <returns>Una instancia de MySqlConnection lista para usar.</returns>
+        public MySqlConnection CreateConnection()
         {
-            return new MySqlConnection(_connectionString); //Por ultimo creamos y devolvemos la conexion
+            return new MySqlConnection(_connectionString);
+        }
+
+        /// <summary>
+        /// Crea y devuelve una nueva conexión a la base de datos de forma asíncrona.
+        /// </summary>
+        /// <returns>Una tarea que representa la operación asincrónica y devuelve una instancia de MySqlConnection.</returns>
+        public async Task<MySqlConnection> CreateConnectionAsync()
+        {
+            var connection = new MySqlConnection(_connectionString);
+            await connection.OpenAsync();
+            return connection;
         }
     }
 }

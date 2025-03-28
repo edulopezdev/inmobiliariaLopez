@@ -1,0 +1,48 @@
+@model IEnumerable<InmobiliariaLopez.Models.Propietario>
+
+@{
+    ViewData["Title"] = "Lista de Propietarios";
+}
+
+<h1>Lista de Propietarios</h1>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>DNI</th>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var propietario in Model)
+        {
+            <tr>
+                <td>@propietario.IdPropietario</td>
+                <td>@propietario.DNI</td>
+                <td>@propietario.Apellido</td>
+                <td>@propietario.Nombre</td>
+                <td>@propietario.Telefono</td>
+                <td>@propietario.Email</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@propietario.IdPropietario" class="btn btn-info">Detalles</a>
+                    <a asp-action="Edit" asp-route-id="@propietario.IdPropietario" class="btn btn-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@propietario.IdPropietario" class="btn btn-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Agregar Propietario</a>
