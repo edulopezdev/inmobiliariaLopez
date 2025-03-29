@@ -13,6 +13,7 @@ builder.Services.AddTransient<DatabaseConnection>();
 
 // 2. Registrar los repositorios para Propietario e Inquilino
 builder.Services.AddScoped<IRepositorioPropietario, PropietarioRepository>();
+builder.Services.AddScoped<IRepositorioInquilino, InquilinoRepository>();
 
 // Creamos la aplicación web
 var app = builder.Build();

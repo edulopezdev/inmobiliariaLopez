@@ -1,0 +1,48 @@
+@model IEnumerable<InmobiliariaLopez.Models.Inquilino>
+
+@{
+    ViewData["Title"] = "Lista de Inquilinos";
+}
+
+<h1>Lista de Inquilinos</h1>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>DNI</th>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var Inquilino in Model)
+        {
+            <tr>
+                <td>@Inquilino.IdInquilino</td>
+                <td>@Inquilino.DNI</td>
+                <td>@Inquilino.Apellido</td>
+                <td>@Inquilino.Nombre</td>
+                <td>@Inquilino.Telefono</td>
+                <td>@Inquilino.Email</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@Inquilino.IdInquilino" class="btn btn-info">Detalles</a>
+                    <a asp-action="Edit" asp-route-id="@Inquilino.IdInquilino" class="btn btn-warning">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@Inquilino.IdInquilino" class="btn btn-danger">Eliminar</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create" class="btn btn-primary">Agregar Inquilino</a>
