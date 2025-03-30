@@ -4,57 +4,78 @@
     ViewData["Title"] = "Eliminar Inquilino";
 }
 
-<h1>Eliminar Inquilino</h1>
+<!-- Título -->
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Eliminar Inquilino</h1>
 
-<h3>¿Está seguro de que desea eliminar al Inquilino?</h3>
-<div>
-    <h4>Detalles del Inquilino</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IdInquilino)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IdInquilino)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Apellido)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Apellido)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DNI)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DNI)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Telefono)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Telefono)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
-    
-    <!-- Formulario para confirmar la eliminación -->
-    <form method="post" asp-action="Delete">
-    @Html.AntiForgeryToken() <!-- Protección contra CSRF -->
-    <input type="hidden" name="idInquilino" value="@Model.IdInquilino" />
-    <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a href="@Url.Action("Index")" class="btn btn-secondary">Volver al listado</a>
-</form>
+<!-- Card para envolver el contenido -->
+<div class="card shadow-lg border-0 rounded-4">
+    <div class="card-header bg-gradient text-dark border-0 rounded-4">
+        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Confirmación de eliminación</h5>
+    </div>
+    <div class="card-body" style="padding: 1.5rem;"> <!-- Padding ajustado para mayor espacio -->
+        <h4>Detalles del Inquilino</h4>
+        <hr />
+        <dl class="row">
+            <!-- ID -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.IdInquilino)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.IdInquilino)
+            </dd>
+            <!-- Nombre -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
+            <!-- Apellido -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Apellido)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Apellido)
+            </dd>
+            <!-- DNI -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.DNI)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.DNI)
+            </dd>
+            <!-- Teléfono -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Telefono)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Telefono)
+            </dd>
+            <!-- Email -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+        </dl>
+        
+        <h3>¿Está seguro de que desea eliminar este Inquilino?</h3>
+    </div>
 
+    <!-- Formulario de eliminación y botones dentro del card -->
+    <div class="card-footer d-flex justify-content-end">
+        <form method="post" asp-action="Delete">
+            @Html.AntiForgeryToken() <!-- Protección contra CSRF -->
+            <input type="hidden" name="idInquilino" value="@Model.IdInquilino" />
+            <button type="submit" class="btn btn-danger btn-sm me-2">Eliminar</button>
+        </form>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">
+            Volver al listado
+        </a>
+    </div>
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

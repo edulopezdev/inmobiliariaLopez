@@ -4,63 +4,79 @@
     ViewData["Title"] = "Detalles del Inquilino";
 }
 
-<h1>Detalles del Inquilino</h1>
+<!-- Título -->
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Detalles del Inquilino</h1>
 
-<div>
-    <h4>Inquilino</h4>
-    <hr />
-    <dl class="row">
-        <!-- ID -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IdInquilino)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.IdInquilino)
-        </dd>
+<!-- Card para envolver los detalles -->
+<div class="card shadow-lg border-0 rounded-4">
+    <div class="card-header bg-gradient text-dark border-0 rounded-4">
+        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Inquilino</h5>
+    </div>
+    <div class="card-body" style="padding: 1.5rem;"> <!-- Padding ajustado para mayor espacio -->
+        <h4>Inquilino</h4>
+        <hr />
+        <dl class="row">
+            <!-- ID -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.IdInquilino)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.IdInquilino)
+            </dd>
 
-        <!-- DNI -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.DNI)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.DNI)
-        </dd>
+            <!-- DNI -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.DNI)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.DNI)
+            </dd>
 
-        <!-- Apellido -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Apellido)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Apellido)
-        </dd>
+            <!-- Apellido -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Apellido)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Apellido)
+            </dd>
 
-        <!-- Nombre -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
+            <!-- Nombre -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Nombre)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Nombre)
+            </dd>
 
-        <!-- Teléfono -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Telefono)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Telefono)
-        </dd>
+            <!-- Teléfono -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Telefono)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Telefono)
+            </dd>
 
-        <!-- Email -->
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-    </dl>
+            <!-- Email -->
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Email)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Email)
+            </dd>
+        </dl>
+    </div>
+    
+    <!-- Botones para editar o volver a la lista dentro del card -->
+    <div class="card-footer d-flex justify-content-end">
+        <a asp-action="Edit" asp-route-id="@Model.IdInquilino" class="btn btn-warning btn-sm me-2">
+            Editar
+        </a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">
+            Volver a la lista
+        </a>
+    </div>
 </div>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.IdInquilino" class="btn btn-warning">Editar</a>
-    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
-</div>
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
