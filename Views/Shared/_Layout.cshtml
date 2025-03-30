@@ -1,32 +1,50 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>@ViewData["Title"] - inmobiliariaLopez</title>
+
+  <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Fuente Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Estilos personalizados -->
   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/inmobiliariaLopez.styles.css" asp-append-version="true" />
+
+  <!-- FontAwesome para iconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  
+  <!-- Estilos del Sidebar -->
+  <link rel="stylesheet" href="~/css/sidebar.css" asp-append-version="true" />
 </head>
 
 <body>
   <header>
     <!-- Sidebar Vertical -->
-    <nav class="sidebar bg-light">
+    <nav class="sidebar">
       <div class="d-flex flex-column align-items-center py-4">
         <h4 class="text-center mb-4">Menú</h4>
         <ul class="nav flex-column w-100">
           <li class="nav-item">
-            <a class="nav-link text-dark" href="/"><i class="fas fa-home me-2"></i> Inicio</a>
+            <a class="nav-link text-white" href="/">
+              <i class="fas fa-home me-2"></i> Inicio
+            </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-dark" href="/Propietarios"><i class="fas fa-user-tie me-2"></i> Propietarios</a>
+            <a class="nav-link text-white" href="/Propietarios">
+              <i class="fas fa-user-tie me-2"></i> Propietarios
+            </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link text-dark" href="/Inquilinos"><i class="fas fa-users me-2"></i> Inquilinos</a>
+            <a class="nav-link text-white" href="/Inquilinos">
+              <i class="fas fa-users me-2"></i> Inquilinos
+            </a>
           </li>
         </ul>
       </div>
@@ -41,15 +59,15 @@
   </header>
 
   <!-- Footer -->
-<footer class="footer">
-  <div class="container-fluid d-flex justify-content-center align-items-center h-100">
-    <div class="text-center">
-      &copy; 2025 - inmobiliariaLopez | Prof. Mariano Luzza
+  <footer class="footer bg-light text-muted border-top">
+    <div class="container-fluid d-flex justify-content-center align-items-center h-100">
+      <div class="text-center">
+        &copy; 2025 - inmobiliariaLopez | Prof. Mariano Luzza
+      </div>
     </div>
-  </div>
-</footer>
+  </footer>
 
-
+  <!-- Scripts JS -->
   <script src="~/lib/jquery/dist/jquery.min.js"></script>
   <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="~/js/site.js" asp-append-version="true"></script>
