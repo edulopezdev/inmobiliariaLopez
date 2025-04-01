@@ -14,7 +14,7 @@
     </div>
     <div class="card-body" style="padding: 1.5rem;"> <!-- Padding ajustado para mayor espacio -->
         
-        <form asp-action="Edit" method="post">
+        <form id="form-edit" asp-action="Edit" method="post">
             <!-- Campo oculto para el ID -->
             <input type="hidden" asp-for="IdPropietario" />
 
@@ -43,20 +43,20 @@
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
+
+            <!-- Botón Guardar cambios dentro del formulario -->
+            <div class="card-footer d-flex justify-content-end">
+                <!-- Botón Volver a la lista -->
+                <a asp-action="Index" class="btn btn-secondary btn-sm me-2">
+                    Volver al listado
+                </a>
+
+                <!-- Botón Guardar cambios -->
+                <button type="submit" class="btn btn-primary btn-sm">
+                    Guardar cambios
+                </button>
+            </div>
         </form>
-    </div>
-
-    <!-- Botones dentro del card-footer -->
-    <div class="card-footer d-flex justify-content-end">
-        <!-- Botón Volver a la lista -->
-        <a asp-action="Index" class="btn btn-secondary btn-sm me-2">
-            Volver al listado
-        </a>
-
-        <!-- Botón Guardar cambios -->
-        <button type="submit" class="btn btn-primary btn-sm" form="form-edit">
-            Guardar cambios
-        </button>
     </div>
 </div>
 
