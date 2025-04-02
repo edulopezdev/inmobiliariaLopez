@@ -17,10 +17,6 @@ namespace InmobiliariaLopez.Repositories
 
     // Métodos heredados de IRepositorio<T>
 
-    /// <summary>
-    /// Obtiene todos los propietarios.
-    /// </summary>
-    /// <returns>Lista de propietarios.</returns>
     public IList<Propietario> Index()
     {
       var propietarios = new List<Propietario>();
@@ -57,11 +53,7 @@ namespace InmobiliariaLopez.Repositories
       return propietarios;
     }
 
-    /// <summary>
     /// Obtiene un propietario por su ID.
-    /// </summary>
-    /// <param name="id">ID del propietario.</param>
-    /// <returns>Propietario encontrado o null si no existe.</returns>
     public Propietario? Details(int id)
     {
       Propietario? propietario = null;
@@ -99,11 +91,8 @@ namespace InmobiliariaLopez.Repositories
       return propietario;
     }
 
-    /// <summary>
-    /// Agrega un nuevo propietario.
-    /// </summary>
-    /// <param name="entidad">Datos del propietario a agregar.</param>
-    /// <returns>ID del nuevo propietario.</returns>
+    
+    /// Agrega un nuevo propietario
     public int Create(Propietario entidad)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -134,11 +123,7 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-    /// <summary>
-    /// Actualiza un propietario existente.
-    /// </summary>
-    /// <param name="entidad">Datos actualizados del propietario.</param>
-    /// <returns>Número de filas afectadas.</returns>
+    /// Actualiza un propietario existente
     public int Edit(Propietario entidad)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -170,11 +155,7 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-    /// <summary>
-    /// Elimina un propietario por su ID.
-    /// </summary>
-    /// <param name="id">ID del propietario a eliminar.</param>
-    /// <returns>Número de filas afectadas.</returns>
+    /// Elimina un propietario por su ID
     public int Delete(int id)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -199,11 +180,7 @@ namespace InmobiliariaLopez.Repositories
 
     // Método específico de IRepositorioPropietario
 
-    /// <summary>
-    /// Obtiene un propietario por su DNI.
-    /// </summary>
-    /// <param name="dni">DNI del propietario.</param>
-    /// <returns>Propietario encontrado o null si no existe.</returns>
+    /// Obtiene un propietario por su DNI
     public Propietario? ObtenerPorDNI(string dni)
     {
       Propietario? propietario = null;

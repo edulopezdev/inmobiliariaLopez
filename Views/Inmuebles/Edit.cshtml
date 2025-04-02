@@ -1,0 +1,93 @@
+@model InmobiliariaLopez.Models.Inmueble
+@{
+    ViewData["Title"] = "Editar Inmueble";
+}
+<!-- Título -->
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Inmueble</h1>
+
+<!-- Card para envolver el formulario -->
+<div class="card shadow-lg border-0 rounded-4">
+    <div class="card-header bg-gradient text-dark border-0 rounded-4">
+        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Editar Inmueble</h5>
+    </div>
+    <div class="card-body" style="padding: 1.5rem;">
+        <!-- Formulario para editar el inmueble -->
+        <form asp-action="Edit" method="post">
+            <!-- Campo oculto para el ID del inmueble -->
+            <input type="hidden" asp-for="IdInmueble" />
+
+            <!-- Dirección -->
+            <div class="form-group">
+                <label asp-for="Direccion" class="control-label"></label>
+                <input asp-for="Direccion" class="form-control" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+
+            <!-- Uso (Comercial o Residencial) -->
+            <div class="form-group">
+                <label asp-for="Uso" class="control-label"></label>
+                <select asp-for="Uso" class="form-control">
+                    <option value="Residencial">Residencial</option>
+                    <option value="Comercial">Comercial</option>
+                </select>
+                <span asp-validation-for="Uso" class="text-danger"></span>
+            </div>
+
+            <!-- Tipo de Inmueble -->
+            <div class="form-group">
+                <label asp-for="IdTipoInmueble" class="control-label"></label>
+                <input asp-for="IdTipoInmueble" class="form-control" />
+                <span asp-validation-for="IdTipoInmueble" class="text-danger"></span>
+            </div>
+
+            <!-- Ambientes -->
+            <div class="form-group">
+                <label asp-for="Ambientes" class="control-label"></label>
+                <input asp-for="Ambientes" class="form-control" />
+                <span asp-validation-for="Ambientes" class="text-danger"></span>
+            </div>
+
+            <!-- Coordenadas -->
+            <div class="form-group">
+                <label asp-for="Coordenadas" class="control-label"></label>
+                <input asp-for="Coordenadas" class="form-control" />
+                <span asp-validation-for="Coordenadas" class="text-danger"></span>
+            </div>
+
+            <!-- Precio -->
+            <div class="form-group">
+                <label asp-for="Precio" class="control-label"></label>
+                <input asp-for="Precio" class="form-control" />
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+
+            <!-- Estado -->
+            <div class="form-group">
+                <label asp-for="Estado" class="control-label"></label>
+                <select asp-for="Estado" class="form-control">
+                    <option value="Disponible">Disponible</option>
+                    <option value="No Disponible">No Disponible</option>
+                    <option value="Alquilado">Alquilado</option>
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+
+            <!-- Propietario -->
+            <div class="form-group">
+                <label asp-for="IdPropietario" class="control-label"></label>
+                <input asp-for="IdPropietario" class="form-control" />
+                <span asp-validation-for="IdPropietario" class="text-danger"></span>
+            </div>
+
+            <!-- Botones -->
+            <div class="card-footer d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary btn-sm me-2">Guardar cambios</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
