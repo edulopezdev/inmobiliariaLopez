@@ -17,51 +17,55 @@ namespace InmobiliariaLopez.Repositories
 
     // Métodos heredados de IRepositorio<T>
 
+    // Lista todos los Inmuebles
     public IList<Inmueble> Index()
-{
-    var inmuebles = new List<Inmueble>();
-    using (var connection = _dbConnection.CreateConnection())
     {
+      var inmuebles = new List<Inmueble>();
+      using (var connection = _dbConnection.CreateConnection())
+      {
         try
         {
-            connection.Open();
-            using (var command = new MySqlCommand(
-                "SELECT i.*, t.Nombre AS TipoNombre " +
-                "FROM inmueble i " +
-                "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble",
-                (MySqlConnection)connection))
+          connection.Open();
+          using (var command = new MySqlCommand(
+            "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre " +
+            "FROM inmueble i " +
+            "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
+            "JOIN propietario p ON i.IdPropietario = p.IdPropietario", 
+            (MySqlConnection)connection))
+          {
+            using (var reader = command.ExecuteReader())
             {
-                using (var reader = command.ExecuteReader())
+              while (reader.Read())
+              {
+                inmuebles.Add(new Inmueble
                 {
-                    while (reader.Read())
-                    {
-                        inmuebles.Add(new Inmueble
-                        {
-                            IdInmueble = reader.GetInt32("IdInmueble"),
-                            Direccion = reader.GetString("Direccion"),
-                            Uso = reader.GetString("Uso"),
-                            IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
-                            TipoNombre = reader.GetString("TipoNombre"),
-                            Ambientes = reader.GetInt32("Ambientes"),
-                            Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
-                            Precio = reader.GetDecimal("Precio"),
-                            Estado = reader.GetString("Estado"),
-                            IdPropietario = reader.GetInt32("IdPropietario")
-                        });
-                    }
-                }
+                  IdInmueble = reader.GetInt32("IdInmueble"),
+                  Direccion = reader.GetString("Direccion"),
+                  Uso = reader.GetString("Uso"),
+                  IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
+                  TipoNombre = reader.GetString("TipoNombre"),
+                  Ambientes = reader.GetInt32("Ambientes"),
+                  Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
+                  Precio = reader.GetDecimal("Precio"),
+                  Estado = reader.GetString("Estado"),
+                  IdPropietario = reader.GetInt32("IdPropietario"),
+                  PropietarioApellido = reader.GetString("PropietarioApellido"),
+                  PropietarioNombre = reader.GetString("PropietarioNombre")
+                });
+              }
             }
+          }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al obtener inmuebles: {ex.Message}");
-            throw;
+          Console.WriteLine($"Error al obtener inmuebles: {ex.Message}");
+          throw;
         }
+      }
+      return inmuebles;
     }
-    return inmuebles;
-}
 
-    /// Obtiene un Inmueble por su ID
+    // Obtiene un Inmueble por su ID
     public Inmueble? Details(int id)
     {
       Inmueble? inmueble = null;
@@ -70,7 +74,13 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM inmueble WHERE IdInmueble = @IdInmueble", (MySqlConnection)connection))
+          using (var command = new MySqlCommand(
+            "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre " +
+            "FROM inmueble i " +
+            "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
+            "JOIN propietario p ON i.IdPropietario = p.IdPropietario " +
+            "WHERE i.IdInmueble = @IdInmueble", 
+            (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdInmueble", id);
             using (var reader = command.ExecuteReader())
@@ -83,11 +93,14 @@ namespace InmobiliariaLopez.Repositories
                   Direccion = reader.GetString("Direccion"),
                   Uso = reader.GetString("Uso"),
                   IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
+                  TipoNombre = reader.GetString("TipoNombre"),
                   Ambientes = reader.GetInt32("Ambientes"),
                   Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
                   Precio = reader.GetDecimal("Precio"),
                   Estado = reader.GetString("Estado"),
-                  IdPropietario = reader.GetInt32("IdPropietario")
+                  IdPropietario = reader.GetInt32("IdPropietario"),
+                  PropietarioApellido = reader.GetString("PropietarioApellido"),
+                  PropietarioNombre = reader.GetString("PropietarioNombre")
                 };
               }
             }
@@ -102,7 +115,7 @@ namespace InmobiliariaLopez.Repositories
       return inmueble;
     }
 
-    /// Agrega un nuevo inmueble
+    // Agrega un nuevo inmueble
     public int Create(Inmueble entidad)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -136,7 +149,7 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-    /// Actualiza un inmueble existente
+    // Actualiza un inmueble existente
     public int Edit(Inmueble entidad)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -172,7 +185,7 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-    /// Elimina un inmueble por su ID
+    // Elimina un inmueble por su ID
     public int Delete(int id)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -196,7 +209,7 @@ namespace InmobiliariaLopez.Repositories
 
     // Métodos específicos de IRepositorioInmueble
 
-    /// Obtiene inmuebles  por su propietario
+    // Obtiene inmuebles por su propietario
     public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
     {
       var inmuebles = new List<Inmueble>();
@@ -237,7 +250,7 @@ namespace InmobiliariaLopez.Repositories
       return inmuebles;
     }
 
-    /// Verifica si un inmueble esta disponible en un rango de fechas
+    // Verifica si un inmueble está disponible en un rango de fechas
     public bool EstaDisponibleEnFechas(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -263,6 +276,41 @@ namespace InmobiliariaLopez.Repositories
           throw;
         }
       }
+    }
+
+    // Método para obtener tipos de inmuebles
+    public IEnumerable<TipoInmueble> ObtenerTiposInmuebles()
+    {
+      var tiposInmuebles = new List<TipoInmueble>();
+
+      using (var connection = _dbConnection.CreateConnection())
+      {
+        try
+        {
+          connection.Open();
+          using (var command = new MySqlCommand("SELECT * FROM tipoinmueble", (MySqlConnection)connection))
+          {
+            using (var reader = command.ExecuteReader())
+            {
+              while (reader.Read())
+              {
+                tiposInmuebles.Add(new TipoInmueble
+                {
+                  IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
+                  Nombre = reader.GetString("Nombre")
+                });
+              }
+            }
+          }
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine($"Error al obtener tipos de inmuebles: {ex.Message}");
+          throw;
+        }
+      }
+
+      return tiposInmuebles;
     }
   }
 }

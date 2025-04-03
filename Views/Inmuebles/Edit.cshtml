@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Editar Inmueble";
 }
+
 <!-- Título -->
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Inmueble</h1>
 
@@ -35,8 +36,10 @@
 
             <!-- Tipo de Inmueble -->
             <div class="form-group">
-                <label asp-for="IdTipoInmueble" class="control-label"></label>
-                <input asp-for="IdTipoInmueble" class="form-control" />
+                <label class="control-label">Tipo de Inmueble</label>
+                <select asp-for="IdTipoInmueble" class="form-control" asp-items="ViewBag.TipoInmuebles">
+                    <option value="">Seleccione un tipo</option>
+                </select>
                 <span asp-validation-for="IdTipoInmueble" class="text-danger"></span>
             </div>
 
@@ -74,9 +77,9 @@
 
             <!-- Propietario -->
             <div class="form-group">
-                <label asp-for="IdPropietario" class="control-label"></label>
-                <input asp-for="IdPropietario" class="form-control" />
-                <span asp-validation-for="IdPropietario" class="text-danger"></span>
+                <label class="control-label">Propietario</label>
+                <input value="@Model.PropietarioCompleto" class="form-control" readonly />
+                <input type="hidden" asp-for="IdPropietario" />
             </div>
 
             <!-- Botones -->

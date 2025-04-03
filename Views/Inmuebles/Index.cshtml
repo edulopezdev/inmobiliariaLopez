@@ -46,7 +46,7 @@
                             <td>@inmueble.Ambientes</td>
                             <td>@inmueble.Precio.ToString("C", new CultureInfo("es-AR"))</td>
                             <td>@inmueble.Estado</td>
-                            <td>@inmueble.IdPropietario</td>
+                            <td>@($"{inmueble.PropietarioApellido}, {inmueble.PropietarioNombre}")</td>
                             <td class="text-center">
                                 <!-- Detalles -->
                                 <a asp-action="Details" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del inmueble">

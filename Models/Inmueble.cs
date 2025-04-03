@@ -29,7 +29,12 @@ namespace InmobiliariaLopez.Models
         [Required(ErrorMessage = "El propietario es obligatorio.")]
         public int IdPropietario { get; set; }
 
-        //Nueva propiedad para mostrar nombre del tipo de inmueble
+        // Nueva propiedad para mostrar nombre del tipo de inmueble
         public string? TipoNombre { get; set; }
+        public string? PropietarioApellido { get; set; }
+        public string? PropietarioNombre { get; set; }
+
+        // Nueva propiedad para concatenar apellido y nombre del propietario
+        public string PropietarioCompleto => $"{PropietarioApellido} {PropietarioNombre}";
     }
 }
