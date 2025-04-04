@@ -33,67 +33,69 @@ namespace InmobiliariaLopez.Controllers
       return View(inmueble);
     }
 
-    // GET: Inmuebles/Create
-    public IActionResult Create()
+    // GET: Inmuebles/CreateOrEdit (para Crear o Editar)
+    public IActionResult CreateOrEdit(int? id)
     {
-      return View();
-    }
+      // Obtener tipos de inmuebles para el dropdown
+      var tiposInmuebles = _repositorio.ObtenerTiposInmuebles();
+      ViewBag.TipoInmuebles = new SelectList(tiposInmuebles, "IdTipoInmueble", "Nombre");
 
-    // POST: Inmuebles/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Create(Inmueble inmueble)
-    {
-      if (ModelState.IsValid)
+      if (id == null)
       {
-        _repositorio.Create(inmueble);
-        return RedirectToAction(nameof(Index));
+        // Si no se proporciona un ID, es una creación
+        return View(new Inmueble());
       }
-      return View(inmueble);
-    }
 
-    // GET: Inmuebles/Edit/5
-    public IActionResult Edit(int id)
-    {
-      var inmueble = _repositorio.Details(id);
+      // Si se proporciona un ID, es una edición
+      var inmueble = _repositorio.Details(id.Value);
       if (inmueble == null)
       {
         return NotFound();
       }
 
-      // Obtener los tipos de inmuebles y pasarlos a la vista
-      var tiposInmuebles = _repositorio.ObtenerTiposInmuebles();
-      if (tiposInmuebles == null || !tiposInmuebles.Any())
-      {
-        ModelState.AddModelError("", "No hay tipos de inmuebles disponibles.");
-        return View(inmueble);
-      }
-
-      // Asignar los tipos de inmuebles a ViewBag
-      ViewBag.TipoInmuebles = new SelectList(tiposInmuebles, "IdTipoInmueble", "Nombre", inmueble.IdTipoInmueble);
-
       return View(inmueble);
     }
 
-    // POST: Inmuebles/Edit/5
+    // POST: Inmuebles/CreateOrEdit (para Crear o Editar)
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, Inmueble inmueble)
+[ValidateAntiForgeryToken]
+public IActionResult CreateOrEdit(int? id, Inmueble inmueble)
+{
+    // Validar que el ID coincida con el modelo
+    if (id != null && inmueble.IdInmueble != id)
     {
-      if (id != inmueble.IdInmueble)
-      {
-        return NotFound();
-      }
-
-      if (ModelState.IsValid)
-      {
-        _repositorio.Edit(inmueble); // Asegúrate de que el método `Edit` esté bien implementado en el repositorio
-        return RedirectToAction(nameof(Index));
-      }
-      return View(inmueble);
+        return BadRequest("El ID del inmueble no coincide con el ID proporcionado.");
     }
 
+    if (ModelState.IsValid)
+    {
+        try
+        {
+            if (id == null)
+            {
+                // Crear un nuevo inmueble
+                _repositorio.Create(inmueble);
+            }
+            else
+            {
+                // Actualizar un inmueble existente
+                _repositorio.Edit(inmueble);
+            }
 
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", $"Ocurrió un error al guardar el inmueble: {ex.Message}");
+        }
+    }
+
+    // Si hay errores, volvemos a cargar la vista con los datos actuales
+    var tiposInmuebles = _repositorio.ObtenerTiposInmuebles();
+    ViewBag.TipoInmuebles = new SelectList(tiposInmuebles, "IdTipoInmueble", "Nombre", inmueble.IdTipoInmueble);
+
+    return View(inmueble);
+}
 
     // GET: Inmuebles/Delete/5
     public IActionResult Delete(int id)
@@ -112,6 +114,32 @@ namespace InmobiliariaLopez.Controllers
     public IActionResult DeleteConfirmed(int id)
     {
       _repositorio.Delete(id);
+      return RedirectToAction(nameof(Index));
+    }
+
+    // GET: Inmuebles/PorPropietario/1
+    public IActionResult PorPropietario(int idPropietario)
+    {
+      var inmuebles = _repositorio.ObtenerPorPropietario(idPropietario);
+      if (inmuebles == null || inmuebles.Count == 0)
+      {
+        TempData["Mensaje"] = "No hay inmuebles asociados al propietario seleccionado.";
+      }
+      return View("Index", inmuebles);
+    }
+
+    // GET: Inmuebles/VerificarDisponibilidad/1
+    public IActionResult VerificarDisponibilidad(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
+    {
+      var disponible = _repositorio.EstaDisponibleEnFechas(idInmueble, fechaInicio, fechaFin);
+      if (disponible)
+      {
+        TempData["Mensaje"] = "El inmueble está disponible en el rango de fechas seleccionado.";
+      }
+      else
+      {
+        TempData["Mensaje"] = "El inmueble NO está disponible en el rango de fechas seleccionado.";
+      }
       return RedirectToAction(nameof(Index));
     }
   }

@@ -30,24 +30,24 @@ namespace InmobiliariaLopez.Repositories
             "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre " +
             "FROM inmueble i " +
             "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
-            "JOIN propietario p ON i.IdPropietario = p.IdPropietario", 
+            "JOIN propietario p ON i.IdPropietario = p.IdPropietario",
             (MySqlConnection)connection))
           {
             using (var reader = command.ExecuteReader())
             {
               while (reader.Read())
               {
-                inmuebles.Add(new Inmueble
+                inmuebles.Add(new Inmueble(
+                  reader.GetString("Direccion"),
+                  reader.GetString("Uso"),
+                  reader.GetString("Estado"))
                 {
                   IdInmueble = reader.GetInt32("IdInmueble"),
-                  Direccion = reader.GetString("Direccion"),
-                  Uso = reader.GetString("Uso"),
                   IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
                   TipoNombre = reader.GetString("TipoNombre"),
                   Ambientes = reader.GetInt32("Ambientes"),
                   Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
                   Precio = reader.GetDecimal("Precio"),
-                  Estado = reader.GetString("Estado"),
                   IdPropietario = reader.GetInt32("IdPropietario"),
                   PropietarioApellido = reader.GetString("PropietarioApellido"),
                   PropietarioNombre = reader.GetString("PropietarioNombre")
@@ -68,36 +68,36 @@ namespace InmobiliariaLopez.Repositories
     // Obtiene un Inmueble por su ID
     public Inmueble? Details(int id)
     {
-      Inmueble? inmueble = null;
+      Inmueble? inmueble = null; // Declara la variable inmueble
       using (var connection = _dbConnection.CreateConnection())
       {
         try
         {
           connection.Open();
           using (var command = new MySqlCommand(
-            "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre " +
-            "FROM inmueble i " +
-            "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
-            "JOIN propietario p ON i.IdPropietario = p.IdPropietario " +
-            "WHERE i.IdInmueble = @IdInmueble", 
-            (MySqlConnection)connection))
+              "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre " +
+              "FROM inmueble i " +
+              "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
+              "JOIN propietario p ON i.IdPropietario = p.IdPropietario " +
+              "WHERE i.IdInmueble = @IdInmueble",
+              (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdInmueble", id);
             using (var reader = command.ExecuteReader())
             {
               if (reader.Read())
               {
-                inmueble = new Inmueble
+                inmueble = new Inmueble(
+                    reader.GetString("Direccion"),
+                    reader.GetString("Uso"),
+                    reader.GetString("Estado"))
                 {
                   IdInmueble = reader.GetInt32("IdInmueble"),
-                  Direccion = reader.GetString("Direccion"),
-                  Uso = reader.GetString("Uso"),
                   IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
                   TipoNombre = reader.GetString("TipoNombre"),
                   Ambientes = reader.GetInt32("Ambientes"),
                   Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
                   Precio = reader.GetDecimal("Precio"),
-                  Estado = reader.GetString("Estado"),
                   IdPropietario = reader.GetInt32("IdPropietario"),
                   PropietarioApellido = reader.GetString("PropietarioApellido"),
                   PropietarioNombre = reader.GetString("PropietarioNombre")
@@ -112,7 +112,7 @@ namespace InmobiliariaLopez.Repositories
           throw;
         }
       }
-      return inmueble;
+      return inmueble; // Retorna el inmueble encontrado o null si no se encuentra
     }
 
     // Agrega un nuevo inmueble
@@ -211,44 +211,44 @@ namespace InmobiliariaLopez.Repositories
 
     // Obtiene inmuebles por su propietario
     public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
+{
+    var inmuebles = new List<Inmueble>();
+    using (var connection = _dbConnection.CreateConnection())
     {
-      var inmuebles = new List<Inmueble>();
-      using (var connection = _dbConnection.CreateConnection())
-      {
         try
         {
-          connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM inmueble WHERE IdPropietario = @IdPropietario", (MySqlConnection)connection))
-          {
-            command.Parameters.AddWithValue("@IdPropietario", idPropietario);
-            using (var reader = command.ExecuteReader())
+            connection.Open();
+            using (var command = new MySqlCommand("SELECT * FROM inmueble WHERE IdPropietario = @IdPropietario", (MySqlConnection)connection))
             {
-              while (reader.Read())
-              {
-                inmuebles.Add(new Inmueble
+                command.Parameters.AddWithValue("@IdPropietario", idPropietario);
+                using (var reader = command.ExecuteReader())
                 {
-                  IdInmueble = reader.GetInt32("IdInmueble"),
-                  Direccion = reader.GetString("Direccion"),
-                  Uso = reader.GetString("Uso"),
-                  IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
-                  Ambientes = reader.GetInt32("Ambientes"),
-                  Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
-                  Precio = reader.GetDecimal("Precio"),
-                  Estado = reader.GetString("Estado"),
-                  IdPropietario = reader.GetInt32("IdPropietario")
-                });
-              }
+                    while (reader.Read())
+                    {
+                        inmuebles.Add(new Inmueble(
+                            reader.GetString("Direccion"),
+                            reader.GetString("Uso"),
+                            reader.GetString("Estado"))
+                        {
+                            IdInmueble = reader.GetInt32("IdInmueble"),
+                            IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
+                            Ambientes = reader.GetInt32("Ambientes"),
+                            Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
+                            Precio = reader.GetDecimal("Precio"),
+                            IdPropietario = reader.GetInt32("IdPropietario")
+                        });
+                    }
+                }
             }
-          }
         }
         catch (Exception ex)
         {
-          Console.WriteLine($"Error al obtener inmuebles por propietario: {ex.Message}");
-          throw;
+            Console.WriteLine($"Error al obtener inmuebles por propietario: {ex.Message}");
+            throw;
         }
-      }
-      return inmuebles;
     }
+    return inmuebles;
+}
 
     // Verifica si un inmueble está disponible en un rango de fechas
     public bool EstaDisponibleEnFechas(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
