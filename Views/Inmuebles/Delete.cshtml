@@ -1,19 +1,19 @@
 @model InmobiliariaLopez.Models.Inmueble
 
 @{
-    ViewData["Title"] = "Detalles del Inmueble";
+    ViewData["Title"] = "Eliminar Inmueble";
 }
 
 <!-- Título -->
-<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Detalles del Inmueble</h1>
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Eliminar Inmueble</h1>
 
-<!-- Card para envolver los detalles -->
+<!-- Card para envolver el contenido -->
 <div class="card shadow-lg border-0 rounded-4">
     <div class="card-header bg-gradient text-dark border-0 rounded-4">
-        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Inmueble</h5>
+        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Confirmación de eliminación</h5>
     </div>
-    <div class="card-body" style="padding: 1.5rem;">
-        <h4>Inmueble</h4>
+    <div class="card-body" style="padding: 1.5rem;"> <!-- Padding ajustado para mayor espacio -->
+        <h4>Detalles del Inmueble</h4>
         <hr />
         <dl class="row">
             <!-- ID -->
@@ -23,7 +23,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.IdInmueble)
             </dd>
-
             <!-- Dirección -->
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Direccion)
@@ -31,7 +30,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Direccion)
             </dd>
-
             <!-- Uso -->
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Uso)
@@ -39,7 +37,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Uso)
             </dd>
-
             <!-- Tipo de Inmueble -->
             <dt class="col-sm-2">
                 Tipo de Inmueble
@@ -47,7 +44,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.TipoNombre)
             </dd>
-
             <!-- Ambientes -->
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Ambientes)
@@ -55,7 +51,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Ambientes)
             </dd>
-
             <!-- Coordenadas -->
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Coordenadas)
@@ -63,7 +58,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Coordenadas)
             </dd>
-
             <!-- Precio -->
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Precio)
@@ -71,7 +65,6 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Precio)
             </dd>
-
             <!-- Estado -->
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Estado)
@@ -79,31 +72,27 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.Estado)
             </dd>
-
             <!-- Propietario -->
             <dt class="col-sm-2">
                 Propietario
             </dt>
             <dd class="col-sm-10">
-                @if (!string.IsNullOrEmpty(Model.PropietarioApellido) && !string.IsNullOrEmpty(Model.PropietarioNombre))
-                {
-                    @Html.DisplayFor(model => model.PropietarioCompleto)
-                }
-                else
-                {
-                    <span>Sin propietario asignado</span>
-                }
+                @Html.DisplayFor(model => model.PropietarioCompleto)
             </dd>
         </dl>
+        
+        <h3>¿Está seguro de que desea eliminar este Inmueble?</h3>
     </div>
 
-    <!-- Botones para editar o volver a la lista dentro del card -->
+    <!-- Formulario de eliminación y botones dentro del card -->
     <div class="card-footer d-flex justify-content-end">
-        <a asp-action="CreateOrEdit" asp-route-id="@Model.IdInmueble" class="btn btn-warning btn-sm me-2">
-            Editar
-        </a>
-        <a asp-action="Index" class="btn btn-secondary btn-sm">
-            Volver a la lista
+        <form method="post" asp-action="Delete">
+            @Html.AntiForgeryToken() <!-- Protección contra CSRF -->
+            <input type="hidden" name="id" value="@Model.IdInmueble" />
+            <button type="submit" class="btn btn-danger btn-sm me-2">Eliminar</button>
+        </form>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">
+            Volver al listado
         </a>
     </div>
 </div>

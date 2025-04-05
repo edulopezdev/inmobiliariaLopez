@@ -2,17 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
+using System;
 
 namespace InmobiliariaLopez.Controllers
 {
   public class InmueblesController : Controller
   {
     private readonly IRepositorioInmueble _repositorio;
+    private readonly IRepositorioPropietario _repoPropietario;
 
-    // Constructor para inyectar el repositorio
-    public InmueblesController(IRepositorioInmueble repositorio)
+    public InmueblesController(IRepositorioInmueble repositorio, IRepositorioPropietario repoPropietario)
     {
       _repositorio = repositorio;
+      _repoPropietario = repoPropietario;
     }
 
     // GET: Inmuebles
@@ -33,69 +35,78 @@ namespace InmobiliariaLopez.Controllers
       return View(inmueble);
     }
 
-    // GET: Inmuebles/CreateOrEdit (para Crear o Editar)
+    // GET: Inmuebles/CreateOrEdit
+    // GET: Inmuebles/CreateOrEdit
     public IActionResult CreateOrEdit(int? id)
     {
-      // Obtener tipos de inmuebles para el dropdown
-      var tiposInmuebles = _repositorio.ObtenerTiposInmuebles();
-      ViewBag.TipoInmuebles = new SelectList(tiposInmuebles, "IdTipoInmueble", "Nombre");
-
+      // Crear un nuevo inmueble si no se proporciona un ID
       if (id == null)
       {
-        // Si no se proporciona un ID, es una creación
+        // Proporcionar la lista de propietarios para el campo desplegable
+        ViewBag.Propietarios = new SelectList(_repoPropietario.Index(), "IdPropietario", "Nombre");
+
+        // Proporcionar la lista de tipos de inmuebles para el campo desplegable
+        ViewBag.TiposInmueble = new SelectList(_repositorio.ObtenerTiposInmuebles(), "IdTipoInmueble", "Nombre");
+
         return View(new Inmueble());
       }
 
-      // Si se proporciona un ID, es una edición
+      // Cargar el inmueble existente si se proporciona un ID
       var inmueble = _repositorio.Details(id.Value);
       if (inmueble == null)
       {
         return NotFound();
       }
 
+      // Proporcionar la lista de propietarios para el campo desplegable
+      ViewBag.Propietarios = new SelectList(_repoPropietario.Index(), "IdPropietario", "Nombre", inmueble.IdPropietario);
+
+      // Proporcionar la lista de tipos de inmuebles para el campo desplegable
+      ViewBag.TiposInmueble = new SelectList(_repositorio.ObtenerTiposInmuebles(), "IdTipoInmueble", "Nombre", inmueble.IdTipoInmueble);
+
       return View(inmueble);
     }
-
-    // POST: Inmuebles/CreateOrEdit (para Crear o Editar)
+    // POST: Inmuebles/CreateOrEdit
     [HttpPost]
-[ValidateAntiForgeryToken]
-public IActionResult CreateOrEdit(int? id, Inmueble inmueble)
-{
-    // Validar que el ID coincida con el modelo
-    if (id != null && inmueble.IdInmueble != id)
+    [ValidateAntiForgeryToken]
+    public IActionResult CreateOrEdit(int? id, Inmueble inmueble)
     {
+      // Validar que el ID coincida con el modelo
+      if (id != null && inmueble.IdInmueble != id)
+      {
         return BadRequest("El ID del inmueble no coincide con el ID proporcionado.");
-    }
+      }
 
-    if (ModelState.IsValid)
-    {
+      if (ModelState.IsValid)
+      {
         try
         {
-            if (id == null)
-            {
-                // Crear un nuevo inmueble
-                _repositorio.Create(inmueble);
-            }
-            else
-            {
-                // Actualizar un inmueble existente
-                _repositorio.Edit(inmueble);
-            }
+          if (id == null)
+          {
+            // Crear un nuevo inmueble
+            _repositorio.Create(inmueble);
+            TempData["Mensaje"] = "Inmueble creado correctamente";
+          }
+          else
+          {
+            // Editar un inmueble existente
+            _repositorio.Edit(inmueble);
+            TempData["Mensaje"] = "Inmueble modificado correctamente";
+          }
 
-            return RedirectToAction(nameof(Index));
+          return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", $"Ocurrió un error al guardar el inmueble: {ex.Message}");
+          ModelState.AddModelError("", $"Ocurrió un error al guardar el inmueble: {ex.Message}");
         }
+      }
+
+      // Si hay errores, volvemos a cargar la vista con los datos actuales
+      ViewBag.Propietarios = new SelectList(_repoPropietario.Index(), "IdPropietario", "Nombre", inmueble.IdPropietario);
+
+      return View(inmueble);
     }
-
-    // Si hay errores, volvemos a cargar la vista con los datos actuales
-    var tiposInmuebles = _repositorio.ObtenerTiposInmuebles();
-    ViewBag.TipoInmuebles = new SelectList(tiposInmuebles, "IdTipoInmueble", "Nombre", inmueble.IdTipoInmueble);
-
-    return View(inmueble);
-}
 
     // GET: Inmuebles/Delete/5
     public IActionResult Delete(int id)

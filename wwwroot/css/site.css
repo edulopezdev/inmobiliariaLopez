@@ -1,3 +1,7 @@
+/* ===================================================
+   Estilos Generales
+   =================================================== */
+
 /* Establecer el fondo de la página */
 body {
   background: url('/images/fondo_app.jpg') no-repeat center center fixed;
@@ -5,29 +9,83 @@ body {
   color: #333; /* Asegura que el texto sea legible */
 }
 
-/* Eliminar líneas horizontales en la tabla */
+/* Estilos de los títulos principales */
+h1 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.8rem;
+  text-align: center;
+  color: #007bff; /* Color primario */
+  margin-bottom: 1.5rem;
+}
+
+/* ===================================================
+   Estilos de las Tarjetas (Card)
+   =================================================== */
+
+/* Estilos globales para las tarjetas */
+.card {
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+/* Estilos de las cabeceras de las tarjetas */
+.card-header {
+  background: linear-gradient(to right, #343a40, #6c757d);
+  color: white;
+  border: none;
+  padding: 10px;
+}
+
+/* Estilo del cuerpo de las tarjetas */
+.card-body {
+  padding: 20px;
+}
+
+/* ===================================================
+   Estilos de la Tabla
+   =================================================== */
+
+/* Eliminar líneas horizontales y verticales en la tabla */
 .table-bordered {
   border-collapse: collapse;
   width: 100%;
 }
 
+/* Eliminar las líneas verticales y horizontales */
 .table-bordered th, .table-bordered td {
-  border: none; /* Eliminar todas las líneas de las celdas */
-  padding: 8px;
-  text-align: left;
-}
-
-.table-bordered tbody tr:nth-child(even) {
-  background-color: #f8f9fa; /* Fondo alternativo para filas pares */
+  border: none; /* Elimina todas las líneas de las celdas */
+  padding: 10px 12px; /* Ajustar padding para celdas */
+  text-align: center; /* Alineación horizontal centrada */
+  vertical-align: middle; /* Alineación vertical al centro */
 }
 
 /* Estilo de los encabezados de la tabla */
 .table thead th {
   background-color: #2c3e50; /* Color del encabezado */
   color: white;
-  padding: 8px;
-  text-align: center;
+  text-align: center; /* Alineación horizontal centrada */
+  padding: 10px 12px; /* Ajustar padding para los encabezados */
+  font-weight: 600; /* Negrita para los títulos */
+  letter-spacing: 0.5px; /* Espaciado entre letras */
 }
+
+/* Estilo de las celdas de la tabla */
+.table td {
+  font-size: 0.85rem; /* Ajustar el tamaño de las celdas */
+  text-align: center; /* Alineación horizontal centrada para los datos */
+  padding: 8px 12px; /* Ajustar padding en las celdas */
+}
+
+/* Alternancia de color en las filas de la tabla */
+.table-bordered tbody tr:nth-child(even) {
+  background-color: #f8f9fa; /* Fondo alternativo para filas pares */
+}
+
+/* ===================================================
+   Estilos de los Botones
+   =================================================== */
 
 /* Botones de acción */
 .btn-info {
@@ -45,6 +103,31 @@ body {
 .btn-danger {
   background-color: #dc3545 !important; /* Rojo */
   border-color: #dc3545 !important;
+  color: white;
+}
+
+/* Estilos para los botones de acción dentro de las tablas */
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: white;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
   color: white;
 }
 
@@ -74,98 +157,13 @@ body {
   margin-right: 5px;
 }
 
-/* Ajustes adicionales para la tabla */
-.table {
-  font-size: 0.85rem; /* Reducir el tamaño de la fuente de la tabla */
-  width: 100%; /* Limitar el ancho de la tabla */
-  margin: 0 auto; /* Centrar la tabla */
-  padding-left: 0;
-  padding-right: 0;
-}
+/* ===================================================
+   Estilos de las Acciones y Tooltips
+   =================================================== */
 
-.table th, .table td {
-  padding: 8px 12px; /* Reducir el padding de las celdas */
-}
-
-.table th {
-  font-size: 1rem; /* Ajustar el tamaño de los encabezados */
-}
-
-.table td {
-  font-size: 0.85rem; /* Ajustar el tamaño de las celdas */
-}
-
-.btn-sm {
-  font-size: 0.875rem; /* Reducir el tamaño de los botones */
-  padding: 5px 10px; /* Reducir el padding de los botones */
-}
-
-.card-body {
-  padding: 20px;
-}
-
-.card-header {
-  padding: 10px;
-}
-
-/* Estilos del título */
-h1 {
-  font-family: 'Roboto', sans-serif;
-  font-size: 1.8rem;
-  text-align: center;
-  color: #007bff; /* Color primario */
-  margin-bottom: 1.5rem;
-}
-
-/* Estilos globales para las tarjetas */
-.card {
-  border-radius: 4px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 90%;
-  margin: 0 auto;
-}
-
-/* Estilos de las cabeceras de las tarjetas */
-.card-header {
-  background: linear-gradient(to right, #343a40, #6c757d);
-  color: white;
-  border: none;
-}
-
-/* Estilo de los botones de acción */
-.btn-link {
-  color: inherit;
-  text-decoration: none;
-  font-size: 1rem;
-}
-
-.btn-link i {
+/* Estilos de los botones de acción en la tabla */
+.table td .btn {
   margin-right: 8px;
-}
-
-/* Estilos de los botones de acción dentro de las tablas */
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: white;
-}
-
-.btn-info {
-  background-color: #17a2b8;
-  border-color: #17a2b8;
-  color: white;
-}
-
-.btn-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
-  color: white;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
-  color: white;
 }
 
 /* Tooltip */
@@ -173,22 +171,26 @@ h1 {
   cursor: pointer;
 }
 
-/* Estilo para las celdas de las tablas */
-.table th, .table td {
-  padding: 10px 12px;
+.tooltip-inner {
+  background-color: #007bff;
+  color: white;
 }
 
-.table th {
-  font-weight: 600;
-  letter-spacing: 0.5px;
+/* ===================================================
+   Estilos de los Botones Pequeños
+   =================================================== */
+
+/* Botones pequeños */
+.btn-sm {
+  font-size: 0.875rem; /* Reducir el tamaño de los botones */
+  padding: 5px 10px; /* Reducir el padding de los botones */
 }
 
-/* Ajustes para las acciones de las filas de la tabla */
-.table td .btn {
-  margin-right: 8px;
-}
+/* ===================================================
+   Estilos de las Alertas
+   =================================================== */
 
-/* Añadir margenes para las alertas */
+/* Añadir márgenes para las alertas */
 .alert {
   margin-top: 20px;
 }
