@@ -17,10 +17,7 @@ namespace InmobiliariaLopez.Repositories
 
     // Métodos heredados de IRepositorio<T>
 
-    /// <summary>
-    /// Obtiene todos los Inquilinos.
-    /// </summary>
-    /// <returns>Lista de Inquilinos.</returns>
+    /// Lista de Inquilinos
     public IList<Inquilino> Index()
     {
       var Inquilinos = new List<Inquilino>();
@@ -29,7 +26,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM Inquilino", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT IdInquilino, DNI, Apellido, Nombre, Telefono, Email FROM Inquilino WHERE Activo = 1", (MySqlConnection)connection))
           {
             using (var reader = command.ExecuteReader())
             {
@@ -57,11 +54,7 @@ namespace InmobiliariaLopez.Repositories
       return Inquilinos;
     }
 
-    /// <summary>
-    /// Obtiene un Inquilino por su ID.
-    /// </summary>
-    /// <param name="id">ID del Inquilino.</param>
-    /// <returns>Inquilino encontrado o null si no existe.</returns>
+    /// Obtiene un Inquilino por su ID
     public Inquilino? Details(int id)
     {
       Inquilino? Inquilino = null;
@@ -70,7 +63,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM Inquilino WHERE IdInquilino = @IdInquilino", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT IdInquilino, DNI, Apellido, Nombre, Telefono, Email FROM Inquilino WHERE IdInquilino = @IdInquilino AND Activo = 1", (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdInquilino", id);
             using (var reader = command.ExecuteReader())
@@ -99,11 +92,7 @@ namespace InmobiliariaLopez.Repositories
       return Inquilino;
     }
 
-    /// <summary>
-    /// Agrega un nuevo Inquilino.
-    /// </summary>
-    /// <param name="entidad">Datos del Inquilino a agregar.</param>
-    /// <returns>ID del nuevo Inquilino.</returns>
+    /// Agrega un nuevo Inquilino
     public int Create(Inquilino entidad)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -134,11 +123,7 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-    /// <summary>
-    /// Actualiza un Inquilino existente.
-    /// </summary>
-    /// <param name="entidad">Datos actualizados del Inquilino.</param>
-    /// <returns>Número de filas afectadas.</returns>
+    /// Actualiza un Inquilino existente
     public int Edit(Inquilino entidad)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -170,11 +155,7 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-    /// <summary>
-    /// Elimina un Inquilino por su ID.
-    /// </summary>
-    /// <param name="id">ID del Inquilino a eliminar.</param>
-    /// <returns>Número de filas afectadas.</returns>
+    /// Elimina un Inquilino por su ID
     public int Delete(int id)
     {
       using (var connection = _dbConnection.CreateConnection())
@@ -182,28 +163,28 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("DELETE FROM Inquilino WHERE IdInquilino = @IdInquilino", (MySqlConnection)connection))
+          using (var command = new MySqlCommand())
           {
+            command.Connection = (MySqlConnection)connection;
+            command.CommandText = @"
+                        UPDATE Inquilino
+                        SET Activo = 0
+                        WHERE IdInquilino = @IdInquilino";
             command.Parameters.AddWithValue("@IdInquilino", id);
             return command.ExecuteNonQuery(); // Retorna el número de filas afectadas
           }
         }
         catch (Exception ex)
         {
-          Console.WriteLine($"Error al eliminar Inquilino: {ex.Message}");
+          Console.WriteLine($"Error al dar de baja Inquilino: {ex.Message}");
           throw;
         }
       }
     }
 
+    // Métodos específicos de IRepositorioInquilino
 
-    // Método específico de IRepositorioInquilino
-
-    /// <summary>
-    /// Obtiene un Inquilino por su DNI.
-    /// </summary>
-    /// <param name="dni">DNI del Inquilino.</param>
-    /// <returns>Inquilino encontrado o null si no existe.</returns>
+    /// Obtiene un Inquilino por su DNI
     public Inquilino? ObtenerPorDNI(string dni)
     {
       Inquilino? Inquilino = null;
@@ -212,7 +193,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM Inquilino WHERE DNI = @DNI", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT * FROM Inquilino WHERE DNI = @DNI AND Activo = 1", (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@DNI", dni);
             using (var reader = command.ExecuteReader())
@@ -240,5 +221,6 @@ namespace InmobiliariaLopez.Repositories
       }
       return Inquilino;
     }
+
   }
 }

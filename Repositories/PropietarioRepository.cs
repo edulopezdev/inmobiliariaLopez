@@ -17,6 +17,7 @@ namespace InmobiliariaLopez.Repositories
 
     // Métodos heredados de IRepositorio<T>
 
+    /// Lista todos los propietarios
     public IList<Propietario> Index()
     {
       var propietarios = new List<Propietario>();
@@ -25,7 +26,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM propietario", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT IdPropietario, DNI, Apellido, Nombre, Telefono, Email FROM propietario WHERE Activo = 1", (MySqlConnection)connection))
           {
             using (var reader = command.ExecuteReader())
             {
@@ -62,7 +63,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM propietario WHERE IdPropietario = @IdPropietario", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT IdPropietario, DNI, Apellido, Nombre, Telefono, Email FROM propietario WHERE IdPropietario = @IdPropietario AND Activo = 1", (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdPropietario", id);
             using (var reader = command.ExecuteReader())
@@ -91,7 +92,7 @@ namespace InmobiliariaLopez.Repositories
       return propietario;
     }
 
-    
+
     /// Agrega un nuevo propietario
     public int Create(Propietario entidad)
     {
@@ -163,7 +164,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("DELETE FROM propietario WHERE IdPropietario = @IdPropietario", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("UPDATE propietario SET Activo = 0 WHERE IdPropietario = @IdPropietario", (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdPropietario", id);
             return command.ExecuteNonQuery(); // Retorna el número de filas afectadas
@@ -177,7 +178,6 @@ namespace InmobiliariaLopez.Repositories
       }
     }
 
-
     // Método específico de IRepositorioPropietario
 
     /// Obtiene un propietario por su DNI
@@ -189,7 +189,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM propietario WHERE DNI = @DNI", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT IdPropietario, DNI, Apellido, Nombre, Telefono, Email FROM propietario WHERE DNI = @DNI AND Activo = 1", (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@DNI", dni);
             using (var reader = command.ExecuteReader())
@@ -217,5 +217,6 @@ namespace InmobiliariaLopez.Repositories
       }
       return propietario;
     }
+
   }
 }

@@ -21,6 +21,7 @@ namespace InmobiliariaLopez.Repositories
     public IList<Inmueble> Index()
     {
       var inmuebles = new List<Inmueble>();
+
       using (var connection = _dbConnection.CreateConnection())
       {
         try
@@ -30,7 +31,8 @@ namespace InmobiliariaLopez.Repositories
             "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre " +
             "FROM inmueble i " +
             "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
-            "JOIN propietario p ON i.IdPropietario = p.IdPropietario",
+            "JOIN propietario p ON i.IdPropietario = p.IdPropietario " +
+            "WHERE i.Activo = 1 AND p.Activo = 1", // Solo inmuebles y propietarios activos
             (MySqlConnection)connection))
           {
             using (var reader = command.ExecuteReader())
@@ -62,8 +64,10 @@ namespace InmobiliariaLopez.Repositories
           throw;
         }
       }
+
       return inmuebles;
     }
+
 
     // Obtiene un Inmueble por su ID
     public Inmueble? Details(int id)
@@ -79,8 +83,8 @@ namespace InmobiliariaLopez.Repositories
               "FROM inmueble i " +
               "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble " +
               "JOIN propietario p ON i.IdPropietario = p.IdPropietario " +
-              "WHERE i.IdInmueble = @IdInmueble",
-              (MySqlConnection)connection))
+              "WHERE i.IdInmueble = @IdInmueble AND i.Activo = 1 AND p.Activo = 1",  // Filtramos para que sea activo el inmueble y el propietario
+             (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdInmueble", id);
             using (var reader = command.ExecuteReader())
@@ -193,7 +197,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("DELETE FROM inmueble WHERE IdInmueble = @IdInmueble", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("UPDATE inmueble SET Activo = 0 WHERE IdInmueble = @IdInmueble", (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdInmueble", id);
             return command.ExecuteNonQuery(); // Retorna el número de filas afectadas
@@ -211,44 +215,45 @@ namespace InmobiliariaLopez.Repositories
 
     // Obtiene inmuebles por su propietario
     public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
-{
-    var inmuebles = new List<Inmueble>();
-    using (var connection = _dbConnection.CreateConnection())
     {
+      var inmuebles = new List<Inmueble>();
+      using (var connection = _dbConnection.CreateConnection())
+      {
         try
         {
-            connection.Open();
-            using (var command = new MySqlCommand("SELECT * FROM inmueble WHERE IdPropietario = @IdPropietario", (MySqlConnection)connection))
+          connection.Open();
+          using (var command = new MySqlCommand("SELECT * FROM inmueble WHERE IdPropietario = @IdPropietario AND Activo = 1", (MySqlConnection)connection))
+          {
+            command.Parameters.AddWithValue("@IdPropietario", idPropietario);
+            using (var reader = command.ExecuteReader())
             {
-                command.Parameters.AddWithValue("@IdPropietario", idPropietario);
-                using (var reader = command.ExecuteReader())
+              while (reader.Read())
+              {
+                inmuebles.Add(new Inmueble(
+                    reader.GetString("Direccion"),
+                    reader.GetString("Uso"),
+                    reader.GetString("Estado"))
                 {
-                    while (reader.Read())
-                    {
-                        inmuebles.Add(new Inmueble(
-                            reader.GetString("Direccion"),
-                            reader.GetString("Uso"),
-                            reader.GetString("Estado"))
-                        {
-                            IdInmueble = reader.GetInt32("IdInmueble"),
-                            IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
-                            Ambientes = reader.GetInt32("Ambientes"),
-                            Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
-                            Precio = reader.GetDecimal("Precio"),
-                            IdPropietario = reader.GetInt32("IdPropietario")
-                        });
-                    }
-                }
+                  IdInmueble = reader.GetInt32("IdInmueble"),
+                  IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
+                  Ambientes = reader.GetInt32("Ambientes"),
+                  Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas")) ? null : reader.GetString("Coordenadas"),
+                  Precio = reader.GetDecimal("Precio"),
+                  IdPropietario = reader.GetInt32("IdPropietario")
+                });
+              }
             }
+          }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al obtener inmuebles por propietario: {ex.Message}");
-            throw;
+          Console.WriteLine($"Error al obtener inmuebles por propietario: {ex.Message}");
+          throw;
         }
+      }
+      return inmuebles;
     }
-    return inmuebles;
-}
+
 
     // Verifica si un inmueble está disponible en un rango de fechas
     public bool EstaDisponibleEnFechas(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
@@ -258,9 +263,13 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand(
-              "SELECT COUNT(*) FROM contrato WHERE IdInmueble = @IdInmueble AND " +
-              "((@FechaInicio BETWEEN FechaInicio AND FechaFin) OR (@FechaFin BETWEEN FechaInicio AND FechaFin))",
+          using (var command = new MySqlCommand(@"
+          SELECT COUNT(*) 
+          FROM contrato c
+          INNER JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+          WHERE c.IdInmueble = @IdInmueble 
+            AND i.Activo = 1
+            AND ((@FechaInicio BETWEEN FechaInicio AND FechaFin) OR (@FechaFin BETWEEN FechaInicio AND FechaFin))",
               (MySqlConnection)connection))
           {
             command.Parameters.AddWithValue("@IdInmueble", idInmueble);
@@ -288,7 +297,7 @@ namespace InmobiliariaLopez.Repositories
         try
         {
           connection.Open();
-          using (var command = new MySqlCommand("SELECT * FROM tipoinmueble", (MySqlConnection)connection))
+          using (var command = new MySqlCommand("SELECT * FROM tipoinmueble WHERE Activo = 1", (MySqlConnection)connection))
           {
             using (var reader = command.ExecuteReader())
             {

@@ -36,7 +36,6 @@ namespace InmobiliariaLopez.Controllers
     }
 
     // GET: Inmuebles/CreateOrEdit
-    // GET: Inmuebles/CreateOrEdit
     public IActionResult CreateOrEdit(int? id)
     {
       // Crear un nuevo inmueble si no se proporciona un ID
