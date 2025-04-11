@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations; // Importa para los atributos de validación (opcional)
 
 namespace InmobiliariaLopez.Models
 {
@@ -20,5 +21,16 @@ namespace InmobiliariaLopez.Models
         // Extras para mostrar en la vista
         public string? DireccionInmueble { get; set; }
         public string? NombreInquilino { get; set; }
+
+        // Propiedades para Propietario
+        public int IdPropietario { get; set; } // Clave externa al Propietario
+        public string? NombrePropietario { get; set; } // Para mostrar el nombre en la vista
+
+        // Propiedades de Navegación (Opcional, si usas Entity Framework)
+        // Estas propiedades permiten a Entity Framework 
+        // cargar automáticamente las entidades relacionadas.
+        public Inmueble? Inmueble { get; set; }
+        public Inquilino? Inquilino { get; set; }
+        public Propietario? Propietario { get; set; }
     }
 }

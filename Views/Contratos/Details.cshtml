@@ -1,0 +1,144 @@
+@model InmobiliariaLopez.Models.Contrato
+
+@{
+  ViewData["Title"] = "Detalles del Contrato";
+}
+
+@using System.Globalization;
+
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Detalles del
+  Contrato</h1>
+
+<div class="card shadow-lg border-0 rounded-4">
+  <div class="card-header bg-gradient text-dark border-0 rounded-4">
+    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Contrato</h5>
+  </div>
+  <div class="card-body" style="padding: 1.5rem;">
+    <h4>Contrato</h4>
+    <hr />
+    <dl class="row">
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.IdContrato)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.IdContrato)
+      </dd>
+
+      <dt class="col-sm-2">
+        Inmueble
+      </dt>
+      <dd class="col-sm-10">
+        @Model.DireccionInmueble
+        <a asp-controller="Inmuebles" asp-action="Details" asp-route-id="@Model.IdInmueble" class="btn-link ms-2"
+          data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del inmueble">
+          <i class="fas fa-eye"></i>
+        </a>
+      </dd>
+
+      <dt class="col-sm-2">
+        Inquilino
+      </dt>
+      <dd class="col-sm-10">
+        @Model.NombreInquilino
+        <a asp-controller="Inquilinos" asp-action="Details" asp-route-id="@Model.IdInquilino" class="btn-link ms-2"
+          data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del inquilino">
+          <i class="fas fa-eye"></i>
+        </a>
+      </dd>
+
+      <dt class="col-sm-2">
+        Fecha de Inicio
+      </dt>
+      <dd class="col-sm-10">
+        @Model.FechaInicio.ToShortDateString()
+      </dd>
+
+      <dt class="col-sm-2">
+        Fecha de Fin
+      </dt>
+      <dd class="col-sm-10">
+        @Model.FechaFin.ToShortDateString()
+      </dd>
+
+      <dt class="col-sm-2">
+        Monto Mensual
+      </dt>
+      <dd class="col-sm-10">
+        @Model.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))
+      </dd>
+
+      <dt class="col-sm-2">
+        Multa
+      </dt>
+      <dd class="col-sm-10">
+        @if (Model.Multa.HasValue)
+        {
+          @Model.Multa.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))
+        }
+        else
+        {
+          @:-
+        }
+      </dd>
+
+      <dt class="col-sm-2">
+        Fecha de Creación
+      </dt>
+      <dd class="col-sm-10">
+        @Model.FechaCreacion.ToShortDateString()
+      </dd>
+
+      <dt class="col-sm-2">
+        Fecha de Rescisión
+      </dt>
+      <dd class="col-sm-10">
+        @if (Model.FechaRescision.HasValue)
+        {
+          @Model.FechaRescision.Value.ToShortDateString()
+        }
+        else
+        {
+          @:-
+        }
+      </dd>
+
+      <dt class="col-sm-2">
+        Activo
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Activo)
+      </dd>
+
+      <dt class="col-sm-2">
+        Propietario
+      </dt>
+      <dd class="col-sm-10">
+        @Model.NombrePropietario
+        <a asp-controller="Propietarios" asp-action="Details" asp-route-id="@Model.IdPropietario" class="btn-link ms-2"
+          data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del propietario">
+          <i class="fas fa-eye"></i>
+        </a>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="card-footer d-flex justify-content-end">
+    <a asp-action="Edit" asp-route-id="@Model.IdContrato" class="btn btn-warning btn-sm me-2">
+      Editar
+    </a>
+    <a asp-action="Index" class="btn btn-secondary btn-sm">
+      Volver a la lista
+    </a>
+  </div>
+</div>
+
+@section Scripts {
+  @await Html.PartialAsync("_ValidationScriptsPartial")
+  <script>
+    // Activar tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+      new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  </script>
+}

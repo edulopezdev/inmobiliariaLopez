@@ -16,9 +16,15 @@ builder.Services.AddTransient<DatabaseConnection>();
 builder.Services.AddScoped<IRepositorioPropietario, PropietarioRepository>();
 builder.Services.AddScoped<IRepositorioInquilino, InquilinoRepository>();
 builder.Services.AddScoped<IRepositorioInmueble, InmuebleRepository>();
+builder.Services.AddScoped<IRepositorioContrato, ContratoRepository>();
 
 // Creamos la aplicación web
 var app = builder.Build();
+
+// Configurar la cultura
+var cultureInfo = new CultureInfo("es-AR");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Configuramos el pipeline de solicitudes HTTP
 if (!app.Environment.IsDevelopment())
