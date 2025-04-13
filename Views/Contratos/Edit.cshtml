@@ -1,0 +1,175 @@
+@model InmobiliariaLopez.Models.Contrato
+
+@{
+  ViewData["Title"] = "Editar Contrato";
+}
+
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Contrato
+</h1>
+
+<div class="card shadow-lg border-0 rounded-4">
+  <div class="card-header bg-gradient text-dark border-0 rounded-4">
+    <h5 class="mb-0">Editar Contrato</h5>
+  </div>
+  <div class="card-body" style="padding: 1.5rem;">
+    <form id="editContratoForm" asp-action="Edit" method="post">
+      @Html.AntiForgeryToken()
+      <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+      <input type="hidden" asp-for="IdContrato" />
+      <input type="hidden" asp-for="EstadoContrato" value="@Model.EstadoContrato" />
+
+      <div class="form-group">
+        <label class="control-label">Usuario Sistema</label>
+        <select asp-for="IdUsuarioCrea" class="form-control" disabled>
+          <option value="1">Usuario 1</option>
+          <option value="2">Usuario 2</option>
+        </select>
+        <input type="hidden" asp-for="IdUsuarioCrea" value="@Model.IdUsuarioCrea" />
+        <span asp-validation-for="IdUsuarioCrea" class="text-danger"></span>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="control-label">Inmueble</label>
+        <select class="form-control" asp-items="ViewBag.Inmuebles" disabled>
+          <option value="">Seleccione un inmueble</option>
+        </select>
+        <input type="hidden" asp-for="IdInmueble" value="@Model.IdInmueble" />
+        <span asp-validation-for="IdInmueble" class="text-danger"></span>
+      </div>
+
+      <div class="form-group mb-3">
+        <label class="control-label">Inquilino</label>
+        <select class="form-control" asp-items="ViewBag.Inquilinos" disabled>
+          <option value="">Seleccione un inquilino</option>
+        </select>
+        <input type="hidden" asp-for="IdInquilino" value="@Model.IdInquilino" />
+        <span asp-validation-for="IdInquilino" class="text-danger"></span>
+      </div>
+
+      <div class="form-group">
+        <label asp-for="FechaInicio" class="control-label"></label>
+        <input asp-for="FechaInicio" type="date" class="form-control" />
+        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+      </div>
+
+      <div class="form-group">
+        <label asp-for="FechaFin" class="control-label"></label>
+        <input asp-for="FechaFin" type="date" class="form-control" />
+        <span asp-validation-for="FechaFin" class="text-danger"></span>
+      </div>
+
+      <div class="form-group">
+        <label asp-for="MontoMensual" class="control-label"></label>
+        <input asp-for="MontoMensual" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="MontoMensual" class="text-danger"></span>
+      </div>
+
+      <div class="form-group">
+        <label asp-for="Multa" class="control-label"></label>
+        <input asp-for="Multa" type="number" step="0.01" class="form-control" readonly />
+        <span asp-validation-for="Multa" class="text-danger"></span>
+      </div>
+
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="anularContratoCheck" name="AnularContrato">
+        <label class="form-check-label" for="anularContratoCheck">Anular Contrato</label>
+      </div>
+
+      <div class="form-group" id="motivoAnulacion" style="display: none;">
+        <label for="MotivoAnulacion">Motivo de Anulación</label>
+        <textarea id="MotivoAnulacion" name="MotivoAnulacion" class="form-control"></textarea>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary btn-sm me-2" id="guardarButton">Guardar Cambios</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  @{
+    await Html.PartialAsync("_ValidationScriptsPartial");
+  }
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const form = document.getElementById('editContratoForm');
+      const anularContratoCheck = document.getElementById('anularContratoCheck');
+      const motivoAnulacionDiv = document.getElementById('motivoAnulacion');
+      const motivoAnulacionInput = document.getElementById('MotivoAnulacion');
+
+      // Manejo del checkbox "Anular Contrato"
+      anularContratoCheck.addEventListener('change', function () {
+        motivoAnulacionDiv.style.display = this.checked ? 'block' : 'none';
+        motivoAnulacionInput.disabled = !this.checked;
+        if (!this.checked) {
+          motivoAnulacionInput.value = '';
+        }
+      });
+
+      // Manejo del envío del formulario
+      form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevenir el envío predeterminado
+
+        const formData = new FormData(form);
+        fetch('@Url.Action("Edit")', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+          .then(response => {
+            console.log('Respuesta del servidor:', response); // Log de la respuesta del servidor
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                title: '¡Éxito!',
+                text: 'Contrato modificado correctamente.',
+                icon: 'success',
+                confirmButtonText: 'Ok'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  window.location.href = data.redirectUrl;
+                }
+              });
+            } else {
+              let errorMessage = 'Error al modificar el contrato.';
+              if (data.message) {
+                errorMessage = data.message;
+              } else if (data.errors) {
+                let errorMessages = [];
+                for (const key in data.errors) {
+                  if (data.errors.hasOwnProperty(key)) {
+                    errorMessages.push(`${key}: ${data.errors[key].join(', ')}`);
+                  }
+                }
+                if (errorMessages.length > 0) {
+                  errorMessage = errorMessages.join('<br>');
+                }
+              }
+              Swal.fire({
+                title: '¡Error!',
+                html: errorMessage,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error en la petición AJAX:', error); // Log de errores en la solicitud AJAX
+            Swal.fire({
+              title: '¡Error!',
+              text: 'Ocurrió un error inesperado.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          });
+      });
+    });
+  </script>
+}

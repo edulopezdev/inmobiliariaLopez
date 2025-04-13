@@ -1,5 +1,5 @@
-using InmobiliariaLopez.Models;
 using System.Collections.Generic;
+using InmobiliariaLopez.Models;
 
 namespace InmobiliariaLopez.Repositories
 {
@@ -7,5 +7,6 @@ namespace InmobiliariaLopez.Repositories
     {
         IList<Contrato> ObtenerPorInmueble(int idInmueble);
         IList<Contrato> ObtenerPorInquilino(int idInquilino);
+        Contrato? ObtenerPorId(int idContrato);
     }
 }

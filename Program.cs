@@ -1,8 +1,9 @@
 using System;
+using System.Globalization;
 using InmobiliariaLopez.Data; // Para DatabaseConnection
 using InmobiliariaLopez.Models; // Para Propietario e Inquilino
 using InmobiliariaLopez.Repositories; // Para IRepositorio, PropietarioRepository, InquilinoRepository
-using System.Globalization;
+using InmobiliariaLopez.Services; // Para IContratoService, ContratoService
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,13 +11,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // 1. Registrar DatabaseConnection como un servicio
-builder.Services.AddTransient<DatabaseConnection>();
+builder.Services.AddSingleton<DatabaseConnection>();
 
 // 2. Registrar los repositorios para Propietario e Inquilino
 builder.Services.AddScoped<IRepositorioPropietario, PropietarioRepository>();
 builder.Services.AddScoped<IRepositorioInquilino, InquilinoRepository>();
 builder.Services.AddScoped<IRepositorioInmueble, InmuebleRepository>();
 builder.Services.AddScoped<IRepositorioContrato, ContratoRepository>();
+builder.Services.AddScoped<IContratoService, ContratoService>();
 
 // Creamos la aplicación web
 var app = builder.Build();
@@ -39,9 +41,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 // Definimos la ruta predeterminada para las vistas Razor
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // Iniciamos la aplicación
 app.Run();

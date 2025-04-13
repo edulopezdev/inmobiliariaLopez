@@ -1,7 +1,7 @@
 using System;
 using System.Data; // Para trabajar con conexiones a bases de datos genéricas
-using MySql.Data.MySqlClient; // Para conectarnos específicamente a MySQL
 using Microsoft.Extensions.Configuration; // Para leer la configuración del archivo appsettings.json
+using MySql.Data.MySqlClient; // Para conectarnos específicamente a MySQL
 
 namespace InmobiliariaLopez.Data
 {
@@ -19,7 +19,9 @@ namespace InmobiliariaLopez.Data
 
             if (string.IsNullOrEmpty(connectionString))
             {
-                throw new InvalidOperationException("La cadena de conexión 'MySql' no está configurada en appsettings.json.");
+                throw new InvalidOperationException(
+                    "La cadena de conexión 'MySql' no está configurada en appsettings.json."
+                );
             }
 
             _connectionString = connectionString;
