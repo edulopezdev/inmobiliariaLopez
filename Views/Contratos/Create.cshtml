@@ -16,10 +16,13 @@
     <form id="createContratoForm" asp-action="Create" method="post">
       @Html.AntiForgeryToken()
       <div class="form-group">
-        <label asp-for="IdUsuarioCrea" class="control-label"></label>
+        <label asp-for="IdUsuarioCrea" class="control-label">Usuario Sistema</label>
         <select asp-for="IdUsuarioCrea" class="form-control">
-          <option value="1">Usuario 1</option>
-          <option value="2">Usuario 2</option>
+          <option value="1">admin1@example.com</option>
+          <option value="2">empleado1@example.com</option>
+          <option value="3">empleado2@example.com</option>
+          <option value="4">admin2@example.com</option>
+          <option value="5">empleado3@example.com</option>
         </select>
         <span asp-validation-for="IdUsuarioCrea" class="text-danger"></span>
       </div>

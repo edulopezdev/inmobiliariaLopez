@@ -360,5 +360,53 @@ namespace InmobiliariaLopez.Repositories
             }
             return contrato;
         }
+
+        public int AnularContrato(Contrato entidad)
+        {
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+
+                using (
+                    var command = new MySqlCommand(
+                        @"
+            UPDATE contrato
+            SET
+                FechaRescision = @FechaRescision,
+                IdUsuarioAnula = @IdUsuarioAnula,
+                FechaUsuarioAnula = @FechaUsuarioAnula,
+                Observaciones = @Observaciones,
+                EstadoContrato = @EstadoContrato,
+                Activo = @Activo
+            WHERE IdContrato = @IdContrato;
+        ",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    command.Parameters.AddWithValue("@IdContrato", entidad.IdContrato);
+                    command.Parameters.AddWithValue(
+                        "@FechaRescision",
+                        entidad.FechaRescision ?? (object)DBNull.Value
+                    );
+                    command.Parameters.AddWithValue(
+                        "@IdUsuarioAnula",
+                        entidad.IdUsuarioAnula ?? (object)DBNull.Value
+                    );
+                    command.Parameters.AddWithValue(
+                        "@FechaUsuarioAnula",
+                        entidad.FechaUsuarioAnula ?? (object)DBNull.Value
+                    );
+                    command.Parameters.AddWithValue(
+                        "@Observaciones",
+                        entidad.Observaciones ?? (object)DBNull.Value
+                    );
+                    command.Parameters.AddWithValue("@EstadoContrato", entidad.EstadoContrato);
+                    command.Parameters.AddWithValue("@Activo", entidad.Activo);
+
+                    return command.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

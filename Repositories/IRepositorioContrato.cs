@@ -8,5 +8,6 @@ namespace InmobiliariaLopez.Repositories
         IList<Contrato> ObtenerPorInmueble(int idInmueble);
         IList<Contrato> ObtenerPorInquilino(int idInquilino);
         Contrato? ObtenerPorId(int idContrato);
+        int AnularContrato(Contrato contrato);
     }
 }

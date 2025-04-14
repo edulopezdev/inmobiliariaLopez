@@ -14,6 +14,9 @@ namespace InmobiliariaLopez.Models
         public int? IdUsuarioAnula { get; set; }
         public DateTime? FechaRescision { get; set; }
 
+        // ¡Aquí faltaba la propiedad FechaUsuarioAnula!
+        public DateTime? FechaUsuarioAnula { get; set; }
+
         public int IdInmueble { get; set; }
 
         public int IdInquilino { get; set; }

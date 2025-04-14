@@ -37,6 +37,17 @@ namespace InmobiliariaLopez.Services
             DateTime fechaFin
         )
         {
+            return VerificarDisponibilidad(idInmueble, fechaInicio, fechaFin, null); // Llama a la sobrecarga con contratoIdExcluir = null
+        }
+
+        // Implementación de la nueva sobrecarga que agregaste a la interfaz
+        public DisponibilidadResultado VerificarDisponibilidad(
+            int idInmueble,
+            DateTime fechaInicio,
+            DateTime fechaFin,
+            int? contratoIdExcluir = null
+        )
+        {
             var resultado = new DisponibilidadResultado { Disponible = true };
 
             using (var connection = _dbConnection.CreateConnection())
@@ -48,6 +59,7 @@ namespace InmobiliariaLopez.Services
                     FROM contrato
                     WHERE IdInmueble = @IdInmueble
                     AND Activo = 1
+                    AND IdContrato != @ContratoIdExcluir
                     AND (
                         (@FechaInicio BETWEEN FechaInicio AND FechaFin)
                         OR (@FechaFin BETWEEN FechaInicio AND FechaFin)
@@ -60,6 +72,10 @@ namespace InmobiliariaLopez.Services
                     command.Parameters.AddWithValue("@IdInmueble", idInmueble);
                     command.Parameters.AddWithValue("@FechaInicio", fechaInicio);
                     command.Parameters.AddWithValue("@FechaFin", fechaFin);
+                    command.Parameters.AddWithValue(
+                        "@ContratoIdExcluir",
+                        contratoIdExcluir.HasValue ? (object)contratoIdExcluir.Value : DBNull.Value
+                    );
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -75,6 +91,22 @@ namespace InmobiliariaLopez.Services
             }
 
             return resultado;
+        }
+
+        // Implementación de la nueva sobrecarga para EsInmuebleDisponible
+        public bool EsInmuebleDisponible(
+            int idInmueble,
+            DateTime fechaInicio,
+            DateTime fechaFin,
+            int? contratoIdExcluir = null
+        )
+        {
+            return !VerificarDisponibilidad(
+                idInmueble,
+                fechaInicio,
+                fechaFin,
+                contratoIdExcluir
+            ).Disponible;
         }
     }
 }

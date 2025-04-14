@@ -166,41 +166,42 @@ namespace InmobiliariaLopez.Controllers
                     huboCambios = true;
                 }
 
-                // Lógica para la anulación (modificando directamente el contratoExistente)
-                if (
-                    Request.Form.ContainsKey("AnularContrato")
-                    && !string.IsNullOrEmpty(Request.Form["MotivoAnulacion"])
-                )
+                // Validar la disponibilidad del inmueble para las nuevas fechas (excluyendo el contrato actual)
+                var resultadoDisponibilidad = _contratoService.VerificarDisponibilidad(
+                    contrato.IdInmueble,
+                    contrato.FechaInicio,
+                    contrato.FechaFin,
+                    contrato.IdContrato
+                );
+
+                if (!resultadoDisponibilidad.Disponible)
                 {
-                    contratoExistente.Activo = false;
-                    contratoExistente.FechaRescision = DateTime.Now; // O la fecha que corresponda
-                    contratoExistente.Observaciones = $"ANULADO: {Request.Form["MotivoAnulacion"]}";
-                    huboCambios = true;
-                }
-                else if (
-                    contratoExistente.Activo == false
-                    && !Request.Form.ContainsKey("AnularContrato")
-                )
-                {
-                    contratoExistente.Activo = true;
-                    contratoExistente.FechaRescision = null;
-                    if (contratoExistente.Observaciones?.StartsWith("ANULADO:") == true)
-                    {
-                        contratoExistente.Observaciones = contratoExistente
-                            .Observaciones.Substring("ANULADO: ".Length)
-                            .Trim();
-                        huboCambios = true;
-                    }
+                    string mensajeError =
+                        "El inmueble no está disponible en las fechas modificadas. Ya está ocupado entre las siguientes fechas: ";
+                    mensajeError += string.Join(
+                        "\\n",
+                        resultadoDisponibilidad.FechasOcupadas.Select(f =>
+                            $"{f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}"
+                        )
+                    );
+                    return Json(new { success = false, message = mensajeError });
                 }
 
                 if (huboCambios)
                 {
                     _repositorioContrato.Edit(contratoExistente);
-                    return RedirectToAction("Index");
+                    return Json(new { success = true, redirectUrl = Url.Action("Index") });
                 }
                 else
                 {
-                    return RedirectToAction("Index"); // No hubo cambios, redirigir
+                    return Json(
+                        new
+                        {
+                            success = true,
+                            redirectUrl = Url.Action("Index"),
+                            message = "No se realizaron cambios.",
+                        }
+                    );
                 }
             }
 
@@ -213,26 +214,76 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Contratos/Delete/5
-        public IActionResult Delete(int id)
+        public IActionResult Delete(int? id)
         {
-            var contrato = _repositorioContrato.Details(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // Accede al valor del 'id' usando la propiedad '.Value' ya que ya verificaste que no es nulo.
+            var contrato = _repositorioContrato.Details(id.Value);
             if (contrato == null)
             {
                 return NotFound();
             }
+
             return View(contrato);
         }
 
         // POST: Contratos/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public IActionResult Delete(int id)
         {
-            _repositorioContrato.Delete(id);
-            TempData["Mensaje"] = "Contrato eliminado correctamente";
+            var contrato = _repositorioContrato.ObtenerPorId(id);
+            if (contrato == null)
+            {
+                return NotFound();
+            }
+
+            contrato.Activo = false;
+            _repositorioContrato.Edit(contrato);
+
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: Contratos/Anular
+        public IActionResult Anular(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var contrato = _repositorioContrato.Details(id.Value);
+            if (contrato == null)
+            {
+                return NotFound();
+            }
+
+            return View(contrato); // esto carga Anular.cshtml
+        }
+
+        // POST: Contratos/AnularContrato
+        [HttpPost]
+        public IActionResult AnularContrato([FromBody] Contrato contrato)
+        {
+            try
+            {
+                // Lógica de anulación del contrato
+
+                // Devuelves una respuesta JSON de éxito si todo fue bien
+                return Json(new { success = true, redirectUrl = Url.Action("Index", "Contratos") });
+            }
+            catch (Exception ex)
+            {
+                // Devuelves una respuesta de error si algo falla
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // Método privado para cargar el ViewBag con los datos necesarios
         private void CargarViewBag(int? inmuebleId = null, int? inquilinoId = null)
         {
             ViewBag.Inmuebles = new SelectList(

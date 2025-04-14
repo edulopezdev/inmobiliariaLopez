@@ -12,6 +12,20 @@ namespace InmobiliariaLopez.Services
             DateTime fechaInicio,
             DateTime fechaFin
         );
-        // ... (Otros métodos de la interfaz) ...
+
+        // Agrega esta nueva sobrecarga con el parámetro opcional
+        DisponibilidadResultado VerificarDisponibilidad(
+            int idInmueble,
+            DateTime fechaInicio,
+            DateTime fechaFin,
+            int? contratoIdExcluir = null
+        );
+
+        bool EsInmuebleDisponible(
+            int idInmueble,
+            DateTime fechaInicio,
+            DateTime fechaFin,
+            int? contratoIdExcluir = null
+        );
     }
 }

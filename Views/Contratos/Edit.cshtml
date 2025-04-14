@@ -70,16 +70,6 @@
         <span asp-validation-for="Multa" class="text-danger"></span>
       </div>
 
-      <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="anularContratoCheck" name="AnularContrato">
-        <label class="form-check-label" for="anularContratoCheck">Anular Contrato</label>
-      </div>
-
-      <div class="form-group" id="motivoAnulacion" style="display: none;">
-        <label for="MotivoAnulacion">Motivo de Anulación</label>
-        <textarea id="MotivoAnulacion" name="MotivoAnulacion" class="form-control"></textarea>
-      </div>
-
       <div class="card-footer d-flex justify-content-end">
         <button type="submit" class="btn btn-primary btn-sm me-2" id="guardarButton">Guardar Cambios</button>
         <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
@@ -96,22 +86,9 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('editContratoForm');
-      const anularContratoCheck = document.getElementById('anularContratoCheck');
-      const motivoAnulacionDiv = document.getElementById('motivoAnulacion');
-      const motivoAnulacionInput = document.getElementById('MotivoAnulacion');
 
-      // Manejo del checkbox "Anular Contrato"
-      anularContratoCheck.addEventListener('change', function () {
-        motivoAnulacionDiv.style.display = this.checked ? 'block' : 'none';
-        motivoAnulacionInput.disabled = !this.checked;
-        if (!this.checked) {
-          motivoAnulacionInput.value = '';
-        }
-      });
-
-      // Manejo del envío del formulario
       form.addEventListener('submit', function (event) {
-        event.preventDefault(); // Prevenir el envío predeterminado
+        event.preventDefault();
 
         const formData = new FormData(form);
         fetch('@Url.Action("Edit")', {
@@ -122,7 +99,7 @@
           }
         })
           .then(response => {
-            console.log('Respuesta del servidor:', response); // Log de la respuesta del servidor
+            console.log('Respuesta del servidor:', response);
             return response.json();
           })
           .then(data => {
@@ -153,15 +130,15 @@
                 }
               }
               Swal.fire({
-                title: '¡Error!',
+                title: '¡Fechas Ocupadas!', // Título personalizado
                 html: errorMessage,
-                icon: 'error',
+                icon: 'warning', // Icono de advertencia
                 confirmButtonText: 'Ok'
               });
             }
           })
           .catch(error => {
-            console.error('Error en la petición AJAX:', error); // Log de errores en la solicitud AJAX
+            console.error('Error en la petición AJAX:', error);
             Swal.fire({
               title: '¡Error!',
               text: 'Ocurrió un error inesperado.',
