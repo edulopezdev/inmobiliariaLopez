@@ -271,14 +271,52 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                // Lógica de anulación del contrato
+                // Buscar el contrato en la base de datos
+                var contratoExistente = _repositorioContrato.ObtenerPorId(contrato.IdContrato);
+                if (contratoExistente == null)
+                {
+                    return Json(new { success = false, message = "Contrato no encontrado." });
+                }
 
-                // Devuelves una respuesta JSON de éxito si todo fue bien
-                return Json(new { success = true, redirectUrl = Url.Action("Index", "Contratos") });
+                // Verifica si el contrato ya está en estado 'PendienteAnulacion'
+                if (contratoExistente.EstadoContrato == "PendienteAnulacion")
+                {
+                    return Json(
+                        new
+                        {
+                            success = false,
+                            message = "Este contrato ya está en proceso de anulación.",
+                        }
+                    );
+                }
+
+                // Actualizar el contrato: cambiar estado a 'PendienteAnulacion'
+                contratoExistente.EstadoContrato = "PendienteAnulacion";
+                contratoExistente.FechaRescision = contrato.FechaRescision;
+                contratoExistente.IdUsuarioAnula = contrato.IdUsuarioAnula;
+                contratoExistente.FechaUsuarioAnula = DateTime.Now;
+                contratoExistente.Observaciones = contrato.Observaciones;
+
+                // Llamar al método de repositorio para realizar la actualización en la base de datos
+                var filasAfectadas = _repositorioContrato.AnularContrato(contratoExistente); // Método del repositorio
+
+                // Verificar si la actualización fue exitosa
+                if (filasAfectadas > 0)
+                {
+                    return Json(
+                        new { success = true, redirectUrl = Url.Action("Index", "Contratos") }
+                    );
+                }
+                else
+                {
+                    return Json(
+                        new { success = false, message = "No se pudo actualizar el contrato." }
+                    );
+                }
             }
             catch (Exception ex)
             {
-                // Devuelves una respuesta de error si algo falla
+                // Capturar cualquier error y devolver un mensaje de error
                 return Json(new { success = false, message = ex.Message });
             }
         }

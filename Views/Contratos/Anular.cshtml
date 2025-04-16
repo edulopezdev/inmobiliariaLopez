@@ -49,27 +49,29 @@
       @Html.AntiForgeryToken()
       <input type="hidden" asp-for="IdContrato" />
 
-      <div class="form-group">
-        <label class="control-label">Usuario que Anula</label>
-        <select asp-for="IdUsuarioAnula" class="form-control" required>
-          <option value="">-- Seleccionar Usuario --</option>
-          <option value="1">admin1@example.com</option>
-          <option value="2">empleado1@example.com</option>
-          <option value="3">empleado2@example.com</option>
-          <option value="4">admin2@example.com</option>
-          <option value="5">empleado3@example.com</option>
-        </select>
-        <span asp-validation-for="IdUsuarioAnula" class="text-danger"></span>
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label class="control-label">Usuario que Anula</label>
+          <select asp-for="IdUsuarioAnula" class="form-control" required>
+            <option value="">-- Seleccionar Usuario --</option>
+            <option value="1">admin1@example.com</option>
+            <option value="2">empleado1@example.com</option>
+            <option value="3">empleado2@example.com</option>
+            <option value="4">admin2@example.com</option>
+            <option value="5">empleado3@example.com</option>
+          </select>
+          <span asp-validation-for="IdUsuarioAnula" class="text-danger"></span>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label for="FechaRescision">Fecha de Rescisión</label>
+          <input type="date" id="FechaRescision" name="FechaRescision" class="form-control" required />
+        </div>
       </div>
 
       <div class="form-group">
-        <label for="MotivoAnulacion">Motivo de Anulación</label>
-        <textarea id="MotivoAnulacion" name="MotivoAnulacion" class="form-control" required></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="FechaRescision">Fecha de Rescisión</label>
-        <input type="date" id="FechaRescision" name="FechaRescision" class="form-control" required />
+        <label for="Observaciones">Motivo de Anulación</label>
+        <textarea id="Observaciones" name="Observaciones" class="form-control" required></textarea>
       </div>
 
       <div class="card-footer d-flex justify-content-end">

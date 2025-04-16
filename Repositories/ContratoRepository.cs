@@ -27,11 +27,17 @@ namespace InmobiliariaLopez.Repositories
                 using (
                     var command = new MySqlCommand(
                         @"
-                    SELECT c.*, i.Direccion AS DireccionInmueble, q.Apellido, q.Nombre
-                    FROM contrato c
-                    JOIN inmueble i ON c.IdInmueble = i.IdInmueble
-                    JOIN inquilino q ON c.IdInquilino = q.IdInquilino
-                    WHERE c.Activo = 1 AND i.Activo = 1 AND q.Activo = 1",
+            SELECT 
+                c.*, 
+                i.Direccion AS DireccionInmueble, 
+                CONCAT(q.Nombre, ' ', q.Apellido) AS NombreInquilino
+            FROM contrato c
+            JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+            JOIN inquilino q ON c.IdInquilino = q.IdInquilino
+            WHERE c.Activo = 1 
+              AND i.Activo = 1 
+              AND q.Activo = 1
+              AND c.EstadoContrato IN ('Vigente', 'PendienteAnulacion');",
                         (MySqlConnection)connection
                     )
                 )
@@ -49,14 +55,15 @@ namespace InmobiliariaLopez.Repositories
                                     IdInmueble = reader.GetInt32("IdInmueble"),
                                     DireccionInmueble = reader.GetString("DireccionInmueble"),
                                     IdInquilino = reader.GetInt32("IdInquilino"),
-                                    NombreInquilino =
-                                        $"{reader.GetString("Nombre")} {reader.GetString("Apellido")}",
+                                    NombreInquilino = reader.GetString("NombreInquilino"), // ← este ya viene armado desde SQL
                                     FechaInicio = reader.GetDateTime("FechaInicio"),
                                     FechaFin = reader.GetDateTime("FechaFin"),
                                     MontoMensual = reader.GetDecimal("MontoMensual"),
                                     Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
-                                        ? null
+                                        ? (decimal?)null
                                         : reader.GetDecimal("Multa"),
+                                    EstadoContrato = reader.GetString("EstadoContrato"),
+                                    Activo = reader.GetBoolean("Activo"),
                                 }
                             );
                         }
@@ -110,10 +117,16 @@ namespace InmobiliariaLopez.Repositories
                                     Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
                                         ? null
                                         : reader.GetDecimal("Multa"),
+                                    FechaRescision = reader.IsDBNull(
+                                        reader.GetOrdinal("FechaRescision")
+                                    )
+                                        ? null
+                                        : reader.GetDateTime("FechaRescision"),
                                     Activo = reader.GetBoolean("Activo"),
                                     IdPropietario = reader.GetInt32("IdPropietario"),
                                     NombrePropietario =
                                         $"{reader.GetString("NombrePropietario")} {reader.GetString("ApellidoPropietario")}",
+                                    EstadoContrato = reader.GetString("EstadoContrato"),
                                 };
                             }
                         }
@@ -370,16 +383,16 @@ namespace InmobiliariaLopez.Repositories
                 using (
                     var command = new MySqlCommand(
                         @"
-            UPDATE contrato
-            SET
-                FechaRescision = @FechaRescision,
-                IdUsuarioAnula = @IdUsuarioAnula,
-                FechaUsuarioAnula = @FechaUsuarioAnula,
-                Observaciones = @Observaciones,
-                EstadoContrato = @EstadoContrato,
-                Activo = @Activo
-            WHERE IdContrato = @IdContrato;
-        ",
+                UPDATE contrato
+                SET
+                    FechaRescision = @FechaRescision,
+                    IdUsuarioAnula = @IdUsuarioAnula,
+                    FechaUsuarioAnula = @FechaUsuarioAnula,
+                    Observaciones = @Observaciones,
+                    EstadoContrato = @EstadoContrato,
+                    Activo = @Activo
+                WHERE IdContrato = @IdContrato;
+                ",
                         (MySqlConnection)connection
                     )
                 )
@@ -401,7 +414,7 @@ namespace InmobiliariaLopez.Repositories
                         "@Observaciones",
                         entidad.Observaciones ?? (object)DBNull.Value
                     );
-                    command.Parameters.AddWithValue("@EstadoContrato", entidad.EstadoContrato);
+                    command.Parameters.AddWithValue("@EstadoContrato", entidad.EstadoContrato); // Aquí se pasa 'PendienteAnulacion'
                     command.Parameters.AddWithValue("@Activo", entidad.Activo);
 
                     return command.ExecuteNonQuery();

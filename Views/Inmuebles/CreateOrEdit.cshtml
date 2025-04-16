@@ -46,8 +46,8 @@
       <!-- Tipo de Inmueble -->
       <div class="form-group mb-3">
         <label class="control-label">Tipo de Inmueble</label>
-        <select asp-for="IdTipoInmueble" asp-items="ViewBag.TiposInmueble" class="form-control"></select>
-        <option value="">Seleccione un tipo</option>
+        <select asp-for="IdTipoInmueble" asp-items="ViewBag.TiposInmueble" class="form-control">
+          <option value="">Seleccione un tipo</option>
         </select>
         <span asp-validation-for="IdTipoInmueble" class="text-danger"></span>
       </div>
@@ -59,11 +59,18 @@
         <span asp-validation-for="Ambientes" class="text-danger"></span>
       </div>
 
-      <!-- Coordenadas -->
+      <!-- Latitud -->
       <div class="form-group mb-3">
-        <label asp-for="Coordenadas" class="control-label"></label>
-        <input asp-for="Coordenadas" class="form-control" />
-        <span asp-validation-for="Coordenadas" class="text-danger"></span>
+        <label asp-for="Latitud" class="control-label"></label>
+        <input asp-for="Latitud" class="form-control" />
+        <span asp-validation-for="Latitud" class="text-danger"></span>
+      </div>
+
+      <!-- Longitud -->
+      <div class="form-group mb-3">
+        <label asp-for="Longitud" class="control-label"></label>
+        <input asp-for="Longitud" class="form-control" />
+        <span asp-validation-for="Longitud" class="text-danger"></span>
       </div>
 
       <!-- Precio -->

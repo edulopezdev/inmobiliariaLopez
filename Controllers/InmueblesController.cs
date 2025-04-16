@@ -48,7 +48,7 @@ namespace InmobiliariaLopez.Controllers
                 ViewBag.Propietarios = new SelectList(
                     _repoPropietario.Index(),
                     "IdPropietario",
-                    "Nombre"
+                    "NombreCompleto"
                 );
 
                 // Proporcionar la lista de tipos de inmuebles para el campo desplegable
@@ -72,7 +72,7 @@ namespace InmobiliariaLopez.Controllers
             ViewBag.Propietarios = new SelectList(
                 _repoPropietario.Index(),
                 "IdPropietario",
-                "Nombre",
+                "NombreCompleto",
                 inmueble.IdPropietario
             );
 

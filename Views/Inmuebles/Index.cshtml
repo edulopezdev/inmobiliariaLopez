@@ -1,6 +1,5 @@
 @using System.Globalization
 
-
 @model IEnumerable<InmobiliariaLopez.Models.Inmueble>
 @{
   ViewData["Title"] = "Lista de Inmuebles";
@@ -65,9 +64,10 @@
                   <i class="fas fa-eye"></i>
                 </a>
                 <!-- Editar -->
-                <a asp-action="CreateOrEdit" asp-route-id="@inmueble.IdInmueble" class="btn-link">
-                  <i class="fas fa-edit"></i>
-                </a>
+                <a asp-action="CreateOrEdit" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
+       data-bs-placement="top" title="Editar inmueble">
+        <i class="fas fa-edit"></i>
+    </a>
                 <!-- Eliminar -->
                 <a asp-action="Delete" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Eliminar inmueble">

@@ -10,7 +10,8 @@ public class Inmueble
     public int IdTipoInmueble { get; set; }
     public string? TipoNombre { get; set; }
     public int Ambientes { get; set; }
-    public string? Coordenadas { get; set; }
+    public decimal? Latitud { get; set; }
+    public decimal? Longitud { get; set; }
     public decimal Precio { get; set; }
     public string? Estado { get; set; }
     public int IdPropietario { get; set; }
@@ -20,17 +21,22 @@ public class Inmueble
     public string? PropietarioNombre { get; set; }
 
     // Nueva propiedad para concatenar apellido y nombre del propietario
-    public string PropietarioCompleto => $"{PropietarioApellido ?? ""} {PropietarioNombre ?? ""}".Trim();
+    public string PropietarioCompleto =>
+        $"{PropietarioApellido ?? ""} {PropietarioNombre ?? ""}".Trim();
+
+    // Propiedades de Navegación
+    public Propietario? Propietario { get; set; }
 
     // Constructor
     public Inmueble()
-{
-    // Valores predeterminados o inicialización vacía
-    Direccion = string.Empty;
-    Uso = string.Empty;
-    Estado = string.Empty;
-}
-// Constructor con tres argumentos
+    {
+        // Valores predeterminados o inicialización vacía
+        Direccion = string.Empty;
+        Uso = string.Empty;
+        Estado = string.Empty;
+    }
+
+    // Constructor con tres argumentos
     public Inmueble(string direccion, string uso, string estado)
     {
         Direccion = direccion;

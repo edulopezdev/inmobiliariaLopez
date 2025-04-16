@@ -15,8 +15,6 @@ namespace InmobiliariaLopez.Repositories
             _dbConnection = dbConnection;
         }
 
-        // Métodos heredados de IRepositorio<T>
-
         // Lista todos los Inmuebles
         public IList<Inmueble> Index()
         {
@@ -33,7 +31,7 @@ namespace InmobiliariaLopez.Repositories
                                 + "FROM inmueble i "
                                 + "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble "
                                 + "JOIN propietario p ON i.IdPropietario = p.IdPropietario "
-                                + "WHERE i.Activo = 1 AND p.Activo = 1", // Solo inmuebles y propietarios activos
+                                + "WHERE i.Activo = 1 AND p.Activo = 1",
                             (MySqlConnection)connection
                         )
                     )
@@ -53,11 +51,12 @@ namespace InmobiliariaLopez.Repositories
                                         IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
                                         TipoNombre = reader.GetString("TipoNombre"),
                                         Ambientes = reader.GetInt32("Ambientes"),
-                                        Coordenadas = reader.IsDBNull(
-                                            reader.GetOrdinal("Coordenadas")
-                                        )
-                                            ? null
-                                            : reader.GetString("Coordenadas"),
+                                        Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud"))
+                                            ? (decimal?)null
+                                            : Convert.ToDecimal(reader.GetDouble("Latitud")),
+                                        Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud"))
+                                            ? (decimal?)null
+                                            : Convert.ToDecimal(reader.GetDouble("Longitud")),
                                         Precio = reader.GetDecimal("Precio"),
                                         IdPropietario = reader.GetInt32("IdPropietario"),
                                         PropietarioApellido = reader.GetString(
@@ -83,7 +82,7 @@ namespace InmobiliariaLopez.Repositories
         // Obtiene un Inmueble por su ID
         public Inmueble? Details(int id)
         {
-            Inmueble? inmueble = null; // Declara la variable inmueble
+            Inmueble? inmueble = null;
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
@@ -95,7 +94,7 @@ namespace InmobiliariaLopez.Repositories
                                 + "FROM inmueble i "
                                 + "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble "
                                 + "JOIN propietario p ON i.IdPropietario = p.IdPropietario "
-                                + "WHERE i.IdInmueble = @IdInmueble AND i.Activo = 1 AND p.Activo = 1", // Filtramos para que sea activo el inmueble y el propietario
+                                + "WHERE i.IdInmueble = @IdInmueble AND i.Activo = 1 AND p.Activo = 1",
                             (MySqlConnection)connection
                         )
                     )
@@ -115,9 +114,12 @@ namespace InmobiliariaLopez.Repositories
                                     IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
                                     TipoNombre = reader.GetString("TipoNombre"),
                                     Ambientes = reader.GetInt32("Ambientes"),
-                                    Coordenadas = reader.IsDBNull(reader.GetOrdinal("Coordenadas"))
-                                        ? null
-                                        : reader.GetString("Coordenadas"),
+                                    Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud"))
+                                        ? (decimal?)null
+                                        : Convert.ToDecimal(reader.GetDouble("Latitud")),
+                                    Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud"))
+                                        ? (decimal?)null
+                                        : Convert.ToDecimal(reader.GetDouble("Longitud")),
                                     Precio = reader.GetDecimal("Precio"),
                                     IdPropietario = reader.GetInt32("IdPropietario"),
                                     PropietarioApellido = reader.GetString("PropietarioApellido"),
@@ -133,7 +135,7 @@ namespace InmobiliariaLopez.Repositories
                     throw;
                 }
             }
-            return inmueble; // Retorna el inmueble encontrado o null si no se encuentra
+            return inmueble;
         }
 
         // Agrega un nuevo inmueble
@@ -148,22 +150,34 @@ namespace InmobiliariaLopez.Repositories
                     {
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
-                            @"
-                            INSERT INTO inmueble (Direccion, Uso, IdTipoInmueble, Ambientes, Coordenadas, Precio, Estado, IdPropietario)
-                            VALUES (@Direccion, @Uso, @IdTipoInmueble, @Ambientes, @Coordenadas, @Precio, @Estado, @IdPropietario)";
+                            @"INSERT INTO inmueble (Direccion, Uso, IdTipoInmueble, Ambientes, Latitud, Longitud, Precio, Estado, IdPropietario)
+                              VALUES (@Direccion, @Uso, @IdTipoInmueble, @Ambientes, @Latitud, @Longitud, @Precio, @Estado, @IdPropietario)";
+
                         command.Parameters.AddWithValue("@Direccion", entidad.Direccion);
                         command.Parameters.AddWithValue("@Uso", entidad.Uso);
                         command.Parameters.AddWithValue("@IdTipoInmueble", entidad.IdTipoInmueble);
                         command.Parameters.AddWithValue("@Ambientes", entidad.Ambientes);
                         command.Parameters.AddWithValue(
-                            "@Coordenadas",
-                            entidad.Coordenadas ?? (object)DBNull.Value
+                            "@Latitud",
+                            entidad.Latitud.HasValue
+                                ? (object)Convert.ToDecimal(entidad.Latitud)
+                                : DBNull.Value
                         );
-                        command.Parameters.AddWithValue("@Precio", entidad.Precio);
+                        command.Parameters.AddWithValue(
+                            "@Longitud",
+                            entidad.Longitud.HasValue
+                                ? (object)Convert.ToDecimal(entidad.Longitud)
+                                : DBNull.Value
+                        );
+                        command.Parameters.AddWithValue(
+                            "@Precio",
+                            Convert.ToDecimal(entidad.Precio)
+                        );
                         command.Parameters.AddWithValue("@Estado", entidad.Estado);
                         command.Parameters.AddWithValue("@IdPropietario", entidad.IdPropietario);
+
                         command.ExecuteNonQuery();
-                        return (int)command.LastInsertedId; // Retorna el ID del nuevo inmueble
+                        return (int)command.LastInsertedId;
                     }
                 }
                 catch (Exception ex)
@@ -186,24 +200,36 @@ namespace InmobiliariaLopez.Repositories
                     {
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
-                            @"
-                            UPDATE inmueble
-                            SET Direccion = @Direccion, Uso = @Uso, IdTipoInmueble = @IdTipoInmueble, Ambientes = @Ambientes,
-                                Coordenadas = @Coordenadas, Precio = @Precio, Estado = @Estado, IdPropietario = @IdPropietario
-                            WHERE IdInmueble = @IdInmueble";
+                            @"UPDATE inmueble
+                              SET Direccion = @Direccion, Uso = @Uso, IdTipoInmueble = @IdTipoInmueble, Ambientes = @Ambientes,
+                                  Latitud = @Latitud, Longitud = @Longitud, Precio = @Precio, Estado = @Estado, IdPropietario = @IdPropietario
+                              WHERE IdInmueble = @IdInmueble";
+
                         command.Parameters.AddWithValue("@IdInmueble", entidad.IdInmueble);
                         command.Parameters.AddWithValue("@Direccion", entidad.Direccion);
                         command.Parameters.AddWithValue("@Uso", entidad.Uso);
                         command.Parameters.AddWithValue("@IdTipoInmueble", entidad.IdTipoInmueble);
                         command.Parameters.AddWithValue("@Ambientes", entidad.Ambientes);
                         command.Parameters.AddWithValue(
-                            "@Coordenadas",
-                            entidad.Coordenadas ?? (object)DBNull.Value
+                            "@Latitud",
+                            entidad.Latitud.HasValue
+                                ? (object)Convert.ToDecimal(entidad.Latitud)
+                                : DBNull.Value
                         );
-                        command.Parameters.AddWithValue("@Precio", entidad.Precio);
+                        command.Parameters.AddWithValue(
+                            "@Longitud",
+                            entidad.Longitud.HasValue
+                                ? (object)Convert.ToDecimal(entidad.Longitud)
+                                : DBNull.Value
+                        );
+                        command.Parameters.AddWithValue(
+                            "@Precio",
+                            Convert.ToDecimal(entidad.Precio)
+                        );
                         command.Parameters.AddWithValue("@Estado", entidad.Estado);
                         command.Parameters.AddWithValue("@IdPropietario", entidad.IdPropietario);
-                        return command.ExecuteNonQuery(); // Retorna el número de filas afectadas
+
+                        return command.ExecuteNonQuery();
                     }
                 }
                 catch (Exception ex)
@@ -230,7 +256,7 @@ namespace InmobiliariaLopez.Repositories
                     )
                     {
                         command.Parameters.AddWithValue("@IdInmueble", id);
-                        return command.ExecuteNonQuery(); // Retorna el número de filas afectadas
+                        return command.ExecuteNonQuery();
                     }
                 }
                 catch (Exception ex)
@@ -240,8 +266,6 @@ namespace InmobiliariaLopez.Repositories
                 }
             }
         }
-
-        // Métodos específicos de IRepositorioInmueble
 
         // Obtiene inmuebles por su propietario
         public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
@@ -274,11 +298,12 @@ namespace InmobiliariaLopez.Repositories
                                         IdInmueble = reader.GetInt32("IdInmueble"),
                                         IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
                                         Ambientes = reader.GetInt32("Ambientes"),
-                                        Coordenadas = reader.IsDBNull(
-                                            reader.GetOrdinal("Coordenadas")
-                                        )
-                                            ? null
-                                            : reader.GetString("Coordenadas"),
+                                        Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud"))
+                                            ? (decimal?)null
+                                            : Convert.ToDecimal(reader.GetDouble("Latitud")),
+                                        Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud"))
+                                            ? (decimal?)null
+                                            : Convert.ToDecimal(reader.GetDouble("Longitud")),
                                         Precio = reader.GetDecimal("Precio"),
                                         IdPropietario = reader.GetInt32("IdPropietario"),
                                     }
@@ -306,13 +331,12 @@ namespace InmobiliariaLopez.Repositories
                     connection.Open();
                     using (
                         var command = new MySqlCommand(
-                            @"
-          SELECT COUNT(*) 
-          FROM contrato c
-          INNER JOIN inmueble i ON c.IdInmueble = i.IdInmueble
-          WHERE c.IdInmueble = @IdInmueble 
-            AND i.Activo = 1
-            AND ((@FechaInicio BETWEEN FechaInicio AND FechaFin) OR (@FechaFin BETWEEN FechaInicio AND FechaFin))",
+                            @"SELECT COUNT(*) 
+                          FROM contrato c
+                          INNER JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+                          WHERE c.IdInmueble = @IdInmueble 
+                            AND i.Activo = 1
+                            AND ((@FechaInicio BETWEEN FechaInicio AND FechaFin) OR (@FechaFin BETWEEN FechaInicio AND FechaFin))",
                             (MySqlConnection)connection
                         )
                     )

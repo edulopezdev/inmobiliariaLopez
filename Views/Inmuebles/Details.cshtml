@@ -1,113 +1,118 @@
 @model InmobiliariaLopez.Models.Inmueble
 
 @{
-    ViewData["Title"] = "Detalles del Inmueble";
+  ViewData["Title"] = "Detalles del Inmueble";
 }
 
 <!-- Título -->
-<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Detalles del Inmueble</h1>
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Detalles del
+  Inmueble</h1>
 
 <!-- Card para envolver los detalles -->
 <div class="card shadow-lg border-0 rounded-4">
-    <div class="card-header bg-gradient text-dark border-0 rounded-4">
-        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Inmueble</h5>
-    </div>
-    <div class="card-body" style="padding: 1.5rem;">
-        <h4>Inmueble</h4>
-        <hr />
-        <dl class="row">
-            <!-- ID -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.IdInmueble)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.IdInmueble)
-            </dd>
+  <div class="card-header bg-gradient text-dark border-0 rounded-4">
+    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Inmueble</h5>
+  </div>
+  <div class="card-body" style="padding: 1.5rem;">
+    <h4>Inmueble</h4>
+    <hr />
+    <dl class="row">
+      <!-- ID -->
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.IdInmueble)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.IdInmueble)
+      </dd>
 
-            <!-- Dirección -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Direccion)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Direccion)
-            </dd>
+      <!-- Dirección -->
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Direccion)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Direccion)
+      </dd>
 
-            <!-- Uso -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Uso)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Uso)
-            </dd>
+      <!-- Uso -->
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Uso)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Uso)
+      </dd>
 
-            <!-- Tipo de Inmueble -->
-            <dt class="col-sm-2">
-                Tipo de Inmueble
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.TipoNombre)
-            </dd>
+      <!-- Tipo de Inmueble -->
+      <dt class="col-sm-2">
+        Tipo de Inmueble
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.TipoNombre)
+      </dd>
 
-            <!-- Ambientes -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Ambientes)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Ambientes)
-            </dd>
+      <!-- Ambientes -->
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Ambientes)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Ambientes)
+      </dd>
 
-            <!-- Coordenadas -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Coordenadas)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Coordenadas)
-            </dd>
+      <!-- Coordenadas: Latitud y Longitud -->
+      <dt class="col-sm-2">
+        <strong>Coordenadas</strong>
+      </dt>
+      <dd class="col-sm-10">
+        @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
+        {
+          <span>Latitud: @Model.Latitud.Value.ToString("0.#####"), Longitud:
+            @Model.Longitud.Value.ToString("0.#####")</span>
+        }
+        else
+        {
+          <span>No disponible</span>
+        }
+      </dd>
 
-            <!-- Precio -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Precio)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Precio)
-            </dd>
+      <!-- Precio -->
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Precio)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Precio)
+      </dd>
 
-            <!-- Estado -->
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Estado)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Estado)
-            </dd>
+      <!-- Estado -->
+      <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.Estado)
+      </dt>
+      <dd class="col-sm-10">
+        @Html.DisplayFor(model => model.Estado)
+      </dd>
 
-            <!-- Propietario -->
-            <dt class="col-sm-2">
-                Propietario
-            </dt>
-            <dd class="col-sm-10">
-                @if (!string.IsNullOrEmpty(Model.PropietarioApellido) && !string.IsNullOrEmpty(Model.PropietarioNombre))
-                {
-                    @Html.DisplayFor(model => model.PropietarioCompleto)
-                }
-                else
-                {
-                    <span>Sin propietario asignado</span>
-                }
-            </dd>
-        </dl>
-    </div>
+      <!-- Propietario -->
+      <dt class="col-sm-2">
+        Propietario
+      </dt>
+      <dd class="col-sm-10">
+        @Model.PropietarioCompleto
+        <a asp-controller="Propietarios" asp-action="Details" asp-route-id="@Model.IdPropietario" class="btn-link ms-2"
+          data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del propietario">
+          <i class="fas fa-eye"></i>
+        </a>
+      </dd>
 
-    <!-- Botones para editar o volver a la lista dentro del card -->
-    <div class="card-footer d-flex justify-content-end">
+
+      <!-- Botones para editar o volver a la lista dentro del card -->
+      <div class="card-footer d-flex justify-content-end">
         <a asp-action="CreateOrEdit" asp-route-id="@Model.IdInmueble" class="btn btn-warning btn-sm me-2">
-            Editar
+          Editar
         </a>
         <a asp-action="Index" class="btn btn-secondary btn-sm">
-            Volver a la lista
+          Volver a la lista
         </a>
-    </div>
-</div>
+      </div>
+  </div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+  @await Html.PartialAsync("_ValidationScriptsPartial")
 }
