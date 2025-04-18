@@ -4,12 +4,10 @@
   ViewData["Title"] = Model.IdInmueble == 0 ? "Crear Inmueble" : "Editar Inmueble";
 }
 
-<!-- Título -->
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">
   @ViewData["Title"]
 </h1>
 
-<!-- Card para envolver el formulario -->
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-gradient text-dark border-0 rounded-4">
     <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">
@@ -18,22 +16,18 @@
   </div>
   <div class="card-body" style="padding: 1.5rem;">
 
-    <!-- Formulario para crear/editar el inmueble -->
-    <form asp-action="CreateOrEdit" method="post">
-      <!-- Campo oculto para el ID del inmueble -->
+    <form asp-action="CreateOrEdit" method="post" enctype="multipart/form-data">
       @if (Model.IdInmueble != 0)
       {
         <input type="hidden" asp-for="IdInmueble" />
       }
 
-      <!-- Dirección -->
       <div class="form-group mb-3">
         <label asp-for="Direccion" class="control-label"></label>
         <input asp-for="Direccion" class="form-control" />
         <span asp-validation-for="Direccion" class="text-danger"></span>
       </div>
 
-      <!-- Uso (Comercial o Residencial) -->
       <div class="form-group mb-3">
         <label asp-for="Uso" class="control-label"></label>
         <select asp-for="Uso" class="form-control">
@@ -43,7 +37,6 @@
         <span asp-validation-for="Uso" class="text-danger"></span>
       </div>
 
-      <!-- Tipo de Inmueble -->
       <div class="form-group mb-3">
         <label class="control-label">Tipo de Inmueble</label>
         <select asp-for="IdTipoInmueble" asp-items="ViewBag.TiposInmueble" class="form-control">
@@ -52,35 +45,30 @@
         <span asp-validation-for="IdTipoInmueble" class="text-danger"></span>
       </div>
 
-      <!-- Ambientes -->
       <div class="form-group mb-3">
         <label asp-for="Ambientes" class="control-label"></label>
         <input asp-for="Ambientes" class="form-control" />
         <span asp-validation-for="Ambientes" class="text-danger"></span>
       </div>
 
-      <!-- Latitud -->
       <div class="form-group mb-3">
         <label asp-for="Latitud" class="control-label"></label>
         <input asp-for="Latitud" class="form-control" />
         <span asp-validation-for="Latitud" class="text-danger"></span>
       </div>
 
-      <!-- Longitud -->
       <div class="form-group mb-3">
         <label asp-for="Longitud" class="control-label"></label>
         <input asp-for="Longitud" class="form-control" />
         <span asp-validation-for="Longitud" class="text-danger"></span>
       </div>
 
-      <!-- Precio -->
       <div class="form-group mb-3">
         <label asp-for="Precio" class="control-label"></label>
         <input asp-for="Precio" class="form-control" />
         <span asp-validation-for="Precio" class="text-danger"></span>
       </div>
 
-      <!-- Estado -->
       <div class="form-group mb-3">
         <label asp-for="Estado" class="control-label"></label>
         <select asp-for="Estado" class="form-control">
@@ -91,7 +79,6 @@
         <span asp-validation-for="Estado" class="text-danger"></span>
       </div>
 
-      <!-- Propietario -->
       <div class="form-group mb-3">
         <label class="control-label">Propietario</label>
         <select asp-for="IdPropietario" class="form-control" asp-items="ViewBag.Propietarios">
@@ -100,7 +87,14 @@
         <span asp-validation-for="IdPropietario" class="text-danger"></span>
       </div>
 
-      <!-- Botones -->
+      <div class="form-group mb-3">
+        <label for="PortadaFile" class="control-label">Imagen de Portada</label>
+        <input type="file" class="form-control" id="PortadaFile" name="archivo" accept="image/*">
+        <small class="form-text text-muted">Seleccione una imagen para la portada del inmueble.</small>
+      </div>
+      <input type="hidden" name="idRelacionado" value="@Model.IdInmueble" />
+      <input type="hidden" name="tipoImagen" value="InmueblePortada" />
+
       <div class="card-footer d-flex justify-content-end">
         <button type="submit" class="btn btn-primary btn-sm me-2">
           Guardar cambios

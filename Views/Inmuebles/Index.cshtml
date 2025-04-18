@@ -4,17 +4,14 @@
 @{
   ViewData["Title"] = "Lista de Inmuebles";
 }
-<!-- Título -->
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Lista de
   Inmuebles</h1>
 
-<!-- Card para envolver la tabla -->
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-gradient text-dark border-0 rounded-4">
     <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Inmuebles</h5>
   </div>
   <div class="card-body" style="padding: 0.5rem 1rem;">
-    <!-- Botón "Agregar Inmueble" en la parte superior derecha -->
     <div class="d-flex justify-content-end mb-3">
       <a asp-action="CreateOrEdit" class="btn btn-primary btn-sm">
         <i class="fas fa-plus-circle me-2"></i> Agregar
@@ -25,6 +22,9 @@
         <thead class="bg-primary text-white">
           <tr>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ID
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              Portada
             </th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
               Dirección</th>
@@ -50,6 +50,35 @@
           {
             <tr>
               <td>@inmueble.IdInmueble</td>
+              <td>
+                @if (ViewBag.Portadas.ContainsKey(inmueble.IdInmueble) &&
+                              !string.IsNullOrEmpty(ViewBag.Portadas[inmueble.IdInmueble]))
+                {
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#portadaModal-@inmueble.IdInmueble">
+                    <img src="@ViewBag.Portadas[inmueble.IdInmueble]" alt="Portada"
+                      style="max-width: 50px; height: auto; cursor: pointer;">
+                  </a>
+                  <div class="modal fade" id="portadaModal-@inmueble.IdInmueble" tabindex="-1"
+                    aria-labelledby="portadaModalLabel-@inmueble.IdInmueble" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="portadaModalLabel-@inmueble.IdInmueble">Portada del Inmueble ID:
+                            @inmueble.IdInmueble</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                          <img src="@ViewBag.Portadas[inmueble.IdInmueble]" alt="Portada Grande" class="img-fluid">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+                else
+                {
+                  <img src="~/img/default_image.png" alt="Sin Portada" style="max-width: 50px; height: auto;">
+                }
+              </td>
               <td>@inmueble.Direccion</td>
               <td>@inmueble.Uso</td>
               <td>@inmueble.TipoNombre</td>
@@ -58,17 +87,14 @@
               <td>@inmueble.Estado</td>
               <td>@($"{inmueble.PropietarioApellido}, {inmueble.PropietarioNombre}")</td>
               <td class="text-center">
-                <!-- Detalles -->
                 <a asp-action="Details" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Ver detalles del inmueble">
                   <i class="fas fa-eye"></i>
                 </a>
-                <!-- Editar -->
                 <a asp-action="CreateOrEdit" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
-       data-bs-placement="top" title="Editar inmueble">
-        <i class="fas fa-edit"></i>
-    </a>
-                <!-- Eliminar -->
+                  data-bs-placement="top" title="Editar inmueble">
+                  <i class="fas fa-edit"></i>
+                </a>
                 <a asp-action="Delete" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Eliminar inmueble">
                   <i class="fas fa-trash-alt"></i>

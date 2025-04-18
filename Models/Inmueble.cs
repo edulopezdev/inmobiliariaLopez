@@ -27,6 +27,9 @@ public class Inmueble
     // Propiedades de Navegación
     public Propietario? Propietario { get; set; }
 
+    // Propiedades de Navegación para Imagen
+    public List<Imagen> Imagenes { get; set; } = new List<Imagen>();
+
     // Constructor
     public Inmueble()
     {

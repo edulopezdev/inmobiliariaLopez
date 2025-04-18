@@ -10,20 +10,37 @@ namespace InmobiliariaLopez.Controllers
     {
         private readonly IRepositorioInmueble _repositorio;
         private readonly IRepositorioPropietario _repoPropietario;
+        private readonly IRepositorioImagen _repoImagen;
+        private readonly IWebHostEnvironment _environment; // Inyecta IWebHostEnvironment
 
         public InmueblesController(
             IRepositorioInmueble repositorio,
-            IRepositorioPropietario repoPropietario
+            IRepositorioPropietario repoPropietario,
+            IRepositorioImagen repoImagen,
+            IWebHostEnvironment environment // Recibe IWebHostEnvironment
         )
         {
             _repositorio = repositorio;
             _repoPropietario = repoPropietario;
+            _repoImagen = repoImagen;
+            _environment = environment; // Asigna a la variable de clase
         }
 
         // GET: Inmuebles
         public IActionResult Index()
         {
             var inmuebles = _repositorio.Index();
+            var portadas = new Dictionary<int, string?>();
+
+            foreach (var inmueble in inmuebles)
+            {
+                var portada = _repoImagen
+                    .ObtenerPorInmueble(inmueble.IdInmueble)
+                    .FirstOrDefault(img => img.TipoImagen == "InmueblePortada" && img.Activo);
+                portadas[inmueble.IdInmueble] = portada?.Ruta;
+            }
+
+            ViewBag.Portadas = portadas; // ¡Esta línea es crucial!
             return View(inmuebles);
         }
 
@@ -90,7 +107,7 @@ namespace InmobiliariaLopez.Controllers
         // POST: Inmuebles/CreateOrEdit
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateOrEdit(int? id, Inmueble inmueble)
+        public async Task<IActionResult> CreateOrEdit(int? id, Inmueble inmueble, IFormFile archivo)
         {
             // Validar que el ID coincida con el modelo
             if (id != null && inmueble.IdInmueble != id)
@@ -107,12 +124,24 @@ namespace InmobiliariaLopez.Controllers
                         // Crear un nuevo inmueble
                         _repositorio.Create(inmueble);
                         TempData["Mensaje"] = "Inmueble creado correctamente";
+
+                        // Subir la portada si se proporcionó un archivo
+                        if (archivo != null && archivo.Length > 0)
+                        {
+                            await SubirPortada(inmueble.IdInmueble, archivo); // Llama a la acción SubirPortada
+                        }
                     }
                     else
                     {
                         // Editar un inmueble existente
                         _repositorio.Edit(inmueble);
                         TempData["Mensaje"] = "Inmueble modificado correctamente";
+
+                        // Subir la portada si se proporcionó un archivo
+                        if (archivo != null && archivo.Length > 0)
+                        {
+                            await SubirPortada(inmueble.IdInmueble, archivo); // Llama a la acción SubirPortada
+                        }
                     }
 
                     return RedirectToAction(nameof(Index));
@@ -166,6 +195,91 @@ namespace InmobiliariaLopez.Controllers
                 TempData["Mensaje"] = "No hay inmuebles asociados al propietario seleccionado.";
             }
             return View("Index", inmuebles);
+        }
+
+        // POST: Inmuebles/SubirPortada
+        [HttpPost]
+        public async Task<IActionResult> SubirPortada(int idInmueble, IFormFile archivo)
+        {
+            if (archivo == null || archivo.Length == 0)
+            {
+                TempData["Error"] = "Debes seleccionar una imagen.";
+                return RedirectToAction("Details", new { id = idInmueble });
+            }
+
+            // Buscar la portada activa existente para este inmueble
+            var portadaExistente = _repoImagen
+                .ObtenerPorInmueble(idInmueble)
+                .FirstOrDefault(img => img.TipoImagen == "InmueblePortada" && img.Activo);
+
+            if (portadaExistente != null)
+            {
+                // 1. Eliminar el archivo físico de la portada anterior
+                string rutaArchivoAnterior = Path.Combine(
+                    _environment.WebRootPath,
+                    portadaExistente.Ruta.TrimStart('/')
+                );
+                if (System.IO.File.Exists(rutaArchivoAnterior))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(rutaArchivoAnterior);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error al eliminar la portada anterior: {ex.Message}");
+                        TempData["Error"] = "Ocurrió un error al eliminar la portada anterior.";
+                        return RedirectToAction("Details", new { id = idInmueble });
+                    }
+                }
+
+                // 2. Eliminar el registro de la portada anterior de la base de datos
+                _repoImagen.Delete(portadaExistente.IdImagen); // Asumiendo que agregaremos un método Delete al repositorio
+            }
+
+            // Generar el nuevo nombre y ruta para la portada
+            var extension = Path.GetExtension(archivo.FileName);
+            var numeroAleatorio = Guid.NewGuid().ToString().Substring(0, 8);
+            string nombreUnico = $"portada_{idInmueble}_{numeroAleatorio}{extension}";
+            string rutaCarpetaRelativa = "img/inmuebles";
+            string rutaBase = _environment.WebRootPath;
+            string rutaCarpetaCompleta = Path.Combine(
+                rutaBase,
+                rutaCarpetaRelativa,
+                idInmueble.ToString()
+            );
+            Directory.CreateDirectory(rutaCarpetaCompleta);
+            string rutaCompletaArchivo = Path.Combine(rutaCarpetaCompleta, nombreUnico);
+            string rutaRelativaWeb = $"/img/inmuebles/{idInmueble}/{nombreUnico}";
+
+            // Guardar el nuevo archivo físico
+            using (var stream = new FileStream(rutaCompletaArchivo, FileMode.Create))
+            {
+                try
+                {
+                    await archivo.CopyToAsync(stream);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al guardar la nueva portada: {ex.Message}");
+                    TempData["Error"] = "Ocurrió un error al guardar la nueva portada.";
+                    return RedirectToAction("Details", new { id = idInmueble });
+                }
+            }
+
+            // 3. Crear y guardar el registro de la nueva portada en la base de datos
+            var nuevaImagen = new Imagen
+            {
+                Ruta = rutaRelativaWeb,
+                TipoImagen = "InmueblePortada",
+                IdRelacionado = idInmueble,
+                Activo = true,
+            };
+
+            _repoImagen.Create(nuevaImagen);
+
+            TempData["Success"] = "Portada actualizada correctamente.";
+            return RedirectToAction("Details", new { id = idInmueble });
         }
     }
 }

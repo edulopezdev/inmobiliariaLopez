@@ -8,101 +8,103 @@
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Detalles del
   Inmueble</h1>
 
-<!-- Card para envolver los detalles -->
-<div class="card shadow-lg border-0 rounded-4">
-  <div class="card-header bg-gradient text-dark border-0 rounded-4">
-    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Inmueble</h5>
-  </div>
-  <div class="card-body" style="padding: 1.5rem;">
-    <h4>Inmueble</h4>
-    <hr />
-    <dl class="row">
-      <!-- ID -->
-      <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.IdInmueble)
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.IdInmueble)
-      </dd>
+<div class="row">
+  <!-- Columna izquierda - Detalles del inmueble -->
+  <div class="col-md-6">
+    <div class="card shadow-lg border-0 rounded-4 h-100">
+      <div class="card-header bg-gradient text-dark border-0 rounded-4">
+        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Detalles del Inmueble</h5>
+      </div>
+      <div class="card-body" style="padding: 1.5rem;">
+        <h4>Inmueble</h4>
+        <hr />
+        <dl class="row">
+          <!-- ID -->
+          <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.IdInmueble)
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.IdInmueble)
+          </dd>
 
-      <!-- Dirección -->
-      <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Direccion)
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Direccion)
-      </dd>
+          <!-- Dirección -->
+          <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Direccion)
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Direccion)
+          </dd>
 
-      <!-- Uso -->
-      <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Uso)
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Uso)
-      </dd>
+          <!-- Uso -->
+          <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Uso)
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Uso)
+          </dd>
 
-      <!-- Tipo de Inmueble -->
-      <dt class="col-sm-2">
-        Tipo de Inmueble
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.TipoNombre)
-      </dd>
+          <!-- Tipo de Inmueble -->
+          <dt class="col-sm-4">
+            Tipo de Inmueble
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.TipoNombre)
+          </dd>
 
-      <!-- Ambientes -->
-      <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Ambientes)
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Ambientes)
-      </dd>
+          <!-- Ambientes -->
+          <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Ambientes)
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Ambientes)
+          </dd>
 
-      <!-- Coordenadas: Latitud y Longitud -->
-      <dt class="col-sm-2">
-        <strong>Coordenadas</strong>
-      </dt>
-      <dd class="col-sm-10">
-        @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
-        {
-          <span>Latitud: @Model.Latitud.Value.ToString("0.#####"), Longitud:
-            @Model.Longitud.Value.ToString("0.#####")</span>
-        }
-        else
-        {
-          <span>No disponible</span>
-        }
-      </dd>
+          <!-- Coordenadas -->
+          <dt class="col-sm-4">
+            <strong>Coordenadas</strong>
+          </dt>
+          <dd class="col-sm-8">
+            @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
+            {
+              <span>Latitud: @Model.Latitud.Value.ToString("0.#####"), Longitud:
+                @Model.Longitud.Value.ToString("0.#####")</span>
+            }
+            else
+            {
+              <span>No disponible</span>
+            }
+          </dd>
 
-      <!-- Precio -->
-      <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Precio)
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Precio)
-      </dd>
+          <!-- Precio -->
+          <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Precio)
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Precio)
+          </dd>
 
-      <!-- Estado -->
-      <dt class="col-sm-2">
-        @Html.DisplayNameFor(model => model.Estado)
-      </dt>
-      <dd class="col-sm-10">
-        @Html.DisplayFor(model => model.Estado)
-      </dd>
+          <!-- Estado -->
+          <dt class="col-sm-4">
+            @Html.DisplayNameFor(model => model.Estado)
+          </dt>
+          <dd class="col-sm-8">
+            @Html.DisplayFor(model => model.Estado)
+          </dd>
 
-      <!-- Propietario -->
-      <dt class="col-sm-2">
-        Propietario
-      </dt>
-      <dd class="col-sm-10">
-        @Model.PropietarioCompleto
-        <a asp-controller="Propietarios" asp-action="Details" asp-route-id="@Model.IdPropietario" class="btn-link ms-2"
-          data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del propietario">
-          <i class="fas fa-eye"></i>
-        </a>
-      </dd>
-
-
-      <!-- Botones para editar o volver a la lista dentro del card -->
+          <!-- Propietario -->
+          <dt class="col-sm-4">
+            Propietario
+          </dt>
+          <dd class="col-sm-8">
+            @Model.PropietarioCompleto
+            <a asp-controller="Propietarios" asp-action="Details" asp-route-id="@Model.IdPropietario"
+              class="btn-link ms-2" data-bs-toggle="tooltip" data-bs-placement="top"
+              title="Ver detalles del propietario">
+              <i class="fas fa-eye"></i>
+            </a>
+          </dd>
+        </dl>
+      </div>
       <div class="card-footer d-flex justify-content-end">
         <a asp-action="CreateOrEdit" asp-route-id="@Model.IdInmueble" class="btn btn-warning btn-sm me-2">
           Editar
@@ -111,8 +113,102 @@
           Volver a la lista
         </a>
       </div>
+    </div>
   </div>
+
+  <!-- Columna derecha - Carrusel de imágenes -->
+  <div class="col-md-6">
+    <div class="card shadow-lg border-0 rounded-4 h-100">
+      <div class="card-header bg-gradient text-dark border-0 rounded-4">
+        <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Galería de Imágenes</h5>
+      </div>
+      <div class="card-body">
+        @if (Model.Imagenes != null && Model.Imagenes.Any())
+        {
+          <div id="inmuebleCarousel" class="carousel slide" data-bs-ride="carousel">
+            <!-- Indicadores -->
+            <div class="carousel-indicators">
+              @for (int i = 0; i < Model.Imagenes.Count; i++)
+              {
+                <button type="button" data-bs-target="#inmuebleCarousel" data-bs-slide-to="@i"
+                  class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "")"></button>
+              }
+            </div>
+
+            <!-- Imágenes -->
+            <div class="carousel-inner rounded-3">
+              @for (int i = 0; i < Model.Imagenes.Count; i++)
+              {
+                <div class="carousel-item @(i == 0 ? "active" : "")">
+                  <img src="@Model.Imagenes[i].Ruta" class="d-block w-100" style="height: 400px; object-fit: cover;"
+                    alt="Imagen @(i + 1) del inmueble">
+                </div>
+              }
+            </div>
+
+            <!-- Controles -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#inmuebleCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#inmuebleCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Siguiente</span>
+            </button>
+          </div>
+
+          <!-- Miniaturas (opcional) -->
+          <div class="row mt-3">
+            @for (int i = 0; i < Model.Imagenes.Count; i++)
+            {
+              <div class="col-3">
+                <img src="@Model.Imagenes[i].Ruta" class="img-thumbnail"
+                  style="cursor: pointer; height: 80px; object-fit: cover;" onclick="$('#inmuebleCarousel').carousel(@i)">
+              </div>
+            }
+          </div>
+        }
+        else
+        {
+          <div class="text-center py-5">
+            <i class="fas fa-image fa-5x text-muted mb-3"></i>
+            <p class="text-muted">No hay imágenes disponibles para este inmueble</p>
+          </div>
+        }
+
+        <!-- Formulario para subir nuevas imágenes -->
+        <div class="mt-4">
+          <form asp-action="SubirPortada" enctype="multipart/form-data" class="border-top pt-3">
+            <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
+            <div class="mb-3">
+              <label class="form-label">Subir nueva imagen:</label>
+              <input type="file" name="archivo" class="form-control" accept="image/*" required>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload me-1"></i> Subir
+              </button>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="esPortada" id="esPortada">
+                <label class="form-check-label" for="esPortada">
+                  Establecer como portada
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 @section Scripts {
   @await Html.PartialAsync("_ValidationScriptsPartial")
+
+  <!-- Inicializar tooltips -->
+  <script>
+    $(document).ready(function () {
+      $('[data-bs-toggle="tooltip"]').tooltip();
+    });
+  </script>
 }
