@@ -16,7 +16,7 @@
   </div>
   <div class="card-body" style="padding: 1.5rem;">
 
-    <form asp-action="CreateOrEdit" method="post" enctype="multipart/form-data">
+    <form id="formularioInmueble" asp-action="CreateOrEdit" method="post" enctype="multipart/form-data">
       @if (Model.IdInmueble != 0)
       {
         <input type="hidden" asp-for="IdInmueble" />
@@ -87,16 +87,19 @@
         <span asp-validation-for="IdPropietario" class="text-danger"></span>
       </div>
 
-      <div class="form-group mb-3">
-        <label for="PortadaFile" class="control-label">Imagen de Portada</label>
-        <input type="file" class="form-control" id="PortadaFile" name="archivo" accept="image/*">
-        <small class="form-text text-muted">Seleccione una imagen para la portada del inmueble.</small>
-      </div>
+      @if (Model.IdInmueble == 0)
+      {
+        <div class="form-group mb-3">
+          <label for="PortadaFile" class="control-label">Imagen de Portada</label>
+          <input type="file" class="form-control" id="PortadaFile" name="archivo" accept="image/*">
+          <small class="form-text text-muted">Seleccione una imagen para la portada del inmueble.</small>
+        </div>
+      }
       <input type="hidden" name="idRelacionado" value="@Model.IdInmueble" />
       <input type="hidden" name="tipoImagen" value="InmueblePortada" />
 
       <div class="card-footer d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary btn-sm me-2">
+        <button type="button" id="btnGuardar" class="btn btn-primary btn-sm me-2">
           Guardar cambios
         </button>
         <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">
@@ -109,4 +112,29 @@
 
 @section Scripts {
   @await Html.PartialAsync("_ValidationScriptsPartial")
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const botonGuardar = document.getElementById("btnGuardar");
+      const formulario = document.getElementById("formularioInmueble");
+
+      botonGuardar.addEventListener("click", function () {
+        Swal.fire({
+          title: '¿Deseás guardar los cambios?',
+          text: "Se guardarán los datos del inmueble.",
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, guardar',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            formulario.submit();
+          }
+        });
+      });
+    });
+  </script>
 }

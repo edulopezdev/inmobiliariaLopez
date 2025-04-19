@@ -44,7 +44,6 @@ namespace InmobiliariaLopez.Controllers
             return View(inmuebles);
         }
 
-        // GET: Inmuebles/Details/5
         public IActionResult Details(int id)
         {
             var inmueble = _repositorio.Details(id);
@@ -52,6 +51,10 @@ namespace InmobiliariaLopez.Controllers
             {
                 return NotFound();
             }
+
+            // Obtener las imagenes asociadas al inmueble
+            inmueble.Imagenes = _repoImagen.ObtenerPorInmueble(id);
+
             return View(inmueble);
         }
 
@@ -197,6 +200,137 @@ namespace InmobiliariaLopez.Controllers
             return View("Index", inmuebles);
         }
 
+        // GET: Inmuebles/GaleriaImagenes
+        [HttpGet]
+        public IActionResult GaleriaImagenes(int idInmueble)
+        {
+            var inmueble = _repositorio.Details(idInmueble);
+            if (inmueble == null)
+                return NotFound();
+
+            inmueble.Imagenes = _repoImagen.ObtenerPorInmueble(idInmueble);
+            return PartialView("_GaleriaImagenes", inmueble);
+        }
+
+        // POST: Inmuebles/GuardarImagen
+        [HttpPost]
+        public async Task<IActionResult> GuardarImagen(
+            int idInmueble,
+            bool esReemplazoPortada,
+            List<IFormFile> archivos
+        )
+        {
+            if (archivos == null || archivos.Count == 0)
+            {
+                TempData["Error"] = "Debes seleccionar al menos una imagen.";
+                return RedirectToAction("Details", new { id = idInmueble });
+            }
+
+            try
+            {
+                foreach (var archivo in archivos)
+                {
+                    // Validar cada archivo
+                    if (
+                        !archivo.ContentType.StartsWith("image/")
+                        || archivo.Length > 5 * 1024 * 1024
+                    )
+                    {
+                        TempData["Error"] = "Todas las imágenes deben ser válidas y menores a 5MB.";
+                        continue; // Salta este archivo inválido y sigue con los demás
+                    }
+
+                    if (esReemplazoPortada)
+                    {
+                        // Solo subimos una portada, así que llamamos y salimos
+                        await SubirPortada(idInmueble, archivo);
+                        break;
+                    }
+                    else
+                    {
+                        var extension = Path.GetExtension(archivo.FileName);
+                        var numeroAleatorio = Guid.NewGuid().ToString("N").Substring(0, 8);
+                        string nombreUnico =
+                            $"inmuebleinterior_{idInmueble}_{numeroAleatorio}{extension}";
+                        string rutaCarpetaRelativa = "img/inmuebles/galeria";
+                        string rutaBase = _environment.WebRootPath;
+                        string rutaCarpetaCompleta = Path.Combine(rutaBase, rutaCarpetaRelativa);
+
+                        // Crear carpeta si no existe
+                        Directory.CreateDirectory(rutaCarpetaCompleta);
+
+                        string rutaCompletaArchivo = Path.Combine(rutaCarpetaCompleta, nombreUnico);
+                        string rutaRelativaWeb = $"/img/inmuebles/galeria/{nombreUnico}";
+
+                        // Guardar archivo físico
+                        using (var stream = new FileStream(rutaCompletaArchivo, FileMode.Create))
+                        {
+                            await archivo.CopyToAsync(stream);
+                        }
+
+                        // Registrar en la base de datos
+                        var nuevaImagen = new Imagen
+                        {
+                            Ruta = rutaRelativaWeb,
+                            TipoImagen = "InmuebleInterior",
+                            IdRelacionado = idInmueble,
+                            Activo = true,
+                        };
+                        _repoImagen.Create(nuevaImagen);
+                    }
+                }
+
+                TempData["Success"] = "Imágenes subidas correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ocurrió un error al guardar las imágenes: {ex.Message}";
+                Console.WriteLine($"Error en GuardarImagen: {ex.Message}");
+            }
+
+            return RedirectToAction("Details", new { id = idInmueble });
+        }
+
+        // POST: Inmuebles/EliminarImagen
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EliminarImagen(int idImagen, int idInmueble)
+        {
+            try
+            {
+                var imagen = _repoImagen.Details(idImagen);
+                if (imagen == null)
+                {
+                    return Json(
+                        new
+                        {
+                            success = false,
+                            message = "La imagen no existe o ya ha sido eliminada.",
+                        }
+                    );
+                }
+
+                string rutaArchivo = Path.Combine(
+                    _environment.WebRootPath,
+                    imagen.Ruta.TrimStart('/')
+                );
+                if (System.IO.File.Exists(rutaArchivo))
+                {
+                    System.IO.File.Delete(rutaArchivo);
+                }
+
+                _repoImagen.Delete(imagen.IdImagen);
+
+                return Json(new { success = true, message = "Imagen eliminada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(
+                    new { success = false, message = "Ocurrió un error al eliminar la imagen." }
+                );
+            }
+        }
+
         // POST: Inmuebles/SubirPortada
         [HttpPost]
         public async Task<IActionResult> SubirPortada(int idInmueble, IFormFile archivo)
@@ -207,78 +341,72 @@ namespace InmobiliariaLopez.Controllers
                 return RedirectToAction("Details", new { id = idInmueble });
             }
 
-            // Buscar la portada activa existente para este inmueble
-            var portadaExistente = _repoImagen
-                .ObtenerPorInmueble(idInmueble)
-                .FirstOrDefault(img => img.TipoImagen == "InmueblePortada" && img.Activo);
-
-            if (portadaExistente != null)
+            try
             {
-                // 1. Eliminar el archivo físico de la portada anterior
-                string rutaArchivoAnterior = Path.Combine(
-                    _environment.WebRootPath,
-                    portadaExistente.Ruta.TrimStart('/')
-                );
-                if (System.IO.File.Exists(rutaArchivoAnterior))
+                // Validar que sea una imagen válida y no exceda el tamaño máximo (5MB)
+                if (!archivo.ContentType.StartsWith("image/") || archivo.Length > 5 * 1024 * 1024)
                 {
-                    try
+                    TempData["Error"] = "Solo se permiten imágenes menores a 5MB.";
+                    return RedirectToAction("Details", new { id = idInmueble });
+                }
+
+                // Buscar la portada activa existente para este inmueble
+                var portadaExistente = _repoImagen
+                    .ObtenerPorInmueble(idInmueble)
+                    .FirstOrDefault(img => img.TipoImagen == "InmueblePortada" && img.Activo);
+
+                if (portadaExistente != null)
+                {
+                    // Eliminar el archivo físico de la portada anterior
+                    string rutaArchivoAnterior = Path.Combine(
+                        _environment.WebRootPath,
+                        portadaExistente.Ruta.TrimStart('/')
+                    );
+                    if (System.IO.File.Exists(rutaArchivoAnterior))
                     {
                         System.IO.File.Delete(rutaArchivoAnterior);
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Error al eliminar la portada anterior: {ex.Message}");
-                        TempData["Error"] = "Ocurrió un error al eliminar la portada anterior.";
-                        return RedirectToAction("Details", new { id = idInmueble });
-                    }
+
+                    // Eliminar el registro de la portada anterior de la base de datos
+                    _repoImagen.Delete(portadaExistente.IdImagen);
                 }
 
-                // 2. Eliminar el registro de la portada anterior de la base de datos
-                _repoImagen.Delete(portadaExistente.IdImagen); // Asumiendo que agregaremos un método Delete al repositorio
-            }
+                // Generar el nuevo nombre y ruta para la portada
+                var extension = Path.GetExtension(archivo.FileName);
+                var numeroAleatorio = Guid.NewGuid().ToString("N").Substring(0, 8);
+                string nombreUnico = $"inmuebleportada_{idInmueble}_{numeroAleatorio}{extension}";
+                string rutaCarpetaRelativa = "img/inmuebles/portada";
+                string rutaBase = _environment.WebRootPath;
+                string rutaCarpetaCompleta = Path.Combine(rutaBase, rutaCarpetaRelativa);
 
-            // Generar el nuevo nombre y ruta para la portada
-            var extension = Path.GetExtension(archivo.FileName);
-            var numeroAleatorio = Guid.NewGuid().ToString().Substring(0, 8);
-            string nombreUnico = $"portada_{idInmueble}_{numeroAleatorio}{extension}";
-            string rutaCarpetaRelativa = "img/inmuebles";
-            string rutaBase = _environment.WebRootPath;
-            string rutaCarpetaCompleta = Path.Combine(
-                rutaBase,
-                rutaCarpetaRelativa,
-                idInmueble.ToString()
-            );
-            Directory.CreateDirectory(rutaCarpetaCompleta);
-            string rutaCompletaArchivo = Path.Combine(rutaCarpetaCompleta, nombreUnico);
-            string rutaRelativaWeb = $"/img/inmuebles/{idInmueble}/{nombreUnico}";
+                Directory.CreateDirectory(rutaCarpetaCompleta); // Crear carpeta si no existe
+                string rutaCompletaArchivo = Path.Combine(rutaCarpetaCompleta, nombreUnico);
+                string rutaRelativaWeb = $"/img/inmuebles/portada/{nombreUnico}";
 
-            // Guardar el nuevo archivo físico
-            using (var stream = new FileStream(rutaCompletaArchivo, FileMode.Create))
-            {
-                try
+                // Guardar el nuevo archivo físico
+                using (var stream = new FileStream(rutaCompletaArchivo, FileMode.Create))
                 {
                     await archivo.CopyToAsync(stream);
                 }
-                catch (Exception ex)
+
+                // Crear y guardar el registro de la nueva portada en la base de datos
+                var nuevaImagen = new Imagen
                 {
-                    Console.WriteLine($"Error al guardar la nueva portada: {ex.Message}");
-                    TempData["Error"] = "Ocurrió un error al guardar la nueva portada.";
-                    return RedirectToAction("Details", new { id = idInmueble });
-                }
+                    Ruta = rutaRelativaWeb,
+                    TipoImagen = "InmueblePortada",
+                    IdRelacionado = idInmueble,
+                    Activo = true,
+                };
+                _repoImagen.Create(nuevaImagen);
+
+                TempData["Success"] = "Portada actualizada correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Ocurrió un error al actualizar la portada: {ex.Message}";
+                Console.WriteLine($"Error en SubirPortada: {ex.Message}");
             }
 
-            // 3. Crear y guardar el registro de la nueva portada en la base de datos
-            var nuevaImagen = new Imagen
-            {
-                Ruta = rutaRelativaWeb,
-                TipoImagen = "InmueblePortada",
-                IdRelacionado = idInmueble,
-                Activo = true,
-            };
-
-            _repoImagen.Create(nuevaImagen);
-
-            TempData["Success"] = "Portada actualizada correctamente.";
             return RedirectToAction("Details", new { id = idInmueble });
         }
     }

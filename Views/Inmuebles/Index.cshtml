@@ -1,5 +1,4 @@
 @using System.Globalization
-
 @model IEnumerable<InmobiliariaLopez.Models.Inmueble>
 @{
   ViewData["Title"] = "Lista de Inmuebles";
@@ -68,7 +67,26 @@
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body text-center">
-                          <img src="@ViewBag.Portadas[inmueble.IdInmueble]" alt="Portada Grande" class="img-fluid">
+                          <img id="portada-preview-@inmueble.IdInmueble" src="@ViewBag.Portadas[inmueble.IdInmueble]"
+                            alt="Portada Grande" class="img-fluid mb-2">
+                          <input type="file" class="form-control" id="nueva-portada-@inmueble.IdInmueble" accept="image/*"
+                            style="display: none;">
+                          <button id="seleccionar-portada-@inmueble.IdInmueble" type="button"
+                            class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> Editar Portada
+                          </button>
+                        </div>
+                        <div class="modal-footer justify-content-end">
+                          <div class="d-flex gap-2">
+                            <button id="confirmar-editar-portada-@inmueble.IdInmueble" type="button"
+                              class="btn btn-primary btn-sm" style="display: none;">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button id="cancelar-editar-portada-@inmueble.IdInmueble" type="button"
+                              class="btn btn-secondary btn-sm" style="display: none;">
+                              <i class="fas fa-times"></i>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -107,13 +125,120 @@
     </div>
   </div>
 </div>
-
 @section Scripts {
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    // Activar tooltips de Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-      new bootstrap.Tooltip(tooltipTriggerEl);
+    $(document).ready(function () {
+      // Activar tooltips de Bootstrap
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+
+      $('[id^="seleccionar-portada-"]').on('click', function () {
+        const idInmueble = $(this).attr('id').split('-')[2];
+        $('#nueva-portada-' + idInmueble).trigger('click'); // Simula un clic en el input file oculto
+      });
+
+      $('[id^="nueva-portada-"]').on('change', function () {
+        const idInmueble = $(this).attr('id').split('-')[2];
+        const previewImage = $('#portada-preview-' + idInmueble)[0];
+        const fileInput = $(this)[0];
+
+        if (fileInput.files && fileInput.files[0]) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            $(previewImage).attr('src', e.target.result);
+            $('#confirmar-editar-portada-' + idInmueble).show();
+            $('#cancelar-editar-portada-' + idInmueble).show();
+            $('#seleccionar-portada-' + idInmueble).hide();
+          }
+
+          reader.readAsDataURL(fileInput.files[0]);
+        } else {
+          // Si se cancela la selección, volver al estado original
+          const portadaActualSrc = $('#portada-preview-' + idInmueble).attr('src');
+          $(previewImage).attr('src', portadaActualSrc);
+          $('#confirmar-editar-portada-' + idInmueble).hide();
+          $('#cancelar-editar-portada-' + idInmueble).hide();
+          $('#seleccionar-portada-' + idInmueble).show();
+        }
+      });
+
+      $('[id^="cancelar-editar-portada-"]').on('click', function () {
+        const idInmueble = $(this).attr('id').split('-')[3];
+        const previewImage = $('#portada-preview-' + idInmueble)[0];
+        const portadaActualSrc = $(previewImage).attr('src');
+        $(previewImage).attr('src', portadaActualSrc);
+        $('#confirmar-editar-portada-' + idInmueble).hide();
+        $('#cancelar-editar-portada-' + idInmueble).hide();
+        $('#seleccionar-portada-' + idInmueble).show();
+        $('#nueva-portada-' + idInmueble).val(''); // Limpiar la selección de archivo
+      });
+
+      $('[id^="confirmar-editar-portada-"]').on('click', function () {
+        const idInmueble = $(this).attr('id').split('-')[3];
+        const fileInput = $('#nueva-portada-' + idInmueble)[0];
+
+        if (fileInput.files && fileInput.files[0]) {
+          Swal.fire({
+            title: '¿Reemplazar la portada?',
+            text: "Esta acción reemplazará la portada actual del inmueble.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33', // Reemplaza con tu color de Details
+            cancelButtonColor: '#6c757d', // Reemplaza con tu color de Details
+            confirmButtonText: 'Sí, reemplazar',
+            cancelButtonText: 'Cancelar'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              const formData = new FormData();
+              formData.append('idInmueble', idInmueble);
+              formData.append('archivo', fileInput.files[0]);
+              formData.append('nuevaPortada', true);
+              formData.append('esReemplazoPortada', true);
+              const antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+              if (antiForgeryToken) {
+                formData.append('__RequestVerificationToken', antiForgeryToken);
+              }
+
+              $.ajax({
+                url: '@Url.Action("GuardarImagen", "Inmuebles")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                  Swal.fire(
+                    '¡Reemplazado!',
+                    'La portada ha sido reemplazada correctamente.',
+                    'success'
+                  ).then(() => {
+                    window.location.reload(); // Recargar la página para ver los cambios
+                  });
+                },
+                error: function (error) {
+                  Swal.fire(
+                    '¡Error!',
+                    'Hubo un problema al reemplazar la portada.',
+                    'error'
+                  );
+                  console.error(error);
+                }
+              });
+            }
+          });
+        } else {
+          Swal.fire(
+            '¡Atención!',
+            'Por favor, selecciona una nueva imagen para la portada.',
+            'warning'
+          );
+        }
+      });
     });
   </script>
+  @Html.AntiForgeryToken()
 }
