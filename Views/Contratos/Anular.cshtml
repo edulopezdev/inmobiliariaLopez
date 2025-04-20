@@ -1,21 +1,21 @@
-@using System.Globalization;
+@using System.Globalization
 @model InmobiliariaLopez.Models.Contrato
 
 @{
   ViewData["Title"] = "Anular Contrato";
 }
 
-<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #dc3545;">Anular Contrato
+<h1 class="mb-4 text-center text-danger" style="font-family: 'Roboto', sans-serif;">
+  Anular Contrato
 </h1>
 
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-danger text-white border-0 rounded-4">
-    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Confirmar Anulación</h5>
+    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif;">Confirmar Anulación</h5>
   </div>
   <div class="card-body" style="padding: 1.5rem;">
     <h6 class="mb-3">¿Estás seguro de que deseas anular el siguiente contrato?</h6>
     <dl class="row">
-      <!-- Detalles del contrato -->
       <dt class="col-sm-2"># Contrato</dt>
       <dd class="col-sm-10">@Html.DisplayFor(model => model.IdContrato)</dd>
 
@@ -42,17 +42,18 @@
       <dd class="col-sm-10">@Model.FechaFin.ToShortDateString()</dd>
 
       <dt class="col-sm-2">Monto Mensual</dt>
-      <dd class="col-sm-10">@Model.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))</dd>
+      <dd class="col-sm-10">
+        @Model.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("es-AR"))
+      </dd>
     </dl>
 
     <form id="anularContratoForm" method="post">
-      @Html.AntiForgeryToken()
-      <input type="hidden" asp-for="IdContrato" />
+      <input type="hidden" name="IdContrato" value="@Model.IdContrato" />
 
       <div class="row">
         <div class="form-group col-md-6">
-          <label class="control-label">Usuario que Anula</label>
-          <select asp-for="IdUsuarioAnula" class="form-control" required>
+          <label for="IdUsuarioAnula">Usuario que Anula</label>
+          <select id="IdUsuarioAnula" name="IdUsuarioAnula" class="form-control" required>
             <option value="">-- Seleccionar Usuario --</option>
             <option value="1">admin1@example.com</option>
             <option value="2">empleado1@example.com</option>
@@ -60,22 +61,24 @@
             <option value="4">admin2@example.com</option>
             <option value="5">empleado3@example.com</option>
           </select>
-          <span asp-validation-for="IdUsuarioAnula" class="text-danger"></span>
         </div>
 
         <div class="form-group col-md-6">
           <label for="FechaRescision">Fecha de Rescisión</label>
-          <input type="date" id="FechaRescision" name="FechaRescision" class="form-control" required />
+          <input type="date" id="FechaRescision" name="FechaRescision" class="form-control" required
+            min="@DateTime.Today.ToString("yyyy-MM-dd")" />
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group mt-3">
         <label for="Observaciones">Motivo de Anulación</label>
-        <textarea id="Observaciones" name="Observaciones" class="form-control" required></textarea>
+        <textarea id="Observaciones" name="Observaciones" class="form-control" rows="4" required></textarea>
       </div>
 
-      <div class="card-footer d-flex justify-content-end">
-        <button type="button" class="btn btn-danger btn-sm me-2" id="confirmarAnulacionBtn">Confirmar Anulación</button>
+      <div class="card-footer mt-4 d-flex justify-content-end">
+        <button type="button" class="btn btn-danger btn-sm me-2" id="confirmarAnulacionBtn">
+          Confirmar Anulación
+        </button>
         <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
       </div>
     </form>
@@ -85,61 +88,8 @@
 @section Scripts {
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const confirmarAnulacionBtn = document.getElementById('confirmarAnulacionBtn');
-      const anularContratoForm = document.getElementById('anularContratoForm');
-
-      confirmarAnulacionBtn.addEventListener('click', function () {
-        Swal.fire({
-          title: '¿Estás seguro?',
-          text: 'Esta acción anulará el contrato. ¿Deseas continuar?',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#dc3545',
-          cancelButtonColor: '#6c757d',
-          confirmButtonText: 'Sí, anular',
-          cancelButtonText: 'No, cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // Obtener los datos del formulario
-            const formData = new FormData(anularContratoForm);
-            const formObject = Object.fromEntries(formData);
-
-            // Mostrar los datos en la consola para depuración
-            console.log('Datos del formulario:', formObject);
-
-            // Enviar la solicitud AJAX al servidor
-            fetch('@Url.Action("AnularContrato")', { // Asegúrate que este URL sea el correcto
-              method: 'POST',
-              headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formObject)
-            })
-              .then(response => response.json())
-              .then(data => {
-                if (data.success) {
-                  Swal.fire({
-                    title: '¡Éxito!',
-                    text: 'El contrato ha sido anulado correctamente.',
-                    icon: 'success',
-                    confirmButtonText: 'Ok'
-                  }).then(() => {
-                    console.log('Redirigiendo a:', data.redirectUrl); // Mostrar la URL de redirección
-                    window.location.href = data.redirectUrl; // Redirigir al listado
-                  });
-                } else {
-                  Swal.fire('Error', 'Ocurrió un error al anular el contrato.', 'error');
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error); // Mostrar el error en la consola
-                Swal.fire('Error', 'Ocurrió un error inesperado.', 'error');
-              });
-          }
-        });
-      });
-    });
+    // Esta variable es evaluada por Razor y pasada al JS externo
+    const anularContratoUrl = '@Url.Action("AnularContrato", "Contratos")';
   </script>
+  <script src="~/js/Contratos/anular-contrato.js"></script>
 }

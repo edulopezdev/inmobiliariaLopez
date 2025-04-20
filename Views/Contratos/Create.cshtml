@@ -12,7 +12,6 @@
     <h5 class="mb-0">Crear un nuevo Contrato</h5>
   </div>
   <div class="card-body" style="padding: 1.5rem;">
-
     <form id="createContratoForm" asp-action="Create" method="post">
       @Html.AntiForgeryToken()
       <div class="form-group">
@@ -45,7 +44,7 @@
 
       <div class="form-group">
         <label asp-for="FechaInicio" class="control-label"></label>
-        <input asp-for="FechaInicio" type="date" class="form-control" />
+        <input asp-for="FechaInicio" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="FechaInicio" class="text-danger"></span>
       </div>
 
@@ -70,73 +69,11 @@
 </div>
 
 @section Scripts {
-  @{
-    await Html.PartialAsync("_ValidationScriptsPartial");
-  }
+  <script src="~/lib/jquery-validation/jquery.validate.min.js"></script>
+  <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const form = document.getElementById('createContratoForm');
-
-      form.addEventListener('submit', function (event) {
-        event.preventDefault(); // Evitar el envío tradicional del formulario
-
-        const formData = new FormData(form);
-
-        fetch('@Url.Action("Create")', { // URL a tu acción Create
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest' // Indica que es una petición AJAX
-          }
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              Swal.fire({
-                title: '¡Éxito!',
-                text: 'Contrato creado correctamente.',
-                icon: 'success',
-                confirmButtonText: 'Ok'
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  window.location.href = data.redirectUrl;
-                }
-              });
-            } else {
-              let errorMessage = 'Error al crear el contrato.';
-              if (data.message) {
-                errorMessage = data.message; // Mostrar el mensaje específico del servidor (disponibilidad)
-              } else if (data.errors) {
-                // Si hay errores de ModelState, construimos un mensaje para mostrar
-                let errorMessages = [];
-                for (const key in data.errors) {
-                  if (data.errors.hasOwnProperty(key)) {
-                    errorMessages.push(`${key}: ${data.errors[key].join(', ')}`);
-                  }
-                }
-                if (errorMessages.length > 0) {
-                  errorMessage = errorMessages.join('<br>'); // Mostrar todos los errores con saltos de línea
-                }
-              }
-              Swal.fire({
-                title: '¡Fechas Ocupadas!', // Título personalizado
-                html: errorMessage,
-                icon: 'warning', // Icono de advertencia
-                confirmButtonText: 'Ok'
-              });
-            }
-          })
-          .catch(error => {
-            console.error('Error en la petición AJAX:', error);
-            Swal.fire({
-              title: '¡Error!',
-              text: 'Ocurrió un error inesperado.',
-              icon: 'error',
-              confirmButtonText: 'Ok'
-            });
-          });
-      });
-    });
+    var createContratoUrl = '@Url.Action("Create", "Contratos")';
   </script>
+  <script src="~/js/Contratos/crear-contrato.js"></script>
 }

@@ -31,8 +31,6 @@ namespace InmobiliariaLopez.Models
 
         public decimal MontoMensual { get; set; }
 
-        public decimal? Multa { get; set; }
-
         public bool Activo { get; set; }
 
         public string? EstadoContrato { get; set; }

@@ -65,11 +65,6 @@
         @Model.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))
       </dd>
 
-      <dt class="col-sm-2">Multa</dt>
-      <dd class="col-sm-10">
-        @(Model.Multa.HasValue ? Model.Multa.Value.ToString("C", CultureInfo.CreateSpecificCulture("en-US")) : "-")
-      </dd>
-
       <dt class="col-sm-2">Fecha de Rescisión</dt>
       <dd class="col-sm-10">
         @(Model.FechaRescision.HasValue ? Model.FechaRescision.Value.ToShortDateString() : "-")

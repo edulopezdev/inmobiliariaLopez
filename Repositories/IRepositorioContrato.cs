@@ -9,5 +9,11 @@ namespace InmobiliariaLopez.Repositories
         IList<Contrato> ObtenerPorInquilino(int idInquilino);
         Contrato? ObtenerPorId(int idContrato);
         int AnularContrato(Contrato contrato);
+        List<(DateTime, DateTime)> ControlFechas(
+            int idInmueble,
+            DateTime fechaInicio,
+            DateTime fechaFin,
+            int? idContratoExcluido = null
+        );
     }
 }

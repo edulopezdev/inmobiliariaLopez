@@ -4,14 +4,14 @@
 
 /* Establecer el fondo de la página */
 body {
-  background: url('/images/fondo_app.jpg') no-repeat center center fixed;
+  background: url("/images/fondo_app.jpg") no-repeat center center fixed;
   background-size: cover; /* Hace que la imagen cubra todo el fondo */
   color: #333; /* Asegura que el texto sea legible */
 }
 
 /* Estilos de los títulos principales */
 h1 {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-size: 1.8rem;
   text-align: center;
   color: #007bff; /* Color primario */
@@ -47,6 +47,28 @@ h1 {
    Estilos de la Tabla
    =================================================== */
 
+/* Eliminar bordes en tablas */
+table {
+  border-collapse: collapse; /* Asegura que las celdas no tengan espacio entre sí */
+}
+
+table th,
+table td {
+  border: none; /* Elimina los bordes de las celdas */
+}
+
+/* Si también quieres quitar los bordes de las filas */
+table tr {
+  border: none;
+}
+
+/* Si estás utilizando un fondo personalizado (como en el caso de 'pendiente-anulacion') */
+.pendiente-anulacion {
+  background-color: rgba(255, 165, 0, 0.15); /* Naranja suave translúcido */
+  color: #cc7000; /* Naranja más fuerte para el texto */
+  border: none; /* Elimina cualquier borde */
+}
+
 /* Eliminar líneas horizontales y verticales en la tabla */
 .table-bordered {
   border-collapse: collapse;
@@ -54,7 +76,8 @@ h1 {
 }
 
 /* Eliminar las líneas verticales y horizontales */
-.table-bordered th, .table-bordered td {
+.table-bordered th,
+.table-bordered td {
   border: none; /* Elimina todas las líneas de las celdas */
   padding: 10px 12px; /* Ajustar padding para celdas */
   text-align: center; /* Alineación horizontal centrada */
@@ -193,4 +216,57 @@ h1 {
 /* Añadir márgenes para las alertas */
 .alert {
   margin-top: 20px;
+}
+
+/* ===================================================
+   Estilos para Contratos Anulados y Finalizados
+   =================================================== */
+
+/* Estilo para los contratos anulados */
+.table td .btn-link.text-danger {
+  color: #dc3545 !important; /* Rojo para el texto */
+  opacity: 0.5; /* Opacidad para indicar que está deshabilitado */
+  cursor: not-allowed; /* Cambiar el cursor a no permitido */
+}
+
+/* Estilo para los contratos finalizados */
+.table td .btn-link.text-muted {
+  opacity: 0.5; /* Opacidad para indicar que está deshabilitado */
+  color: #6c757d !important; /* Color gris más claro para indicar finalización */
+  cursor: not-allowed; /* Cambiar el cursor a no permitido */
+}
+
+.disabled-action {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.fila-pendiente-anulacion {
+  background-color: rgba(
+    255,
+    236,
+    202,
+    0.3
+  ); /* Naranja con algo de transparencia */
+}
+
+.fila-anulado {
+  background-color: rgba(
+    255,
+    0,
+    0,
+    0.1
+  ); /* Rojo claro con algo de transparencia */
+  opacity: 0.8;
+}
+
+.fila-finalizado {
+  background-color: rgba(0, 255, 0, 0.1); /* Verde claro con transparencia */
+  opacity: 0.8;
+}
+
+.disabled-action {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

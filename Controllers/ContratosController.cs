@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
-using InmobiliariaLopez.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
@@ -16,22 +15,16 @@ namespace InmobiliariaLopez.Controllers
         private readonly IRepositorioContrato _repositorioContrato;
         private readonly IRepositorioInmueble _repositorioInmueble;
         private readonly IRepositorioInquilino _repositorioInquilino;
-        private readonly IContratoService _contratoService;
-        private readonly ILogger<ContratosController> _logger;
 
         public ContratosController(
             IRepositorioContrato repositorioContrato,
             IRepositorioInmueble repositorioInmueble,
-            IRepositorioInquilino repositorioInquilino,
-            IContratoService contratoService,
-            ILogger<ContratosController> logger
+            IRepositorioInquilino repositorioInquilino
         )
         {
             _repositorioContrato = repositorioContrato;
             _repositorioInmueble = repositorioInmueble;
             _repositorioInquilino = repositorioInquilino;
-            _contratoService = contratoService;
-            _logger = logger;
         }
 
         // GET: Contratos
@@ -67,36 +60,38 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Contratos/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Create(Contrato contrato)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var resultado = _contratoService.VerificarDisponibilidad(
-                    contrato.IdInmueble,
-                    contrato.FechaInicio,
-                    contrato.FechaFin
-                );
-
-                if (!resultado.Disponible)
-                {
-                    string mensajeError =
-                        "El inmueble no está disponible en las fechas seleccionadas. Ya está ocupado entre las siguientes fechas: ";
-                    mensajeError += string.Join(
-                        "\\n", // Usamos \n para saltos de línea en SweetAlert
-                        resultado.FechasOcupadas.Select(f =>
-                            $"{f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}"
-                        )
+                var errors = ModelState
+                    .Where(x => x.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        x => x.Key,
+                        x => x.Value.Errors.Select(e => e.ErrorMessage).ToList()
                     );
-                    return Json(new { success = false, message = mensajeError }); // Devolvemos JSON para AJAX
-                }
-
-                _repositorioContrato.Create(contrato);
-                return Json(new { success = true, redirectUrl = Url.Action("Index") }); // Devolvemos JSON para AJAX
+                return Json(new { success = false, errors });
             }
 
-            CargarViewBag(); //Recargamos el viewbag para que la vista tenga los datos
-            return View(contrato); // Volvemos a la vista con el modelo y los errores
+            var fechasOcupadas = _repositorioContrato.ControlFechas(
+                contrato.IdInmueble,
+                contrato.FechaInicio,
+                contrato.FechaFin
+            );
+
+            if (fechasOcupadas.Any())
+            {
+                string mensaje = "El inmueble ya tiene contratos en las siguientes fechas:<br/>";
+                mensaje += string.Join(
+                    "<br/>",
+                    fechasOcupadas.Select(f => $"• {f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}")
+                );
+
+                return Json(new { success = false, message = mensaje });
+            }
+
+            _repositorioContrato.Create(contrato);
+            return Json(new { success = true, redirectUrl = Url.Action("Index") });
         }
 
         // GET: Contratos/Edit/5
@@ -120,97 +115,45 @@ namespace InmobiliariaLopez.Controllers
         [HttpPost]
         public IActionResult Edit(Contrato contrato)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var contratoExistente = _repositorioContrato.ObtenerPorId(contrato.IdContrato);
-                if (contratoExistente == null)
-                {
-                    return NotFound();
-                }
-
-                bool huboCambios = false;
-
-                if (contrato.FechaInicio != contratoExistente.FechaInicio)
-                {
-                    contratoExistente.FechaInicio = contrato.FechaInicio;
-                    huboCambios = true;
-                }
-
-                if (contrato.FechaFin != contratoExistente.FechaFin)
-                {
-                    contratoExistente.FechaFin = contrato.FechaFin;
-                    huboCambios = true;
-                }
-
-                if (contrato.MontoMensual != contratoExistente.MontoMensual)
-                {
-                    contratoExistente.MontoMensual = contrato.MontoMensual;
-                    huboCambios = true;
-                }
-
-                if (contrato.Multa != contratoExistente.Multa)
-                {
-                    contratoExistente.Multa = contrato.Multa;
-                    huboCambios = true;
-                }
-
-                if (contrato.EstadoContrato != contratoExistente.EstadoContrato)
-                {
-                    contratoExistente.EstadoContrato = contrato.EstadoContrato;
-                    huboCambios = true;
-                }
-
-                if (contrato.Observaciones != contratoExistente.Observaciones)
-                {
-                    contratoExistente.Observaciones = contrato.Observaciones;
-                    huboCambios = true;
-                }
-
-                // Validar la disponibilidad del inmueble para las nuevas fechas (excluyendo el contrato actual)
-                var resultadoDisponibilidad = _contratoService.VerificarDisponibilidad(
-                    contrato.IdInmueble,
-                    contrato.FechaInicio,
-                    contrato.FechaFin,
-                    contrato.IdContrato
-                );
-
-                if (!resultadoDisponibilidad.Disponible)
-                {
-                    string mensajeError =
-                        "El inmueble no está disponible en las fechas modificadas. Ya está ocupado entre las siguientes fechas: ";
-                    mensajeError += string.Join(
-                        "\\n",
-                        resultadoDisponibilidad.FechasOcupadas.Select(f =>
-                            $"{f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}"
-                        )
-                    );
-                    return Json(new { success = false, message = mensajeError });
-                }
-
-                if (huboCambios)
-                {
-                    _repositorioContrato.Edit(contratoExistente);
-                    return Json(new { success = true, redirectUrl = Url.Action("Index") });
-                }
-                else
-                {
-                    return Json(
-                        new
-                        {
-                            success = true,
-                            redirectUrl = Url.Action("Index"),
-                            message = "No se realizaron cambios.",
-                        }
-                    );
-                }
+                return Json(new { success = false, message = "Datos inválidos." });
             }
 
-            CargarViewBag(contrato.IdInmueble, contrato.IdInquilino);
-            ViewBag.EstadosContrato = new SelectList(
-                new[] { "Vigente", "Finalizado", "Anulado" },
-                contrato.EstadoContrato
+            var contratoExistente = _repositorioContrato.ObtenerPorId(contrato.IdContrato);
+            if (contratoExistente == null)
+            {
+                return NotFound();
+            }
+
+            var fechasOcupadas = _repositorioContrato.ControlFechas(
+                contrato.IdInmueble,
+                contrato.FechaInicio,
+                contrato.FechaFin,
+                contrato.IdContrato // se excluye a sí mismo
             );
-            return View(contrato);
+
+            if (fechasOcupadas.Any())
+            {
+                string mensaje = "Ya existe otro contrato activo en esas fechas:<br/>";
+                mensaje += string.Join(
+                    "<br/>",
+                    fechasOcupadas.Select(f => $"• {f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}")
+                );
+
+                return Json(new { success = false, message = mensaje });
+            }
+
+            // Actualizar y guardar los cambios si todo va bien...
+            contratoExistente.FechaInicio = contrato.FechaInicio;
+            contratoExistente.FechaFin = contrato.FechaFin;
+            contratoExistente.MontoMensual = contrato.MontoMensual;
+            contratoExistente.IdInquilino = contrato.IdInquilino;
+            contratoExistente.IdInmueble = contrato.IdInmueble;
+
+            _repositorioContrato.Edit(contratoExistente);
+
+            return Json(new { success = true, redirectUrl = Url.Action("Index") });
         }
 
         // GET: Contratos/Delete/5
@@ -221,7 +164,6 @@ namespace InmobiliariaLopez.Controllers
                 return NotFound();
             }
 
-            // Accede al valor del 'id' usando la propiedad '.Value' ya que ya verificaste que no es nulo.
             var contrato = _repositorioContrato.Details(id.Value);
             if (contrato == null)
             {
@@ -233,7 +175,6 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Contratos/Delete/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             var contrato = _repositorioContrato.ObtenerPorId(id);
@@ -292,13 +233,14 @@ namespace InmobiliariaLopez.Controllers
 
                 // Actualizar el contrato: cambiar estado a 'PendienteAnulacion'
                 contratoExistente.EstadoContrato = "PendienteAnulacion";
-                contratoExistente.FechaRescision = contrato.FechaRescision;
+                contratoExistente.FechaRescision = contrato.FechaRescision; // Usamos la fecha de rescisión proporcionada
                 contratoExistente.IdUsuarioAnula = contrato.IdUsuarioAnula;
-                contratoExistente.FechaUsuarioAnula = DateTime.Now;
+                contratoExistente.FechaUsuarioAnula = DateTime.Now; // Fecha y hora de la anulación
                 contratoExistente.Observaciones = contrato.Observaciones;
+                contratoExistente.Activo = true; // No desactivamos el contrato aún, solo lo marcamos como pendiente de anulación
 
                 // Llamar al método de repositorio para realizar la actualización en la base de datos
-                var filasAfectadas = _repositorioContrato.AnularContrato(contratoExistente); // Método del repositorio
+                var filasAfectadas = _repositorioContrato.AnularContrato(contratoExistente);
 
                 // Verificar si la actualización fue exitosa
                 if (filasAfectadas > 0)
@@ -317,7 +259,7 @@ namespace InmobiliariaLopez.Controllers
             catch (Exception ex)
             {
                 // Capturar cualquier error y devolver un mensaje de error
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
         }
 
@@ -342,6 +284,47 @@ namespace InmobiliariaLopez.Controllers
                 "NombreCompleto",
                 inquilinoId // Pasamos el ID seleccionado para que se mantenga en el dropdown
             );
+        }
+
+        // POST: Contratos/VerificarDisponibilidad
+        [HttpPost]
+        public IActionResult VerificarDisponibilidad([FromBody] Contrato contrato)
+        {
+            if (contrato == null || contrato.IdInmueble <= 0)
+            {
+                return Json(
+                    new
+                    {
+                        success = false,
+                        message = "Datos incompletos para verificar disponibilidad.",
+                    }
+                );
+            }
+
+            // Llamar al método ControlFechas
+            var fechasOcupadas = _repositorioContrato.ControlFechas(
+                contrato.IdInmueble,
+                contrato.FechaInicio,
+                contrato.FechaFin,
+                contrato.IdContrato
+            );
+
+            // Verificar si hay fechas ocupadas
+            if (fechasOcupadas.Any())
+            {
+                string mensajeError =
+                    "El inmueble no está disponible en las fechas seleccionadas. Ya está ocupado entre las siguientes fechas:\n";
+
+                // Formatear las fechas ocupadas
+                mensajeError += string.Join(
+                    "\n",
+                    fechasOcupadas.Select(f => $"{f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}")
+                );
+
+                return Json(new { success = false, message = mensajeError });
+            }
+
+            return Json(new { success = true });
         }
     }
 }

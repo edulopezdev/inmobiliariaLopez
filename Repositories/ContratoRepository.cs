@@ -27,17 +27,18 @@ namespace InmobiliariaLopez.Repositories
                 using (
                     var command = new MySqlCommand(
                         @"
-            SELECT 
-                c.*, 
-                i.Direccion AS DireccionInmueble, 
-                CONCAT(q.Nombre, ' ', q.Apellido) AS NombreInquilino
-            FROM contrato c
-            JOIN inmueble i ON c.IdInmueble = i.IdInmueble
-            JOIN inquilino q ON c.IdInquilino = q.IdInquilino
-            WHERE c.Activo = 1 
-              AND i.Activo = 1 
-              AND q.Activo = 1
-              AND c.EstadoContrato IN ('Vigente', 'PendienteAnulacion');",
+                SELECT 
+                    c.*, 
+                    i.Direccion AS DireccionInmueble, 
+                    CONCAT(q.Nombre, ' ', q.Apellido) AS NombreInquilino,
+                    c.FechaRescision  -- Aseguramos que se seleccione la fecha de rescisión
+                FROM contrato c
+                JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+                JOIN inquilino q ON c.IdInquilino = q.IdInquilino
+                WHERE c.Activo = 1 
+                  AND i.Activo = 1 
+                  AND q.Activo = 1
+                  AND c.EstadoContrato IN ('Vigente', 'PendienteAnulacion', 'Anulado', 'Finalizado');",
                         (MySqlConnection)connection
                     )
                 )
@@ -55,15 +56,17 @@ namespace InmobiliariaLopez.Repositories
                                     IdInmueble = reader.GetInt32("IdInmueble"),
                                     DireccionInmueble = reader.GetString("DireccionInmueble"),
                                     IdInquilino = reader.GetInt32("IdInquilino"),
-                                    NombreInquilino = reader.GetString("NombreInquilino"), // ← este ya viene armado desde SQL
+                                    NombreInquilino = reader.GetString("NombreInquilino"),
                                     FechaInicio = reader.GetDateTime("FechaInicio"),
                                     FechaFin = reader.GetDateTime("FechaFin"),
                                     MontoMensual = reader.GetDecimal("MontoMensual"),
-                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
-                                        ? (decimal?)null
-                                        : reader.GetDecimal("Multa"),
                                     EstadoContrato = reader.GetString("EstadoContrato"),
                                     Activo = reader.GetBoolean("Activo"),
+                                    FechaRescision = reader.IsDBNull(
+                                        reader.GetOrdinal("FechaRescision")
+                                    )
+                                        ? null
+                                        : reader.GetDateTime("FechaRescision"),
                                 }
                             );
                         }
@@ -114,9 +117,6 @@ namespace InmobiliariaLopez.Repositories
                                     FechaInicio = reader.GetDateTime("FechaInicio"),
                                     FechaFin = reader.GetDateTime("FechaFin"),
                                     MontoMensual = reader.GetDecimal("MontoMensual"),
-                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
-                                        ? null
-                                        : reader.GetDecimal("Multa"),
                                     FechaRescision = reader.IsDBNull(
                                         reader.GetOrdinal("FechaRescision")
                                     )
@@ -148,14 +148,20 @@ namespace InmobiliariaLopez.Repositories
                 using (
                     var command = new MySqlCommand(
                         @"
-            INSERT INTO contrato 
-            (IdUsuarioCrea, FechaCreacion, IdInmueble, IdInquilino, FechaInicio, FechaFin, MontoMensual, Multa, Activo, EstadoContrato)
-            VALUES 
-            (@IdUsuarioCrea, @FechaCreacion, @IdInmueble, @IdInquilino, @FechaInicio, @FechaFin, @MontoMensual, @Multa, 1, @EstadoContrato)",
+                INSERT INTO contrato 
+                (IdUsuarioCrea, FechaCreacion, IdInmueble, IdInquilino, FechaInicio, FechaFin, MontoMensual, Activo, EstadoContrato)
+                VALUES 
+                (@IdUsuarioCrea, @FechaCreacion, @IdInmueble, @IdInquilino, @FechaInicio, @FechaFin, @MontoMensual, 1, @EstadoContrato)",
                         (MySqlConnection)connection
                     )
                 )
                 {
+                    // Asegúrate de que FechaCreacion tenga la fecha y hora actuales
+                    if (entidad.FechaCreacion == default(DateTime))
+                    {
+                        entidad.FechaCreacion = DateTime.Now; // Asigna la fecha y hora actual
+                    }
+
                     command.Parameters.AddWithValue("@IdUsuarioCrea", entidad.IdUsuarioCrea);
                     command.Parameters.AddWithValue("@FechaCreacion", entidad.FechaCreacion);
                     command.Parameters.AddWithValue("@IdInmueble", entidad.IdInmueble);
@@ -163,10 +169,6 @@ namespace InmobiliariaLopez.Repositories
                     command.Parameters.AddWithValue("@FechaInicio", entidad.FechaInicio);
                     command.Parameters.AddWithValue("@FechaFin", entidad.FechaFin);
                     command.Parameters.AddWithValue("@MontoMensual", entidad.MontoMensual);
-                    command.Parameters.AddWithValue(
-                        "@Multa",
-                        entidad.Multa ?? (object)DBNull.Value
-                    );
                     command.Parameters.AddWithValue(
                         "@EstadoContrato",
                         string.IsNullOrEmpty(entidad.EstadoContrato)
@@ -195,7 +197,6 @@ namespace InmobiliariaLopez.Repositories
                     FechaInicio = IFNULL(@FechaInicio, FechaInicio),
                     FechaFin = IFNULL(@FechaFin, FechaFin),
                     MontoMensual = IFNULL(@MontoMensual, MontoMensual),
-                    Multa = IFNULL(@Multa, Multa),
                     EstadoContrato = IFNULL(@EstadoContrato, EstadoContrato),
                     Observaciones = IFNULL(@Observaciones, Observaciones)
                 WHERE IdContrato = @IdContrato;",
@@ -207,10 +208,6 @@ namespace InmobiliariaLopez.Repositories
                     command.Parameters.AddWithValue("@FechaInicio", entidad.FechaInicio);
                     command.Parameters.AddWithValue("@FechaFin", entidad.FechaFin);
                     command.Parameters.AddWithValue("@MontoMensual", entidad.MontoMensual);
-                    command.Parameters.AddWithValue(
-                        "@Multa",
-                        entidad.Multa ?? (object)DBNull.Value
-                    );
                     command.Parameters.AddWithValue("@EstadoContrato", entidad.EstadoContrato);
                     command.Parameters.AddWithValue(
                         "@Observaciones",
@@ -269,9 +266,6 @@ namespace InmobiliariaLopez.Repositories
                                     FechaInicio = reader.GetDateTime("FechaInicio"),
                                     FechaFin = reader.GetDateTime("FechaFin"),
                                     MontoMensual = reader.GetDecimal("MontoMensual"),
-                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
-                                        ? null
-                                        : reader.GetDecimal("Multa"),
                                 }
                             );
                         }
@@ -309,9 +303,6 @@ namespace InmobiliariaLopez.Repositories
                                     FechaInicio = reader.GetDateTime("FechaInicio"),
                                     FechaFin = reader.GetDateTime("FechaFin"),
                                     MontoMensual = reader.GetDecimal("MontoMensual"),
-                                    Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
-                                        ? null
-                                        : reader.GetDecimal("Multa"),
                                 }
                             );
                         }
@@ -359,9 +350,6 @@ namespace InmobiliariaLopez.Repositories
                                 FechaInicio = reader.GetDateTime("FechaInicio"),
                                 FechaFin = reader.GetDateTime("FechaFin"),
                                 MontoMensual = reader.GetDecimal("MontoMensual"),
-                                Multa = reader.IsDBNull(reader.GetOrdinal("Multa"))
-                                    ? null
-                                    : reader.GetDecimal("Multa"),
                                 Activo = reader.GetBoolean("Activo"),
                                 IdPropietario = reader.GetInt32("IdPropietario"),
                                 NombrePropietario =
@@ -418,6 +406,64 @@ namespace InmobiliariaLopez.Repositories
                     command.Parameters.AddWithValue("@Activo", entidad.Activo);
 
                     return command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public List<(DateTime, DateTime)> ControlFechas(
+            int idInmueble,
+            DateTime fechaInicio,
+            DateTime fechaFin,
+            int? idContratoExcluido = null
+        )
+        {
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+
+                // Consulta SQL para verificar si existe algún contrato activo en las fechas solicitadas
+                var query =
+                    @"
+                SELECT FechaInicio, FechaFin 
+                FROM contrato 
+                WHERE IdInmueble = @IdInmueble 
+                AND Activo = 1
+                AND ((FechaInicio <= @FechaFin AND FechaFin >= @FechaInicio) OR 
+                     (FechaInicio >= @FechaInicio AND FechaFin <= @FechaFin) OR 
+                     (FechaInicio <= @FechaInicio AND FechaFin >= @FechaFin) OR 
+                     (FechaInicio <= @FechaFin AND FechaFin >= @FechaFin))";
+
+                // Si se ha pasado un idContratoExcluido, excluimos ese contrato
+                if (idContratoExcluido.HasValue)
+                {
+                    query += " AND IdContrato != @IdContratoExcluido";
+                }
+
+                using (var command = new MySqlCommand(query, (MySqlConnection)connection))
+                {
+                    command.Parameters.AddWithValue("@IdInmueble", idInmueble);
+                    command.Parameters.AddWithValue("@FechaInicio", fechaInicio);
+                    command.Parameters.AddWithValue("@FechaFin", fechaFin);
+
+                    if (idContratoExcluido.HasValue)
+                    {
+                        command.Parameters.AddWithValue(
+                            "@IdContratoExcluido",
+                            idContratoExcluido.Value
+                        );
+                    }
+
+                    var reader = command.ExecuteReader();
+
+                    var fechasOcupadas = new List<(DateTime, DateTime)>();
+                    while (reader.Read())
+                    {
+                        var fechaInicioContrato = reader.GetDateTime(0);
+                        var fechaFinContrato = reader.GetDateTime(1);
+                        fechasOcupadas.Add((fechaInicioContrato, fechaFinContrato));
+                    }
+
+                    return fechasOcupadas;
                 }
             }
         }

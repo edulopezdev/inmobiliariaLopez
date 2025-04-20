@@ -20,7 +20,7 @@
       </a>
     </div>
     <div class="table-responsive">
-      <table class="table table-hover table-bordered" style="font-family: 'Roboto', sans-serif;">
+      <table class="table table-hover" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">
           <tr>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
@@ -42,10 +42,10 @@
               Monto Mensual
             </th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Multa
+              Estado
             </th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Estado
+              Fecha de Anulación
             </th>
             <th class="text-center"
               style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
@@ -56,41 +56,85 @@
         <tbody>
           @foreach (var contrato in Model)
           {
-            <tr class="@(contrato.EstadoContrato == "PendienteAnulacion" ? "table-warning" : "")">
-              <td>@contrato.IdContrato</td>
-              <td>@contrato.DireccionInmueble</td>
-              <td>@contrato.NombreInquilino</td>
-              <td>@contrato.FechaInicio.ToShortDateString()</td>
-              <td>@contrato.FechaFin.ToShortDateString()</td>
-              <td>@contrato.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))</td>
-              <td>@(contrato.Multa.HasValue ? contrato.Multa.Value.ToString("C") : "-")</td>
+            <tr class="@(contrato.EstadoContrato == "PendienteAnulacion" 
+                                ? "fila-pendiente-anulacion" 
+                                : contrato.EstadoContrato == "Anulado" 
+                                  ? "fila-anulado" 
+                                  : contrato.EstadoContrato == "Finalizado" 
+                                    ? "fila-finalizado" 
+                                    : "")">
+
+            <td>@contrato.IdContrato</td>
+            <td>@contrato.DireccionInmueble</td>
+            <td>@contrato.NombreInquilino</td>
+            <td>@contrato.FechaInicio.ToShortDateString()</td>
+            <td>@contrato.FechaFin.ToShortDateString()</td>
+            <td>@contrato.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))</td>
+
               <td>
-                @if (contrato.EstadoContrato == "PendienteAnulacion")
+              @if (contrato.EstadoContrato == "PendienteAnulacion")
                 {
-                  <i class="fas fa-hourglass-half" style="color: #FFA500;" data-bs-toggle="tooltip"
-                    title="Contrato pendiente de anulación"></i>
+                  <span style="color: #ff8800;" data-bs-toggle="tooltip" title="Contrato pendiente de anulación">
+                    <i class="fas fa-hourglass-half"></i> Preanulado
+                  </span>
+                }
+                else if (contrato.EstadoContrato == "Anulado")
+                {
+                  <span class="anulado" data-bs-toggle="tooltip" title="Contrato anulado">
+                    <i class="fas fa-times-circle"></i> @contrato.EstadoContrato
+                  </span>
+                }
+                else if (contrato.EstadoContrato == "Finalizado")
+                {
+                  <span class="finalizado" data-bs-toggle="tooltip" title="Contrato finalizado">
+                    <i class="fas fa-check-circle"></i> @contrato.EstadoContrato
+                  </span>
                 }
                 else
                 {
-                  <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" title="Contrato vigente"></i>
+                  <span class="text-success" data-bs-toggle="tooltip" title="Contrato vigente">
+                    <i class="fas fa-check-circle"></i> @contrato.EstadoContrato
+                  </span>
+                }
+              </td>
+
+              <td>
+                @if (contrato.EstadoContrato! == "PendienteAnulacion" || contrato.EstadoContrato == "Anulado")
+                {
+                  <span>@contrato.FechaRescision?.ToString("dd/MM/yyyy")</span>
+                }
+                else
+                {
+                  <span>-</span>
                 }
               </td>
 
               <td class="text-center">
-                <!-- Detalles -->
+                <!-- Detalles (siempre disponible) -->
                 <a asp-action="Details" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Ver detalles del contrato">
                   <i class="fas fa-eye"></i>
                 </a>
+
                 <!-- Editar -->
-                <a asp-action="Edit" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Editar contrato">
-                  <i class="fas fa-edit"></i>
-                </a>
-                <!-- Estado del contrato -->
-                @if (contrato.EstadoContrato != "PendienteAnulacion")
+                @if (contrato.EstadoContrato == "Finalizado" || contrato.EstadoContrato == "Anulado")
                 {
-                  <!-- Anular -->
+                  <span class="btn-link disabled-action" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="No se puede editar un contrato @contrato.EstadoContrato.ToLower()">
+                    <i class="fas fa-edit"></i>
+                  </span>
+                }
+                else
+                {
+                  <a asp-action="Edit" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Editar contrato">
+                    <i class="fas fa-edit"></i>
+                  </a>
+                }
+
+                <!-- Anular -->
+                @if (contrato.EstadoContrato == "Vigente")
+                {
                   <a asp-action="Anular" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
                     data-bs-placement="top" title="Anular contrato">
                     <i class="fa-solid fa-ban"></i>
@@ -98,10 +142,9 @@
                 }
                 else
                 {
-                  <!-- Icono indicador de contrato pendiente -->
-                  <span class="btn-link" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Contrato pendiente de anulación" style="cursor: default;">
-                    <i class="fas fa-hourglass-half"></i>
+                  <span class="btn-link disabled-action" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="No se puede anular un contrato @contrato.EstadoContrato.ToLower()">
+                    <i class="fa-solid fa-ban"></i>
                   </span>
                 }
               </td>
