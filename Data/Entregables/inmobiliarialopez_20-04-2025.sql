@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-04-2025 a las 23:20:22
+-- Tiempo de generación: 20-04-2025 a las 23:58:03
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -39,7 +39,6 @@ CREATE TABLE `contrato` (
   `FechaInicio` date NOT NULL,
   `FechaFin` date NOT NULL,
   `MontoMensual` decimal(10,2) NOT NULL,
-  `Multa` decimal(10,2) DEFAULT NULL,
   `Activo` tinyint(1) NOT NULL DEFAULT 1,
   `EstadoContrato` enum('Vigente','Finalizado','Anulado','PendienteAnulacion') DEFAULT 'Vigente',
   `Observaciones` text DEFAULT NULL
@@ -49,23 +48,50 @@ CREATE TABLE `contrato` (
 -- Volcado de datos para la tabla `contrato`
 --
 
-INSERT INTO `contrato` (`IdContrato`, `IdUsuarioCrea`, `FechaCreacion`, `IdUsuarioAnula`, `FechaRescision`, `FechaUsuarioAnula`, `IdInmueble`, `IdInquilino`, `FechaInicio`, `FechaFin`, `MontoMensual`, `Multa`, `Activo`, `EstadoContrato`, `Observaciones`) VALUES
-(40, 1, '0001-01-01 00:00:00', 2, '2025-05-01', '2025-04-15 15:25:54', 1, 1, '2023-09-01', '2027-11-27', 55500555.00, NULL, 1, 'PendienteAnulacion', ''),
-(41, 2, '2023-09-30 00:00:00', 2, '2025-05-31', '2025-04-15 12:34:15', 5, 2, '2023-10-16', '2025-09-30', 25000.00, NULL, 1, 'PendienteAnulacion', NULL),
-(42, 1, '2023-10-29 00:00:00', 5, '2025-06-21', '2025-04-15 13:33:36', 8, 1, '2023-11-01', '2027-10-31', 38000.00, NULL, 1, 'PendienteAnulacion', NULL),
-(43, 2, '2023-11-28 00:00:00', 2, '2025-04-17', '2025-04-15 14:14:44', 11, 2, '2023-12-01', '2027-11-30', 33000.00, NULL, 1, 'PendienteAnulacion', NULL),
-(44, 1, '2023-12-27 00:00:00', 5, '2025-06-20', '2025-04-15 14:23:10', 14, 1, '2024-01-01', '2027-12-31', 36000.00, NULL, 1, 'PendienteAnulacion', 'probando de nuevo'),
-(45, 1, '2019-12-29 00:00:00', 2, '2025-06-22', '2025-04-15 17:25:21', 2, 2, '2020-01-01', '2020-12-31', 40000.00, NULL, 1, 'PendienteAnulacion', 'El inquilino necesita dejar la casa porque tiene problemas económicos '),
-(46, 2, '2021-02-28 00:00:00', NULL, NULL, NULL, 3, 1, '2021-03-01', '2022-02-28', 50000.00, NULL, 1, 'Vigente', NULL),
-(47, 1, '2019-05-26 00:00:00', NULL, NULL, NULL, 7, 2, '2019-06-01', '2020-05-31', 32000.00, NULL, 1, 'Vigente', NULL),
-(48, 2, '2022-06-24 00:00:00', NULL, NULL, NULL, 10, 1, '2022-07-01', '2023-06-30', 42000.00, NULL, 1, 'Vigente', NULL),
-(49, 1, '2018-08-25 00:00:00', NULL, NULL, NULL, 14, 2, '2018-09-01', '2019-08-31', 36000.00, NULL, 1, 'Vigente', NULL),
-(52, 1, '2024-12-31 00:00:00', NULL, NULL, NULL, 2, 1, '2025-01-01', '2025-04-15', 40000.00, NULL, 1, 'Vigente', NULL),
-(53, 1, '2025-01-27 00:00:00', NULL, NULL, NULL, 3, 2, '2025-02-01', '2025-04-30', 50000.00, NULL, 1, 'Vigente', NULL),
-(60, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 17, 2, '2025-04-12', '2026-04-12', 155000.00, NULL, 1, 'Vigente', NULL),
-(61, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 9, 18, '2025-04-12', '2026-04-12', 152400.00, NULL, 1, 'Vigente', NULL),
-(62, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 9, 23, '2026-04-13', '2027-04-11', 444000.00, NULL, 1, 'Vigente', NULL),
-(63, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 17, 10, '2025-04-14', '2026-04-14', 555555.00, NULL, 1, 'Vigente', NULL);
+INSERT INTO `contrato` (`IdContrato`, `IdUsuarioCrea`, `FechaCreacion`, `IdUsuarioAnula`, `FechaRescision`, `FechaUsuarioAnula`, `IdInmueble`, `IdInquilino`, `FechaInicio`, `FechaFin`, `MontoMensual`, `Activo`, `EstadoContrato`, `Observaciones`) VALUES
+(40, 1, '0001-01-01 00:00:00', 2, '2025-05-01', '2025-04-15 15:25:54', 1, 1, '2023-09-01', '2026-11-27', 1235555.00, 1, 'PendienteAnulacion', ''),
+(41, 2, '2023-09-30 00:00:00', 2, '2025-05-31', '2025-04-15 12:34:15', 5, 2, '2023-10-16', '2025-09-30', 25000.00, 1, 'PendienteAnulacion', NULL),
+(42, 1, '2023-10-29 00:00:00', 5, '2025-06-21', '2025-04-15 13:33:36', 8, 1, '2023-11-01', '2027-10-31', 38000.00, 1, 'PendienteAnulacion', NULL),
+(43, 2, '2023-11-28 00:00:00', 2, '2025-04-17', '2025-04-15 14:14:44', 11, 2, '2023-12-01', '2027-11-30', 33000.00, 1, 'PendienteAnulacion', NULL),
+(44, 1, '2023-12-27 00:00:00', 5, '2025-06-20', '2025-04-15 14:23:10', 14, 1, '2024-01-01', '2027-12-31', 36000.00, 1, 'PendienteAnulacion', 'probando de nuevo'),
+(45, 1, '2019-12-29 00:00:00', 2, '2025-06-22', '2025-04-15 17:25:21', 2, 2, '2020-01-01', '2020-12-31', 40000.00, 1, 'PendienteAnulacion', 'El inquilino necesita dejar la casa porque tiene problemas económicos '),
+(46, 2, '2021-02-28 00:00:00', 2, '2022-01-30', '2025-04-15 20:19:52', 3, 1, '2021-03-01', '2022-02-28', 50000.00, 1, 'PendienteAnulacion', 'Roberto solicita irse un mes antes'),
+(47, 1, '2019-05-26 00:00:00', 3, '2025-07-31', '2025-04-16 15:13:36', 7, 2, '2019-06-01', '2020-05-31', 32000.00, 1, 'PendienteAnulacion', 'Se va a partir de Julio'),
+(48, 2, '2022-06-24 00:00:00', NULL, NULL, NULL, 10, 1, '2022-07-01', '2023-06-30', 42000.00, 1, 'Vigente', NULL),
+(49, 1, '2018-08-25 00:00:00', NULL, NULL, NULL, 14, 2, '2018-09-01', '2019-08-31', 36000.00, 1, 'Vigente', NULL),
+(52, 1, '2024-12-31 00:00:00', NULL, NULL, NULL, 2, 1, '2025-01-01', '2025-04-15', 40000.00, 1, 'Finalizado', NULL),
+(53, 1, '2025-01-27 00:00:00', NULL, NULL, NULL, 3, 2, '2025-02-01', '2025-04-30', 50000.00, 1, 'Vigente', NULL),
+(60, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 17, 2, '2025-04-12', '2026-04-12', 155000.00, 1, 'Vigente', NULL),
+(61, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 9, 18, '2025-04-12', '2026-04-12', 152400.00, 1, 'Vigente', NULL),
+(62, 1, '0001-01-01 00:00:00', NULL, NULL, NULL, 9, 23, '2026-04-13', '2027-04-11', 444000.00, 1, 'Vigente', NULL),
+(63, 1, '0001-01-01 00:00:00', 2, '2025-03-31', '2025-02-16 13:13:36', 17, 10, '2025-04-14', '2026-04-14', 555555.00, 1, 'Anulado', 'El inquilino pidio irse antes'),
+(64, 2, '0001-01-01 00:00:00', 5, '2025-04-30', '2025-04-19 16:18:41', 16, 22, '2025-04-19', '2026-04-19', 865340.00, 1, 'PendienteAnulacion', 'Se va porque le pinto');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `imagen`
+--
+
+CREATE TABLE `imagen` (
+  `IdImagen` int(11) NOT NULL,
+  `Ruta` varchar(255) NOT NULL,
+  `TipoImagen` enum('InmueblePortada','InmuebleInterior','AvatarUsuario','AdjuntoContrato','AdjuntoPago') NOT NULL,
+  `IdRelacionado` int(11) NOT NULL,
+  `FechaCreacion` datetime NOT NULL DEFAULT current_timestamp(),
+  `Activo` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `imagen`
+--
+
+INSERT INTO `imagen` (`IdImagen`, `Ruta`, `TipoImagen`, `IdRelacionado`, `FechaCreacion`, `Activo`) VALUES
+(71, '/img/inmuebles/galeria/inmuebleinterior_1_2207cf5a.png', 'InmuebleInterior', 1, '2025-04-18 22:20:00', 1),
+(72, '/img/inmuebles/galeria/inmuebleinterior_1_94a6fce6.png', 'InmuebleInterior', 1, '2025-04-18 22:20:00', 1),
+(73, '/img/inmuebles/galeria/inmuebleinterior_1_b46d2492.png', 'InmuebleInterior', 1, '2025-04-18 22:56:18', 1),
+(80, '/img/inmuebles/galeria/inmuebleinterior_1_5e1a1f6e.png', 'InmuebleInterior', 1, '2025-04-19 00:00:15', 1),
+(82, '/img/inmuebles/portada/inmuebleportada_1_bf344f82.png', 'InmueblePortada', 1, '2025-04-19 00:02:07', 1);
 
 -- --------------------------------------------------------
 
@@ -93,7 +119,7 @@ CREATE TABLE `inmueble` (
 --
 
 INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `Uso`, `IdTipoInmueble`, `Ambientes`, `Superficie`, `Latitud`, `Longitud`, `Precio`, `Estado`, `IdPropietario`, `Activo`) VALUES
-(1, 'Via Montenapoleone 11, Milano', 'Residencial', 4, 3, 180, 45.467900, 9.191000, 37000.00, 'Alquilado', 1, 1),
+(1, 'Via Montenapoleone 11, Milano', 'Comercial', 4, 3, 180, 9999.999999, 9999.999999, 99999999.99, 'Alquilado', 1, 1),
 (2, 'Piazza del Duomo 5, Milano', 'Comercial', 1, 1, 40, 45.464200, 9.190000, 40000.00, 'Disponible', 2, 1),
 (3, 'Corso Buenos Aires 45, Milano', 'Residencial', 3, 5, 250, 45.473600, 9.218100, 50000.00, 'Disponible', 3, 1),
 (4, 'Via del Corso 23, Roma', 'Comercial', 1, 1, 40, 41.898700, 12.482800, 35000.00, 'Disponible', 4, 1),
@@ -109,7 +135,7 @@ INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `Uso`, `IdTipoInmueble`, `Amb
 (14, 'Piazza del Plebiscito 4, Napoli', 'Residencial', 4, 3, 180, 40.839600, 14.252000, 36000.00, 'Alquilado', 14, 1),
 (15, 'Via Chiaia 18, Napoli', 'Residencial', 3, 5, 250, 40.845000, 14.252000, 48000.00, 'Disponible', 15, 1),
 (16, 'Via Roma 10, Torino', 'Comercial', 1, 1, 40, 45.067900, 7.682500, 30000.00, 'Disponible', 19, 1),
-(17, 'Piazza Castello 3, Torino', 'Residencial', 4, 2, 120, 45.070300, 7.686900, 23000.00, 'Disponible', 1, 1),
+(17, 'Piazza Castello 3, Torino', 'Comercial', 4, 2, 120, 4507.000000, 769.000000, 23000.00, 'Disponible', 1, 1),
 (18, 'Corso Vittorio Emanuele II 25, Torino', 'Residencial', 3, 4, 200, 45.067900, 7.682500, 47000.00, 'Disponible', 2, 1),
 (19, 'Piazza Maggiore 5, Bologna', 'Comercial', 1, 1, 40, 44.494900, 11.342600, 34000.00, 'Disponible', 3, 1),
 (20, 'Via Rizzoli 12, Bologna', 'Residencial', 4, 3, 180, 44.493800, 11.342600, 37000.00, 'Disponible', 4, 1),
@@ -119,7 +145,10 @@ INSERT INTO `inmueble` (`IdInmueble`, `Direccion`, `Uso`, `IdTipoInmueble`, `Amb
 (24, 'Via XX Settembre 10, Genova', 'Residencial', 3, 4, 200, 44.408200, 8.933800, 49000.00, 'Disponible', 8, 1),
 (25, 'Piazza delle Erbe 3, Verona', 'Comercial', 1, 1, 40, 45.438400, 10.991900, 32000.00, 'Disponible', 9, 1),
 (26, 'Via Mazzini 7, Verona', 'Residencial', 4, 3, 180, 45.439000, 10.991900, 35000.00, 'Disponible', 10, 1),
-(27, 'Corso Porta Nuova 12, Verona', 'Residencial', 3, 5, 250, 45.438400, 10.991900, 50000.00, 'Disponible', 11, 1);
+(27, 'Corso Porta Nuova 12, Verona', 'Residencial', 3, 5, 250, 45.438400, 10.991900, 50000.00, 'Disponible', 11, 1),
+(29, 'Via Probando 11, Villa Mercedes', 'Residencial', 1, 3, 0, 5244.000000, 5424.000000, 350000.00, 'Disponible', 4, 1),
+(32, 'Santiago Olivera 370', 'Residencial', 1, 4, 0, 5244.000000, 24.000000, 950500.00, 'Disponible', 5, 1),
+(33, '9 de Julio 814, Villa Mercedes', 'Residencial', 3, 1, 0, 1565.000000, 181.000000, 350000.00, 'Disponible', 19, 1);
 
 -- --------------------------------------------------------
 
@@ -170,6 +199,21 @@ INSERT INTO `inquilino` (`IdInquilino`, `DNI`, `Apellido`, `Nombre`, `Telefono`,
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `multa`
+--
+
+CREATE TABLE `multa` (
+  `IdMulta` int(11) NOT NULL,
+  `IdContrato` int(11) NOT NULL,
+  `Monto` decimal(10,2) NOT NULL,
+  `FechaCalculo` datetime NOT NULL DEFAULT current_timestamp(),
+  `Motivo` varchar(500) DEFAULT NULL,
+  `Pagada` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pago`
 --
 
@@ -177,12 +221,16 @@ CREATE TABLE `pago` (
   `IdPago` int(11) NOT NULL,
   `NumeroPago` int(11) NOT NULL,
   `FechaPago` date NOT NULL,
+  `TipoPago` enum('Alquiler','Multa','Otro') NOT NULL DEFAULT 'Alquiler',
+  `MesesAdeudados` int(11) DEFAULT NULL,
+  `Estado` enum('Pendiente','Pagado','Anulado') NOT NULL DEFAULT 'Pendiente',
   `Detalle` varchar(255) DEFAULT NULL,
   `Importe` decimal(10,2) NOT NULL,
-  `Estado` varchar(50) DEFAULT NULL,
   `IdUsuarioCrea` int(11) DEFAULT NULL,
   `IdUsuarioAnula` int(11) DEFAULT NULL,
+  `FechaCreacion` datetime NOT NULL DEFAULT current_timestamp(),
   `FechaAnulacion` datetime DEFAULT NULL,
+  `IdMulta` int(11) DEFAULT NULL,
   `IdContrato` int(11) NOT NULL,
   `Activo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -191,72 +239,72 @@ CREATE TABLE `pago` (
 -- Volcado de datos para la tabla `pago`
 --
 
-INSERT INTO `pago` (`IdPago`, `NumeroPago`, `FechaPago`, `Detalle`, `Importe`, `Estado`, `IdUsuarioCrea`, `IdUsuarioAnula`, `FechaAnulacion`, `IdContrato`, `Activo`) VALUES
-(1, 19, '2025-03-01', 'Mes 19', 30000.00, 'Activo', 1, NULL, NULL, 40, 1),
-(2, 18, '2025-03-01', 'Mes 18', 28000.00, 'Activo', 2, NULL, NULL, 41, 1),
-(3, 17, '2025-03-01', 'Mes 17', 38000.00, 'Activo', 1, NULL, NULL, 42, 1),
-(4, 16, '2025-03-01', 'Mes 16', 33000.00, 'Activo', 2, NULL, NULL, 43, 1),
-(5, 15, '2025-03-01', 'Mes 15', 36000.00, 'Activo', 1, NULL, NULL, 44, 1),
-(8, 1, '2020-01-01', 'Mes 1', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(9, 1, '2021-03-01', 'Mes 1', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(10, 1, '2019-06-01', 'Mes 1', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(11, 1, '2022-07-01', 'Mes 1', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(12, 1, '2018-09-01', 'Mes 1', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(13, 2, '2020-02-01', 'Mes 2', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(14, 2, '2021-04-01', 'Mes 2', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(15, 2, '2019-07-01', 'Mes 2', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(16, 2, '2022-08-01', 'Mes 2', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(17, 2, '2018-10-01', 'Mes 2', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(18, 3, '2020-03-01', 'Mes 3', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(19, 3, '2021-05-01', 'Mes 3', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(20, 3, '2019-08-01', 'Mes 3', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(21, 3, '2022-09-01', 'Mes 3', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(22, 3, '2018-11-01', 'Mes 3', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(23, 4, '2020-04-01', 'Mes 4', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(24, 4, '2021-06-01', 'Mes 4', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(25, 4, '2019-09-01', 'Mes 4', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(26, 4, '2022-10-01', 'Mes 4', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(27, 4, '2018-12-01', 'Mes 4', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(28, 5, '2020-05-01', 'Mes 5', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(29, 5, '2021-07-01', 'Mes 5', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(30, 5, '2019-10-01', 'Mes 5', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(31, 5, '2022-11-01', 'Mes 5', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(32, 5, '2019-01-01', 'Mes 5', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(33, 6, '2020-06-01', 'Mes 6', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(34, 6, '2021-08-01', 'Mes 6', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(35, 6, '2019-11-01', 'Mes 6', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(36, 6, '2022-12-01', 'Mes 6', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(37, 6, '2019-02-01', 'Mes 6', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(38, 7, '2020-07-01', 'Mes 7', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(39, 7, '2021-09-01', 'Mes 7', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(40, 7, '2019-12-01', 'Mes 7', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(41, 7, '2023-01-01', 'Mes 7', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(42, 7, '2019-03-01', 'Mes 7', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(43, 8, '2020-08-01', 'Mes 8', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(44, 8, '2021-10-01', 'Mes 8', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(45, 8, '2020-01-01', 'Mes 8', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(46, 8, '2023-02-01', 'Mes 8', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(47, 8, '2019-04-01', 'Mes 8', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(48, 9, '2020-09-01', 'Mes 9', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(49, 9, '2021-11-01', 'Mes 9', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(50, 9, '2020-02-01', 'Mes 9', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(51, 9, '2023-03-01', 'Mes 9', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(52, 9, '2019-05-01', 'Mes 9', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(53, 10, '2020-10-01', 'Mes 10', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(54, 10, '2021-12-01', 'Mes 10', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(55, 10, '2020-03-01', 'Mes 10', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(56, 10, '2023-04-01', 'Mes 10', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(57, 10, '2019-06-01', 'Mes 10', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(58, 11, '2020-11-01', 'Mes 11', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(59, 11, '2022-01-01', 'Mes 11', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(60, 11, '2020-04-01', 'Mes 11', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(61, 11, '2023-05-01', 'Mes 11', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(62, 11, '2019-07-01', 'Mes 11', 36000.00, 'Activo', 1, NULL, NULL, 49, 1),
-(63, 12, '2020-12-01', 'Mes 12', 40000.00, 'Activo', 1, NULL, NULL, 45, 1),
-(64, 12, '2022-02-01', 'Mes 12', 50000.00, 'Activo', 2, NULL, NULL, 46, 1),
-(65, 12, '2020-05-01', 'Mes 12', 32000.00, 'Activo', 1, NULL, NULL, 47, 1),
-(66, 12, '2023-06-01', 'Mes 12', 42000.00, 'Activo', 2, NULL, NULL, 48, 1),
-(67, 12, '2019-08-01', 'Mes 12', 36000.00, 'Activo', 1, NULL, NULL, 49, 1);
+INSERT INTO `pago` (`IdPago`, `NumeroPago`, `FechaPago`, `TipoPago`, `MesesAdeudados`, `Estado`, `Detalle`, `Importe`, `IdUsuarioCrea`, `IdUsuarioAnula`, `FechaCreacion`, `FechaAnulacion`, `IdMulta`, `IdContrato`, `Activo`) VALUES
+(1, 19, '2025-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 19', 30000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 40, 1),
+(2, 18, '2025-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 18', 28000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 41, 1),
+(3, 17, '2025-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 17', 38000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 42, 1),
+(4, 16, '2025-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 16', 33000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 43, 1),
+(5, 15, '2025-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 15', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 44, 1),
+(8, 1, '2020-01-01', 'Alquiler', NULL, 'Pendiente', 'Mes 1', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(9, 1, '2021-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 1', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(10, 1, '2019-06-01', 'Alquiler', NULL, 'Pendiente', 'Mes 1', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(11, 1, '2022-07-01', 'Alquiler', NULL, 'Pendiente', 'Mes 1', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(12, 1, '2018-09-01', 'Alquiler', NULL, 'Pendiente', 'Mes 1', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(13, 2, '2020-02-01', 'Alquiler', NULL, 'Pendiente', 'Mes 2', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(14, 2, '2021-04-01', 'Alquiler', NULL, 'Pendiente', 'Mes 2', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(15, 2, '2019-07-01', 'Alquiler', NULL, 'Pendiente', 'Mes 2', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(16, 2, '2022-08-01', 'Alquiler', NULL, 'Pendiente', 'Mes 2', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(17, 2, '2018-10-01', 'Alquiler', NULL, 'Pendiente', 'Mes 2', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(18, 3, '2020-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 3', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(19, 3, '2021-05-01', 'Alquiler', NULL, 'Pendiente', 'Mes 3', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(20, 3, '2019-08-01', 'Alquiler', NULL, 'Pendiente', 'Mes 3', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(21, 3, '2022-09-01', 'Alquiler', NULL, 'Pendiente', 'Mes 3', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(22, 3, '2018-11-01', 'Alquiler', NULL, 'Pendiente', 'Mes 3', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(23, 4, '2020-04-01', 'Alquiler', NULL, 'Pendiente', 'Mes 4', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(24, 4, '2021-06-01', 'Alquiler', NULL, 'Pendiente', 'Mes 4', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(25, 4, '2019-09-01', 'Alquiler', NULL, 'Pendiente', 'Mes 4', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(26, 4, '2022-10-01', 'Alquiler', NULL, 'Pendiente', 'Mes 4', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(27, 4, '2018-12-01', 'Alquiler', NULL, 'Pendiente', 'Mes 4', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(28, 5, '2020-05-01', 'Alquiler', NULL, 'Pendiente', 'Mes 5', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(29, 5, '2021-07-01', 'Alquiler', NULL, 'Pendiente', 'Mes 5', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(30, 5, '2019-10-01', 'Alquiler', NULL, 'Pendiente', 'Mes 5', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(31, 5, '2022-11-01', 'Alquiler', NULL, 'Pendiente', 'Mes 5', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(32, 5, '2019-01-01', 'Alquiler', NULL, 'Pendiente', 'Mes 5', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(33, 6, '2020-06-01', 'Alquiler', NULL, 'Pendiente', 'Mes 6', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(34, 6, '2021-08-01', 'Alquiler', NULL, 'Pendiente', 'Mes 6', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(35, 6, '2019-11-01', 'Alquiler', NULL, 'Pendiente', 'Mes 6', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(36, 6, '2022-12-01', 'Alquiler', NULL, 'Pendiente', 'Mes 6', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(37, 6, '2019-02-01', 'Alquiler', NULL, 'Pendiente', 'Mes 6', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(38, 7, '2020-07-01', 'Alquiler', NULL, 'Pendiente', 'Mes 7', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(39, 7, '2021-09-01', 'Alquiler', NULL, 'Pendiente', 'Mes 7', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(40, 7, '2019-12-01', 'Alquiler', NULL, 'Pendiente', 'Mes 7', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(41, 7, '2023-01-01', 'Alquiler', NULL, 'Pendiente', 'Mes 7', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(42, 7, '2019-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 7', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(43, 8, '2020-08-01', 'Alquiler', NULL, 'Pendiente', 'Mes 8', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(44, 8, '2021-10-01', 'Alquiler', NULL, 'Pendiente', 'Mes 8', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(45, 8, '2020-01-01', 'Alquiler', NULL, 'Pendiente', 'Mes 8', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(46, 8, '2023-02-01', 'Alquiler', NULL, 'Pendiente', 'Mes 8', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(47, 8, '2019-04-01', 'Alquiler', NULL, 'Pendiente', 'Mes 8', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(48, 9, '2020-09-01', 'Alquiler', NULL, 'Pendiente', 'Mes 9', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(49, 9, '2021-11-01', 'Alquiler', NULL, 'Pendiente', 'Mes 9', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(50, 9, '2020-02-01', 'Alquiler', NULL, 'Pendiente', 'Mes 9', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(51, 9, '2023-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 9', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(52, 9, '2019-05-01', 'Alquiler', NULL, 'Pendiente', 'Mes 9', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(53, 10, '2020-10-01', 'Alquiler', NULL, 'Pendiente', 'Mes 10', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(54, 10, '2021-12-01', 'Alquiler', NULL, 'Pendiente', 'Mes 10', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(55, 10, '2020-03-01', 'Alquiler', NULL, 'Pendiente', 'Mes 10', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(56, 10, '2023-04-01', 'Alquiler', NULL, 'Pendiente', 'Mes 10', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(57, 10, '2019-06-01', 'Alquiler', NULL, 'Pendiente', 'Mes 10', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(58, 11, '2020-11-01', 'Alquiler', NULL, 'Pendiente', 'Mes 11', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(59, 11, '2022-01-01', 'Alquiler', NULL, 'Pendiente', 'Mes 11', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(60, 11, '2020-04-01', 'Alquiler', NULL, 'Pendiente', 'Mes 11', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(61, 11, '2023-05-01', 'Alquiler', NULL, 'Pendiente', 'Mes 11', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(62, 11, '2019-07-01', 'Alquiler', NULL, 'Pendiente', 'Mes 11', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1),
+(63, 12, '2020-12-01', 'Alquiler', NULL, 'Pendiente', 'Mes 12', 40000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 45, 1),
+(64, 12, '2022-02-01', 'Alquiler', NULL, 'Pendiente', 'Mes 12', 50000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 46, 1),
+(65, 12, '2020-05-01', 'Alquiler', NULL, 'Pendiente', 'Mes 12', 32000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 47, 1),
+(66, 12, '2023-06-01', 'Alquiler', NULL, 'Pendiente', 'Mes 12', 42000.00, 2, NULL, '2025-04-19 13:22:42', NULL, NULL, 48, 1),
+(67, 12, '2019-08-01', 'Alquiler', NULL, 'Pendiente', 'Mes 12', 36000.00, 1, NULL, '2025-04-19 13:22:42', NULL, NULL, 49, 1);
 
 -- --------------------------------------------------------
 
@@ -320,11 +368,10 @@ INSERT INTO `tipoinmueble` (`IdTipoInmueble`, `Nombre`, `Activo`) VALUES
 (4, 'Depósito', 1),
 (5, 'Local', 1),
 (6, 'Depósito', 1),
-(7, 'Casa', 1),
-(8, 'Departamento', 1),
-(9, 'Oficina', 1),
-(10, 'Galpón', 1),
-(11, 'Coworking', 1);
+(7, 'Departamento', 1),
+(8, 'Oficina', 1),
+(9, 'Galpón', 1),
+(10, 'Coworking', 1);
 
 -- --------------------------------------------------------
 
@@ -368,6 +415,12 @@ ALTER TABLE `contrato`
   ADD KEY `fk_contrato_idusuarioanula` (`IdUsuarioAnula`);
 
 --
+-- Indices de la tabla `imagen`
+--
+ALTER TABLE `imagen`
+  ADD PRIMARY KEY (`IdImagen`);
+
+--
 -- Indices de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
@@ -384,13 +437,21 @@ ALTER TABLE `inquilino`
   ADD UNIQUE KEY `Email` (`Email`);
 
 --
+-- Indices de la tabla `multa`
+--
+ALTER TABLE `multa`
+  ADD PRIMARY KEY (`IdMulta`),
+  ADD KEY `IdContrato` (`IdContrato`);
+
+--
 -- Indices de la tabla `pago`
 --
 ALTER TABLE `pago`
   ADD PRIMARY KEY (`IdPago`),
-  ADD KEY `pago_ibfk_1` (`IdContrato`),
-  ADD KEY `fk_pago_idusuariocrea` (`IdUsuarioCrea`),
-  ADD KEY `fk_pago_idusuarioanula` (`IdUsuarioAnula`);
+  ADD KEY `IdContrato` (`IdContrato`),
+  ADD KEY `IdUsuarioCrea` (`IdUsuarioCrea`),
+  ADD KEY `IdUsuarioAnula` (`IdUsuarioAnula`),
+  ADD KEY `IdMulta` (`IdMulta`);
 
 --
 -- Indices de la tabla `propietario`
@@ -421,19 +482,31 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `IdContrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `IdContrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+
+--
+-- AUTO_INCREMENT de la tabla `imagen`
+--
+ALTER TABLE `imagen`
+  MODIFY `IdImagen` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
-  MODIFY `IdInmueble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `IdInmueble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `inquilino`
 --
 ALTER TABLE `inquilino`
   MODIFY `IdInquilino` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT de la tabla `multa`
+--
+ALTER TABLE `multa`
+  MODIFY `IdMulta` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `propietario`
@@ -474,12 +547,22 @@ ALTER TABLE `inmueble`
   ADD CONSTRAINT `inmueble_ibfk_2` FOREIGN KEY (`IdPropietario`) REFERENCES `propietario` (`IdPropietario`);
 
 --
+-- Filtros para la tabla `multa`
+--
+ALTER TABLE `multa`
+  ADD CONSTRAINT `multa_ibfk_1` FOREIGN KEY (`IdContrato`) REFERENCES `contrato` (`IdContrato`);
+
+--
 -- Filtros para la tabla `pago`
 --
 ALTER TABLE `pago`
   ADD CONSTRAINT `fk_pago_idusuarioanula` FOREIGN KEY (`IdUsuarioAnula`) REFERENCES `usuario` (`IdUsuario`),
   ADD CONSTRAINT `fk_pago_idusuariocrea` FOREIGN KEY (`IdUsuarioCrea`) REFERENCES `usuario` (`IdUsuario`),
-  ADD CONSTRAINT `pago_ibfk_1` FOREIGN KEY (`IdContrato`) REFERENCES `contrato` (`IdContrato`);
+  ADD CONSTRAINT `pago_ibfk_1` FOREIGN KEY (`IdContrato`) REFERENCES `contrato` (`IdContrato`),
+  ADD CONSTRAINT `pago_ibfk_2` FOREIGN KEY (`IdContrato`) REFERENCES `contrato` (`IdContrato`),
+  ADD CONSTRAINT `pago_ibfk_3` FOREIGN KEY (`IdUsuarioCrea`) REFERENCES `usuario` (`IdUsuario`),
+  ADD CONSTRAINT `pago_ibfk_4` FOREIGN KEY (`IdUsuarioAnula`) REFERENCES `usuario` (`IdUsuario`),
+  ADD CONSTRAINT `pago_ibfk_5` FOREIGN KEY (`IdMulta`) REFERENCES `multa` (`IdMulta`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
