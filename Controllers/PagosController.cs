@@ -2,16 +2,22 @@ using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Models.Dtos; // Para incluir el DTO
 using InmobiliariaLopez.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace InmobiliariaLopez.Controllers
 {
     public class PagosController : Controller
     {
         private readonly IRepositorioPago _pagoRepository;
+        private readonly IRepositorioContrato _contratoRepository;
 
-        public PagosController(IRepositorioPago pagoRepository)
+        public PagosController(
+            IRepositorioPago pagoRepository,
+            IRepositorioContrato contratoRepository
+        )
         {
             _pagoRepository = pagoRepository;
+            _contratoRepository = contratoRepository;
         }
 
         // GET: Pago
@@ -35,6 +41,18 @@ namespace InmobiliariaLopez.Controllers
         // GET: Pago/Create
         public IActionResult Create()
         {
+            var contratos = _contratoRepository.Index();
+
+            var contratosSelectList = contratos
+                .Select(c => new SelectListItem
+                {
+                    Value = c.IdContrato.ToString(),
+                    Text = $"{c.DireccionInmueble} - {c.NombreInquilino}",
+                })
+                .ToList();
+
+            ViewBag.Contratos = contratosSelectList;
+
             return View();
         }
 
@@ -45,11 +63,21 @@ namespace InmobiliariaLopez.Controllers
         {
             if (ModelState.IsValid)
             {
-                pago.IdUsuarioCrea = HttpContext.Session.GetInt32("IdUsuario");
+                // No necesitamos comprobar la sesión ni repositorios, solo asignar el IdUsuarioCrea desde el formulario
+                if (pago.IdUsuarioCrea == null)
+                {
+                    ModelState.AddModelError("IdUsuarioCrea", "Debe seleccionar un usuario.");
+                    return View(pago);
+                }
+
                 pago.FechaCreacion = DateTime.Now;
+
+                // Crear el pago
                 _pagoRepository.Create(pago);
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(pago);
         }
 
