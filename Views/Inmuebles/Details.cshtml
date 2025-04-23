@@ -82,8 +82,6 @@
         </dl>
       </div>
     </div>
-
-
     <!-- Galería -->
     <div class="w-50 ps-3" id="galeriaContainer">
       @await Html.PartialAsync("_GaleriaImagenes", Model)
@@ -116,6 +114,59 @@
         icon: 'success',
         confirmButtonText: 'Aceptar',
         confirmButtonColor: '#28a745'
+      });
+    }
+
+    function confirmarEliminacion(idImagen) {
+      const idInmueble = @Model.IdInmueble;
+      const token = document.querySelector('#eliminarImagenForm input[name="__RequestVerificationToken"]').value;
+
+      Swal.fire({
+        title: '¿Eliminar esta imagen?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch('@Url.Action("EliminarImagen", "Inmuebles")', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              idImagen,
+              idInmueble,
+              __RequestVerificationToken: token
+            })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                const galeria = document.getElementById('galeriaContainer');
+                galeria.innerHTML = `<div class="text-center py-5">
+                                      <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Cargando...</span>
+                                      </div>
+                                    </div>`;
+
+                fetch(`@Url.Action("GaleriaImagenes", "Inmuebles")?idInmueble=${@Model.IdInmueble}`)
+                  .then(res => res.text())
+                  .then(html => {
+                    galeria.innerHTML = html;
+                    Swal.fire('¡Listo!', data.message, 'success');
+                  });
+              } else {
+                Swal.fire('Error', data.message ?? 'No se pudo eliminar la imagen.', 'error');
+              }
+            })
+            .catch(() => {
+              Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
+            });
+        }
       });
     }
 
@@ -156,10 +207,10 @@
             // Refrescar galería
             const galeria = document.getElementById('galeriaContainer');
             galeria.innerHTML = `<div class="text-center py-5">
-                                           <div class="spinner-border text-primary" role="status">
-                                             <span class="visually-hidden">Cargando...</span>
-                                           </div>
-                                         </div>`;
+                                             <div class="spinner-border text-primary" role="status">
+                                               <span class="visually-hidden">Cargando...</span>
+                                             </div>
+                                           </div>`;
 
             fetch(`@Url.Action("GaleriaImagenes", "Inmuebles")?idInmueble=${@Model.IdInmueble}`)
               .then(res => res.text())
