@@ -1,0 +1,82 @@
+@using System.Globalization
+@model InmobiliariaLopez.Models.Pago
+
+@{
+  ViewData["Title"] = "Anular Pago";
+}
+
+<h1 class="mb-4 text-center text-danger" style="font-family: 'Roboto', sans-serif;">
+  Anular Pago
+</h1>
+
+<div class="card shadow-lg border-0 rounded-4">
+  <div class="card-header bg-danger text-white border-0 rounded-4">
+    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif;">Confirmar Anulación</h5>
+  </div>
+
+  <div class="card-body" style="padding: 1.5rem;">
+    <h6 class="mb-3">¿Estás seguro de que deseas anular el siguiente pago?</h6>
+    <dl class="row">
+      <dt class="col-sm-3"># Pago</dt>
+      <dd class="col-sm-9" data-pago-numero="@Model.NumeroPago">@Model.NumeroPago</dd>
+
+      <dt class="col-sm-3">Fecha de Pago</dt>
+      <dd class="col-sm-9">@Model.FechaPago.ToString("dd/MM/yyyy")</dd>
+
+      <dt class="col-sm-3">Importe</dt>
+      <dd class="col-sm-9">@Model.Importe.ToString("C", CultureInfo.CreateSpecificCulture("es-AR"))</dd>
+
+      <dt class="col-sm-3">Contrato</dt>
+      <dd class="col-sm-9">
+        Contrato #@Model.IdContrato
+        <a asp-controller="Contratos" asp-action="Details" asp-route-id="@Model.IdContrato" class="btn-link ms-2">
+          <i class="fas fa-eye"></i>
+        </a>
+      </dd>
+    </dl>
+
+    <form id="anularPagoForm" method="post" action="@Url.Action("Anular", "Pagos")">
+      <input type="hidden" name="IdPago" value="@Model.IdPago" />
+
+      <div class="row">
+        <div class="form-group col-md-6">
+          <label for="IdUsuarioAnula">Usuario que Anula</label>
+          <select id="IdUsuarioAnula" name="IdUsuarioAnula" class="form-control" required>
+            <option value="">-- Seleccionar Usuario --</option>
+            <option value="1">admin1@example.com</option>
+            <option value="2">empleado1@example.com</option>
+            <option value="3">empleado2@example.com</option>
+            <option value="4">admin2@example.com</option>
+            <option value="5">empleado3@example.com</option>
+          </select>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label for="FechaAnulacion">Fecha de Anulación</label>
+          <input type="date" id="FechaAnulacion" name="FechaAnulacion" class="form-control" required
+            value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <label for="MotivoAnulacion">Motivo de Anulación</label>
+        <textarea id="MotivoAnulacion" name="MotivoAnulacion" class="form-control" rows="4" required></textarea>
+      </div>
+
+      <div class="card-footer mt-4 d-flex justify-content-end">
+        <button type="button" class="btn btn-danger btn-sm me-2" id="confirmarAnulacionBtn">
+          Confirmar Anulación
+        </button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const anularPagoUrl = '@Url.Action("Anular", "Pagos")'; 
+  </script>
+  <script src="~/js/Pagos/anular-pago.js"></script>
+}

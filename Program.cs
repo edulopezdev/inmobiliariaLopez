@@ -18,6 +18,7 @@ builder.Services.AddScoped<IRepositorioInquilino, InquilinoRepository>();
 builder.Services.AddScoped<IRepositorioInmueble, InmuebleRepository>();
 builder.Services.AddScoped<IRepositorioContrato, ContratoRepository>();
 builder.Services.AddScoped<IRepositorioImagen, ImagenRepository>();
+builder.Services.AddScoped<IRepositorioPago, PagoRepository>();
 
 // Creamos la aplicación web
 var app = builder.Build();
