@@ -17,7 +17,7 @@
     <dl class="row">
 
       <dt class="col-sm-3">Número de pago</dt>
-      <dd class="col-sm-9">@Model.NumeroPago</dd>
+      <dd class="col-sm-9">@Model.NumeroPagoContrato</dd>
 
       <dt class="col-sm-3">Fecha del pago</dt>
       <dd class="col-sm-9">@Model.FechaPago.ToString("dd/MM/yyyy")</dd>
@@ -34,28 +34,27 @@
       <dd class="col-sm-9">
         @if (Model.Estado == "Pendiente")
         {
-          <span class="text-warning">
-            <i class="fas fa-clock me-1" data-bs-toggle="tooltip" title="Pago pendiente"></i>
-            Pendiente
+          <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="El pago aún no se ha realizado.">
+            <i class="fas fa-clock me-1"></i> Pendiente
           </span>
         }
         else if (Model.Estado == "Pagado")
         {
-          <span class="text-success">
-            <i class="fas fa-check-circle me-1" data-bs-toggle="tooltip" title="Pago realizado"></i>
-            Pagado
+          <span class="badge bg-success text-light" data-bs-toggle="tooltip" title="El pago ya fue efectuado.">
+            <i class="fas fa-check-circle me-1"></i> Pagado
           </span>
         }
         else if (Model.Estado == "Anulado")
         {
-          <span class="text-danger">
-            <i class="fas fa-ban me-1" data-bs-toggle="tooltip" title="Pago anulado"></i>
-            Anulado
+          <span class="badge bg-danger text-light" data-bs-toggle="tooltip" title="Este pago ha sido anulado.">
+            <i class="fas fa-ban me-1"></i> Anulado
           </span>
         }
         else
         {
-          <span class="text-muted">@Model.Estado</span>
+          <span class="badge bg-muted text-dark" data-bs-toggle="tooltip" title="Estado desconocido o no especificado.">
+            @Model.Estado
+          </span>
         }
       </dd>
 

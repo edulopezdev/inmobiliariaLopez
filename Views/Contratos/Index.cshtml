@@ -69,7 +69,10 @@
             <td>@contrato.NombreInquilino</td>
             <td>@contrato.FechaInicio.ToShortDateString()</td>
             <td>@contrato.FechaFin.ToShortDateString()</td>
-            <td>@contrato.MontoMensual.ToString("C", CultureInfo.CreateSpecificCulture("en-US"))</td>
+            <td class="bold-importe">
+                @contrato.MontoMensual.ToString("C")
+                <i class="fas fa-money-bill-wave-alt ms-2"></i>
+              </td>
 
               <td>
               @if (contrato.EstadoContrato == "PendienteAnulacion")

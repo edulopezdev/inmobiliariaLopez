@@ -28,7 +28,7 @@ namespace InmobiliariaLopez.Repositories
                     using (
                         var command = new MySqlCommand(
                             @"
-                        SELECT IdPago, NumeroPago, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
+                        SELECT IdPago, NumeroPagoContrato, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
                                IdUsuarioCrea, IdUsuarioAnula, FechaCreacion, FechaAnulacion, IdMulta, IdContrato, Activo
                         FROM pago WHERE Activo = 1",
                             (MySqlConnection)connection
@@ -42,7 +42,7 @@ namespace InmobiliariaLopez.Repositories
                                 new Pago
                                 {
                                     IdPago = reader.GetInt32("IdPago"),
-                                    NumeroPago = reader.GetInt32("NumeroPago"),
+                                    NumeroPagoContrato = reader.GetInt32("NumeroPagoContrato"),
                                     FechaPago = reader.GetDateTime("FechaPago"),
                                     TipoPago = reader.GetString("TipoPago"),
                                     MesesAdeudados = reader.IsDBNull(
@@ -104,7 +104,7 @@ namespace InmobiliariaLopez.Repositories
                     using (
                         var command = new MySqlCommand(
                             @"
-                        SELECT IdPago, NumeroPago, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
+                        SELECT IdPago, NumeroPagoContrato, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
                                IdUsuarioCrea, IdUsuarioAnula, FechaCreacion, FechaAnulacion, IdMulta, IdContrato, Activo
                         FROM pago WHERE IdPago = @IdPago AND Activo = 1",
                             (MySqlConnection)connection
@@ -119,7 +119,7 @@ namespace InmobiliariaLopez.Repositories
                                 pago = new Pago
                                 {
                                     IdPago = reader.GetInt32("IdPago"),
-                                    NumeroPago = reader.GetInt32("NumeroPago"),
+                                    NumeroPagoContrato = reader.GetInt32("NumeroPagoContrato"),
                                     FechaPago = reader.GetDateTime("FechaPago"),
                                     TipoPago = reader.GetString("TipoPago"),
                                     MesesAdeudados = reader.IsDBNull(
@@ -168,7 +168,6 @@ namespace InmobiliariaLopez.Repositories
             return pago;
         }
 
-        // Crea un nuevo Pago
         public int Create(Pago entidad)
         {
             using (var connection = _dbConnection.CreateConnection())
@@ -176,51 +175,102 @@ namespace InmobiliariaLopez.Repositories
                 try
                 {
                     connection.Open();
-                    using (
-                        var command = new MySqlCommand(
-                            @"
-                        INSERT INTO pago (NumeroPago, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
+
+                    // Paso 1: Obtener el último número de pago registrado para este contrato
+                    int? ultimoNumeroPago = ObtenerUltimoNumeroPago(entidad.IdContrato);
+
+                    // Si el último número de pago es null, significa que es el primer pago, entonces lo inicializamos en 0
+                    int nuevoNumeroPago = (ultimoNumeroPago ?? 0) + 1;
+
+                    int nuevoIdPago;
+
+                    // Inicia la transacción para asegurar la atomicidad
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Paso 2: Insertar el nuevo pago
+                            using (
+                                var command = new MySqlCommand(
+                                    @"
+                        INSERT INTO pago (NumeroPagoContrato, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
                                           IdUsuarioCrea, FechaCreacion, IdMulta, IdContrato, Activo)
-                        VALUES (@NumeroPago, @FechaPago, @TipoPago, @MesesAdeudados, @Estado, @Detalle, @Importe,
+                        VALUES (@NumeroPagoContrato, @FechaPago, @TipoPago, @MesesAdeudados, @Estado, @Detalle, @Importe,
                                 @IdUsuarioCrea, @FechaCreacion, @IdMulta, @IdContrato, @Activo);
                         SELECT LAST_INSERT_ID();",
-                            (MySqlConnection)connection
-                        )
-                    )
-                    {
-                        command.Parameters.AddWithValue("@NumeroPago", entidad.NumeroPago);
-                        command.Parameters.AddWithValue("@FechaPago", entidad.FechaPago);
-                        command.Parameters.AddWithValue("@TipoPago", entidad.TipoPago);
-                        command.Parameters.AddWithValue(
-                            "@MesesAdeudados",
-                            entidad.MesesAdeudados.HasValue
-                                ? (object)entidad.MesesAdeudados
-                                : DBNull.Value
-                        );
-                        command.Parameters.AddWithValue("@Estado", entidad.Estado);
-                        command.Parameters.AddWithValue(
-                            "@Detalle",
-                            string.IsNullOrEmpty(entidad.Detalle)
-                                ? DBNull.Value
-                                : (object)entidad.Detalle
-                        );
-                        command.Parameters.AddWithValue("@Importe", entidad.Importe);
-                        command.Parameters.AddWithValue(
-                            "@IdUsuarioCrea",
-                            entidad.IdUsuarioCrea.HasValue
-                                ? (object)entidad.IdUsuarioCrea
-                                : DBNull.Value
-                        );
-                        command.Parameters.AddWithValue("@FechaCreacion", DateTime.Now);
-                        command.Parameters.AddWithValue(
-                            "@IdMulta",
-                            entidad.IdMulta.HasValue ? (object)entidad.IdMulta : DBNull.Value
-                        );
-                        command.Parameters.AddWithValue("@IdContrato", entidad.IdContrato);
-                        command.Parameters.AddWithValue("@Activo", 1);
+                                    (MySqlConnection)connection
+                                )
+                            )
+                            {
+                                command.Parameters.AddWithValue(
+                                    "@NumeroPagoContrato",
+                                    nuevoNumeroPago
+                                );
+                                command.Parameters.AddWithValue("@FechaPago", entidad.FechaPago);
+                                command.Parameters.AddWithValue("@TipoPago", entidad.TipoPago);
+                                command.Parameters.AddWithValue(
+                                    "@MesesAdeudados",
+                                    entidad.MesesAdeudados.HasValue
+                                        ? (object)entidad.MesesAdeudados
+                                        : DBNull.Value
+                                );
+                                command.Parameters.AddWithValue("@Estado", entidad.Estado);
+                                command.Parameters.AddWithValue(
+                                    "@Detalle",
+                                    string.IsNullOrEmpty(entidad.Detalle)
+                                        ? DBNull.Value
+                                        : (object)entidad.Detalle
+                                );
+                                command.Parameters.AddWithValue("@Importe", entidad.Importe);
+                                command.Parameters.AddWithValue(
+                                    "@IdUsuarioCrea",
+                                    entidad.IdUsuarioCrea.HasValue
+                                        ? (object)entidad.IdUsuarioCrea
+                                        : DBNull.Value
+                                );
+                                command.Parameters.AddWithValue("@FechaCreacion", DateTime.Now);
+                                command.Parameters.AddWithValue(
+                                    "@IdMulta",
+                                    entidad.IdMulta.HasValue
+                                        ? (object)entidad.IdMulta
+                                        : DBNull.Value
+                                );
+                                command.Parameters.AddWithValue("@IdContrato", entidad.IdContrato);
+                                command.Parameters.AddWithValue("@Activo", 1);
 
-                        return Convert.ToInt32(command.ExecuteScalar());
+                                nuevoIdPago = Convert.ToInt32(command.ExecuteScalar());
+                            }
+
+                            // 🔁 Si es un pago de multa, marcamos esa multa como pagada
+                            if (entidad.IdMulta.HasValue)
+                            {
+                                using (
+                                    var updateCommand = new MySqlCommand(
+                                        "UPDATE Multa SET Pagada = 1 WHERE IdMulta = @idMulta",
+                                        (MySqlConnection)connection
+                                    )
+                                )
+                                {
+                                    updateCommand.Parameters.AddWithValue(
+                                        "@idMulta",
+                                        entidad.IdMulta.Value
+                                    );
+                                    updateCommand.ExecuteNonQuery();
+                                }
+                            }
+
+                            // Paso 3: Confirmamos la transacción
+                            transaction.Commit();
+                        }
+                        catch (Exception)
+                        {
+                            // Si hay algún error, revertimos la transacción
+                            transaction.Rollback();
+                            throw;
+                        }
                     }
+
+                    return nuevoIdPago;
                 }
                 catch (Exception ex)
                 {
@@ -242,7 +292,7 @@ namespace InmobiliariaLopez.Repositories
                         var command = new MySqlCommand(
                             @"
                         UPDATE pago
-                        SET NumeroPago = @NumeroPago,
+                        SET NumeroPagoContrato = @NumeroPagoContrato,
                             FechaPago = @FechaPago,
                             TipoPago = @TipoPago,
                             MesesAdeudados = @MesesAdeudados,
@@ -260,7 +310,10 @@ namespace InmobiliariaLopez.Repositories
                     )
                     {
                         command.Parameters.AddWithValue("@IdPago", entidad.IdPago);
-                        command.Parameters.AddWithValue("@NumeroPago", entidad.NumeroPago);
+                        command.Parameters.AddWithValue(
+                            "@NumeroPagoContrato",
+                            entidad.NumeroPagoContrato
+                        );
                         command.Parameters.AddWithValue("@FechaPago", entidad.FechaPago);
                         command.Parameters.AddWithValue("@TipoPago", entidad.TipoPago);
                         command.Parameters.AddWithValue(
@@ -352,9 +405,9 @@ namespace InmobiliariaLopez.Repositories
                     using (
                         var command = new MySqlCommand(
                             @"
-                        SELECT IdPago, NumeroPago, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
-                               IdUsuarioCrea, IdUsuarioAnula, FechaCreacion, FechaAnulacion, IdMulta, IdContrato, Activo
-                        FROM pago WHERE IdContrato = @IdContrato AND Activo = 1",
+                    SELECT IdPago, NumeroPagoContrato, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
+                           IdUsuarioCrea, IdUsuarioAnula, FechaCreacion, FechaAnulacion, IdMulta, IdContrato, Activo
+                    FROM pago WHERE IdContrato = @IdContrato AND Activo = 1",
                             (MySqlConnection)connection
                         )
                     )
@@ -368,7 +421,7 @@ namespace InmobiliariaLopez.Repositories
                                     new Pago
                                     {
                                         IdPago = reader.GetInt32("IdPago"),
-                                        NumeroPago = reader.GetInt32("NumeroPago"),
+                                        NumeroPagoContrato = reader.GetInt32("NumeroPagoContrato"), // Actualizado aquí
                                         FechaPago = reader.GetDateTime("FechaPago"),
                                         TipoPago = reader.GetString("TipoPago"),
                                         MesesAdeudados = reader.IsDBNull(
@@ -429,7 +482,7 @@ namespace InmobiliariaLopez.Repositories
                     using (
                         var command = new MySqlCommand(
                             @"
-                        SELECT MAX(NumeroPago)
+                        SELECT MAX(NumeroPagoContrato)
                         FROM pago
                         WHERE IdContrato = @IdContrato",
                             (MySqlConnection)connection
@@ -493,6 +546,50 @@ namespace InmobiliariaLopez.Repositories
                     // Log de error
                     Console.WriteLine($"Error al anular pago: {ex.Message}");
                     throw; // Re-lanzamos el error para que lo capture el controller
+                }
+            }
+        }
+
+        // Método que obtiene todas las multas sin pagar
+        public IEnumerable<Multa> ObtenerMultasSinPagar()
+        {
+            // Lógica para consultar las multas no pagadas
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    using (
+                        var command = new MySqlCommand(
+                            @"
+                        SELECT IdMulta, IdContrato, Motivo, Monto
+                        FROM Multa
+                        WHERE Pagada = 0", // Aquí estamos buscando las multas no pagadas
+                            (MySqlConnection)connection
+                        )
+                    )
+                    using (var reader = command.ExecuteReader())
+                    {
+                        var multas = new List<Multa>();
+                        while (reader.Read())
+                        {
+                            multas.Add(
+                                new Multa
+                                {
+                                    IdMulta = reader.GetInt32("IdMulta"),
+                                    IdContrato = reader.GetInt32("IdContrato"),
+                                    Motivo = reader.GetString("Motivo"),
+                                    Monto = reader.GetDecimal("Monto"),
+                                }
+                            );
+                        }
+                        return multas;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al obtener las multas sin pagar: {ex.Message}");
+                    throw;
                 }
             }
         }

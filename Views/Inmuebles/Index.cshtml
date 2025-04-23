@@ -101,7 +101,10 @@
               <td>@inmueble.Uso</td>
               <td>@inmueble.TipoNombre</td>
               <td>@inmueble.Ambientes</td>
-              <td>@inmueble.Precio.ToString("C", new CultureInfo("es-AR"))</td>
+              <td class="bold-importe">
+                @inmueble.Precio.ToString("C")
+                <i class="fas fa-money-bill-wave-alt ms-2"></i>
+              </td>
               <td>@inmueble.Estado</td>
               <td>@($"{inmueble.PropietarioApellido}, {inmueble.PropietarioNombre}")</td>
               <td class="text-center">

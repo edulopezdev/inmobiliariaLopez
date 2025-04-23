@@ -27,6 +27,8 @@ namespace InmobiliariaLopez.Models
         [Range(0.01, double.MaxValue, ErrorMessage = "El importe debe ser mayor que 0.")]
         public decimal Importe { get; set; }
 
+        public int NumeroPagoContrato { get; set; }
+
         // IdUsuarioCrea puede ser nullable, así que inicializamos como null
         public int? IdUsuarioCrea { get; set; }
 

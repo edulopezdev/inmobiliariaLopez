@@ -41,6 +41,7 @@ namespace InmobiliariaLopez.Controllers
         // GET: Pago/Create
         public IActionResult Create()
         {
+            // Obtener contratos
             var contratos = _contratoRepository.Index();
 
             var contratosSelectList = contratos
@@ -53,7 +54,38 @@ namespace InmobiliariaLopez.Controllers
 
             ViewBag.Contratos = contratosSelectList;
 
+            // Obtener multas sin pagar
+            var multas = _pagoRepository.ObtenerMultasSinPagar();
+
+            var multasSelectList = multas
+                .Select(m => new SelectListItem
+                {
+                    Value = m.IdMulta.ToString(),
+                    Text = $"{m.IdMulta} - {m.Motivo}|{m.Monto}" // ⚠️ "|" separa el texto visible del importe
+                })
+                .ToList();
+
+            ViewBag.MultasSinPagar = multasSelectList;
+
             return View();
+        }
+
+        // GET: Pago/ObtenerMultasPorContrato
+        [HttpGet]
+        public IActionResult ObtenerMultasPorContrato(int contratoId)
+        {
+            var multas = _pagoRepository
+                .ObtenerMultasSinPagar()
+                .Where(m => m.IdContrato == contratoId)
+                .Select(m => new
+                {
+                    m.IdMulta,
+                    m.Monto,
+                    m.Motivo,
+                })
+                .ToList();
+
+            return Json(multas);
         }
 
         // POST: Pago/Create
@@ -70,7 +102,13 @@ namespace InmobiliariaLopez.Controllers
                     return View(pago);
                 }
 
+                // Asignamos la fecha de creación
                 pago.FechaCreacion = DateTime.Now;
+
+                // Obtener el último número de pago para el contrato y calcular el nuevo número de pago
+                var ultimoNumeroPago = _pagoRepository.ObtenerUltimoNumeroPago(pago.IdContrato);
+                // Si no hay pagos previos, comenzamos con 1; de lo contrario, sumamos 1 al último número de pago
+                pago.NumeroPagoContrato = (ultimoNumeroPago ?? 0) + 1;
 
                 // Crear el pago
                 _pagoRepository.Create(pago);
@@ -154,6 +192,18 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
+                // Validación: asegurarse de que MotivoAnulacion no sea nulo o vacío
+                if (string.IsNullOrEmpty(anularPagoDTO.MotivoAnulacion))
+                {
+                    return Json(
+                        new
+                        {
+                            success = false,
+                            message = "Debe proporcionar un motivo de anulación.",
+                        }
+                    );
+                }
+
                 // Log para depuración
                 Console.WriteLine(
                     $"DTO recibido: IdPago={anularPagoDTO.IdPago}, MotivoAnulacion={anularPagoDTO.MotivoAnulacion}, FechaAnulacion={anularPagoDTO.FechaAnulacion}, IdUsuarioAnula={anularPagoDTO.IdUsuarioAnula}"
@@ -189,6 +239,27 @@ namespace InmobiliariaLopez.Controllers
                 return Json(
                     new { success = false, message = "Hubo un error al procesar la solicitud." }
                 );
+            }
+        }
+
+        // GET: Pago/ObtenerImporteContrato
+        [HttpGet]
+        public IActionResult ObtenerImporteContrato(int id)
+        {
+            try
+            {
+                var contrato = _contratoRepository.ObtenerPorId(id);
+                if (contrato != null)
+                {
+                    return Json(new { success = true, monto = contrato.MontoMensual });
+                }
+
+                return Json(new { success = false });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al obtener el importe del contrato: {ex.Message}");
+                return Json(new { success = false });
             }
         }
     }

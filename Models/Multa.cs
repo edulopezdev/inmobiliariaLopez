@@ -8,7 +8,7 @@ namespace InmobiliariaLopez.Models
         public int IdMulta { get; set; }
 
         public int IdContrato { get; set; }
-        public Contrato Contrato { get; set; } // Propiedad de navegación
+        public Contrato? Contrato { get; set; }
 
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto de la multa debe ser mayor que 0.")]
         public decimal Monto { get; set; }
@@ -16,7 +16,7 @@ namespace InmobiliariaLopez.Models
         public DateTime FechaCalculo { get; set; }
 
         [MaxLength(500)]
-        public string Motivo { get; set; }
+        public string? Motivo { get; set; }
 
         public bool Pagada { get; set; }
     }

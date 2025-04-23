@@ -26,25 +26,21 @@
     </div>
 
     <div class="table-responsive">
-      <table class="table table-hover" style="font-family: 'Roboto', sans-serif;">
+      <table class="table table-hover table-bordered" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">
           <tr>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
               #Pago</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Número</th>
+              Fecha</th>              
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Fecha</th>
+              Concepto</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Tipo</th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Meses Adeudados</th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              >Estado</th>
+              Estado</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
               Importe</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Contrato ID</th>
+              #Contrato</th>
             <th class="text-center"
               style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
               Acciones
@@ -56,11 +52,22 @@
           {
             <tr
               class="@(pago.Estado == "Anulado" ? "fila-anulado" : pago.Estado == "Pendiente" ? "fila-pendiente-anulacion" : "fila-finalizado")">
-              <td>@pago.IdPago</td>
-              <td>@pago.NumeroPago</td>
+              <td>@pago.NumeroPagoContrato</td>
               <td>@pago.FechaPago.ToShortDateString()</td>
-              <td>@pago.TipoPago</td>
-              <td>@pago.MesesAdeudados</td>
+              <td>
+                @if (pago.TipoPago == "Alquiler")
+                {
+                  <i class="fas fa-home text-primary" data-bs-toggle="tooltip" title="Pago de Alquiler"></i>
+                }
+                else if (pago.TipoPago == "Multa")
+                {
+                  <i class="fas fa-exclamation-triangle text-warning" data-bs-toggle="tooltip" title="Pago de Multa"></i>
+                }
+                else
+                {
+                  <span>@pago.TipoPago</span> <!-- fallback para tipos nuevos -->
+                }
+              </td>
 
               <td>
                 @if (pago.Estado == "Anulado")
@@ -83,7 +90,12 @@
                 }
               </td>
 
-              <td>@pago.Importe.ToString("C")</td>
+              <td class="bold-importe">
+                @pago.Importe.ToString("C")
+                <i class="fas fa-money-bill-wave-alt ms-2"></i>
+              </td>
+
+
               <td>@pago.IdContrato</td>
 
               <td class="text-center">

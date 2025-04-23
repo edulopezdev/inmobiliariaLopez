@@ -62,6 +62,18 @@ table tr {
   border: none;
 }
 
+.table-hover
+  tbody
+  tr:not(.fila-anulado):not(.fila-pendiente-anulacion):not(
+    .fila-finalizado
+  ):nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.02); /* Casi blanco */
+}
+
+.table-hover tbody tr {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 /* Si estás utilizando un fondo personalizado (como en el caso de 'pendiente-anulacion') */
 .pendiente-anulacion {
   background-color: rgba(255, 165, 0, 0.15); /* Naranja suave translúcido */
@@ -86,8 +98,10 @@ table tr {
 
 /* Estilo de los encabezados de la tabla */
 .table thead th {
-  background-color: #2c3e50; /* Color del encabezado */
-  color: white;
+  font-family: "Roboto", sans-serif;
+  background-color: #f1f1f1;
+  color: #343a40;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
   text-align: center; /* Alineación horizontal centrada */
   padding: 10px 12px; /* Ajustar padding para los encabezados */
   font-weight: 600; /* Negrita para los títulos */
@@ -96,9 +110,9 @@ table tr {
 
 /* Estilo de las celdas de la tabla */
 .table td {
-  font-size: 0.85rem; /* Ajustar el tamaño de las celdas */
-  text-align: center; /* Alineación horizontal centrada para los datos */
-  padding: 8px 12px; /* Ajustar padding en las celdas */
+  font-size: 0.9rem; /* un toque más grande */
+  text-align: center;
+  padding: 10px 14px; /* más espacio vertical */
 }
 
 /* Alternancia de color en las filas de la tabla */
@@ -219,56 +233,50 @@ table tr {
 }
 
 /* ===================================================
-   Estilos para Contratos Anulados y Finalizados
+   Estilos para Contratos Anulados, Pendientes y Finalizados
+   con zebra striping minimalista
    =================================================== */
 
-/* Estilo para los contratos anulados */
+/* Zebra muy sutil SOLO para filas que no tienen estado definido */
+.table-hover
+  tbody
+  tr:not(.fila-anulado):not(.fila-pendiente-anulacion):not(
+    .fila-finalizado
+  ):nth-child(odd) {
+  background-color: rgba(0, 0, 0, 0.015); /* Gris muy claro, casi blanco */
+}
+
+/* ===== ESTADOS INACTIVOS/DESHABILITADOS (acciones visuales) ===== */
+
+/* Botones deshabilitados para pagos anulados */
 .table td .btn-link.text-danger {
-  color: #dc3545 !important; /* Rojo para el texto */
-  opacity: 0.5; /* Opacidad para indicar que está deshabilitado */
-  cursor: not-allowed; /* Cambiar el cursor a no permitido */
+  color: #dc3545 !important;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-/* Estilo para los contratos finalizados */
+/* Botones deshabilitados para pagos finalizados */
 .table td .btn-link.text-muted {
-  opacity: 0.5; /* Opacidad para indicar que está deshabilitado */
-  color: #6c757d !important; /* Color gris más claro para indicar finalización */
-  cursor: not-allowed; /* Cambiar el cursor a no permitido */
+  color: #6c757d !important;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
+/* Clase general para desactivar acciones */
 .disabled-action {
   opacity: 0.5;
   pointer-events: none;
   cursor: not-allowed;
 }
 
-.fila-pendiente-anulacion {
-  background-color: rgba(
-    255,
-    236,
-    202,
-    0.3
-  ); /* Naranja con algo de transparencia */
+.text-start {
+  text-align: left !important;
 }
 
-.fila-anulado {
-  background-color: rgba(
-    255,
-    0,
-    0,
-    0.1
-  ); /* Rojo claro con algo de transparencia */
-  opacity: 0.8;
-}
-
-.fila-finalizado {
-  background-color: rgba(0, 255, 0, 0.1); /* Verde claro con transparencia */
-  opacity: 0.8;
-}
-
-.disabled-action {
-  cursor: not-allowed;
-  opacity: 0.5;
+.bold-importe {
+  font-weight: semi-bold; /* Semi-bold */
+  color: #006f1a; /* Verde claro */
+  cursor: default;
 }
 
 /* Estilo para el contenedor de las miniaturas */

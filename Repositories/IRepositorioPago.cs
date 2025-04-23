@@ -14,5 +14,7 @@ namespace InmobiliariaLopez.Repositories
         // Cambiar el estado de un pago a "Anulado"
         // El motivo de la anulación no debe ser nulo y debe ser proporcionado
         int AnularPago(int pagoId, int usuarioAnulaId, string motivoAnulacion);
+
+        IEnumerable<Multa> ObtenerMultasSinPagar();
     }
 }
