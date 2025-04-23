@@ -44,110 +44,46 @@ namespace InmobiliariaLopez.Controllers
             return View(inmuebles);
         }
 
-        public IActionResult Details(int id)
+        // GET: Inmuebles/Create
+        public IActionResult Create()
         {
-            var inmueble = _repositorio.Details(id);
-            if (inmueble == null)
-            {
-                return NotFound();
-            }
-
-            // Obtener las imagenes asociadas al inmueble
-            inmueble.Imagenes = _repoImagen.ObtenerPorInmueble(id);
-
-            return View(inmueble);
-        }
-
-        // GET: Inmuebles/CreateOrEdit
-        public IActionResult CreateOrEdit(int? id)
-        {
-            // Crear un nuevo inmueble si no se proporciona un ID
-            if (id == null)
-            {
-                // Proporcionar la lista de propietarios para el campo desplegable
-                ViewBag.Propietarios = new SelectList(
-                    _repoPropietario.Index(),
-                    "IdPropietario",
-                    "NombreCompleto"
-                );
-
-                // Proporcionar la lista de tipos de inmuebles para el campo desplegable
-                ViewBag.TiposInmueble = new SelectList(
-                    _repositorio.ObtenerTiposInmuebles(),
-                    "IdTipoInmueble",
-                    "Nombre"
-                );
-
-                return View(new Inmueble());
-            }
-
-            // Cargar el inmueble existente si se proporciona un ID
-            var inmueble = _repositorio.Details(id.Value);
-            if (inmueble == null)
-            {
-                return NotFound();
-            }
-
-            // Proporcionar la lista de propietarios para el campo desplegable
             ViewBag.Propietarios = new SelectList(
                 _repoPropietario.Index(),
                 "IdPropietario",
-                "NombreCompleto",
-                inmueble.IdPropietario
+                "NombreCompleto"
             );
 
-            // Proporcionar la lista de tipos de inmuebles para el campo desplegable
             ViewBag.TiposInmueble = new SelectList(
                 _repositorio.ObtenerTiposInmuebles(),
                 "IdTipoInmueble",
-                "Nombre",
-                inmueble.IdTipoInmueble
+                "Nombre"
             );
 
-            return View(inmueble);
+            return View();
         }
 
-        // POST: Inmuebles/CreateOrEdit
+        // POST: Inmuebles/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateOrEdit(int? id, Inmueble inmueble, IFormFile archivo)
+        public async Task<IActionResult> Create(Inmueble inmueble, IFormFile archivo)
         {
-            // Validar que el ID coincida con el modelo
-            if (id != null && inmueble.IdInmueble != id)
-            {
-                return BadRequest("El ID del inmueble no coincide con el ID proporcionado.");
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    if (id == null)
-                    {
-                        // Crear un nuevo inmueble
-                        _repositorio.Create(inmueble);
-                        TempData["Mensaje"] = "Inmueble creado correctamente";
+                    // Guardar el inmueble y obtener el IdInmueble
+                    var inmuebleId = _repositorio.Create(inmueble);
+                    inmueble.IdInmueble = inmuebleId; // Aseguramos que el objeto inmueble tenga el ID asignado
 
-                        // Subir la portada si se proporcionó un archivo
-                        if (archivo != null && archivo.Length > 0)
-                        {
-                            await SubirPortada(inmueble.IdInmueble, archivo); // Llama a la acción SubirPortada
-                        }
-                    }
-                    else
-                    {
-                        // Editar un inmueble existente
-                        _repositorio.Edit(inmueble);
-                        TempData["Mensaje"] = "Inmueble modificado correctamente";
+                    TempData["Mensaje"] = "Inmueble creado correctamente";
 
-                        // Subir la portada si se proporcionó un archivo
-                        if (archivo != null && archivo.Length > 0)
-                        {
-                            await SubirPortada(inmueble.IdInmueble, archivo); // Llama a la acción SubirPortada
-                        }
+                    // Subir la portada si se proporciona un archivo
+                    if (archivo != null && archivo.Length > 0)
+                    {
+                        await SubirPortada(inmueble.IdInmueble, archivo);
                     }
 
-                    return RedirectToAction(nameof(Index));
+                    // Redirigir a la vista Details del inmueble recién creado
+                    return RedirectToAction("Details", new { id = inmueble.IdInmueble });
                 }
                 catch (Exception ex)
                 {
@@ -158,13 +94,99 @@ namespace InmobiliariaLopez.Controllers
                 }
             }
 
-            // Si hay errores, volvemos a cargar la vista con los datos actuales
             ViewBag.Propietarios = new SelectList(
                 _repoPropietario.Index(),
                 "IdPropietario",
-                "Nombre",
+                "NombreCompleto",
                 inmueble.IdPropietario
             );
+
+            ViewBag.TiposInmueble = new SelectList(
+                _repositorio.ObtenerTiposInmuebles(),
+                "IdTipoInmueble",
+                "Nombre",
+                inmueble.IdTipoInmueble
+            );
+
+            // Si hay un error, se vuelve a cargar la vista Create
+            return View(inmueble);
+        }
+
+        // GET: Inmuebles/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var inmueble = _repositorio.Details(id); // Obtienes el inmueble por su ID
+            if (inmueble == null)
+            {
+                return NotFound(); // Si no se encuentra el inmueble, retorna un 404
+            }
+
+            // Rellenar el ViewBag para los dropdowns
+            ViewBag.Propietarios = new SelectList(
+                _repoPropietario.Index(),
+                "IdPropietario",
+                "NombreCompleto",
+                inmueble.IdPropietario
+            );
+
+            ViewBag.TiposInmueble = new SelectList(
+                _repositorio.ObtenerTiposInmuebles(),
+                "IdTipoInmueble",
+                "Nombre",
+                inmueble.IdTipoInmueble
+            );
+
+            return View(inmueble); // Devuelve la vista con los datos
+        }
+
+        // POST: Inmuebles/Edit/5
+        [HttpPost]
+        public IActionResult Edit(int id, Inmueble inmueble)
+        {
+            if (id != inmueble.IdInmueble)
+            {
+                return Json(new { success = false, message = "El ID del inmueble no coincide." });
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Datos inválidos." });
+            }
+
+            try
+            {
+                var resultado = _repositorio.Edit(inmueble);
+                if (resultado > 0)
+                {
+                    return Json(
+                        new { success = true, message = "Inmueble actualizado correctamente." }
+                    );
+                }
+                else
+                {
+                    return Json(
+                        new { success = false, message = "No se pudo actualizar el inmueble." }
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(
+                    new { success = false, message = "Error al actualizar: " + ex.Message }
+                );
+            }
+        }
+
+        public IActionResult Details(int id)
+        {
+            var inmueble = _repositorio.Details(id);
+            if (inmueble == null)
+            {
+                return NotFound();
+            }
+
+            // Obtener las imagenes asociadas al inmueble
+            inmueble.Imagenes = _repoImagen.ObtenerPorInmueble(id);
 
             return View(inmueble);
         }
@@ -337,8 +359,7 @@ namespace InmobiliariaLopez.Controllers
         {
             if (archivo == null || archivo.Length == 0)
             {
-                TempData["Error"] = "Debes seleccionar una imagen.";
-                return RedirectToAction("Details", new { id = idInmueble });
+                return Json(new { success = false, message = "Debes seleccionar una imagen." });
             }
 
             try
@@ -346,8 +367,13 @@ namespace InmobiliariaLopez.Controllers
                 // Validar que sea una imagen válida y no exceda el tamaño máximo (5MB)
                 if (!archivo.ContentType.StartsWith("image/") || archivo.Length > 5 * 1024 * 1024)
                 {
-                    TempData["Error"] = "Solo se permiten imágenes menores a 5MB.";
-                    return RedirectToAction("Details", new { id = idInmueble });
+                    return Json(
+                        new
+                        {
+                            success = false,
+                            message = "Solo se permiten imágenes menores a 5MB.",
+                        }
+                    );
                 }
 
                 // Buscar la portada activa existente para este inmueble
@@ -399,15 +425,19 @@ namespace InmobiliariaLopez.Controllers
                 };
                 _repoImagen.Create(nuevaImagen);
 
-                TempData["Success"] = "Portada actualizada correctamente.";
+                return Json(new { success = true, message = "Portada actualizada correctamente." });
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Ocurrió un error al actualizar la portada: {ex.Message}";
                 Console.WriteLine($"Error en SubirPortada: {ex.Message}");
+                return Json(
+                    new
+                    {
+                        success = false,
+                        message = $"Ocurrió un error al actualizar la portada: {ex.Message}",
+                    }
+                );
             }
-
-            return RedirectToAction("Details", new { id = idInmueble });
         }
     }
 }

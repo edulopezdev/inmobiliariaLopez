@@ -1,7 +1,7 @@
 @model InmobiliariaLopez.Models.Inmueble
 
 @{
-  ViewData["Title"] = Model.IdInmueble == 0 ? "Crear Inmueble" : "Editar Inmueble";
+  ViewData["Title"] = "Crear Inmueble";
 }
 
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">
@@ -16,12 +16,7 @@
   </div>
   <div class="card-body" style="padding: 1.5rem;">
 
-    <form id="formularioInmueble" asp-action="CreateOrEdit" method="post" enctype="multipart/form-data">
-      @if (Model.IdInmueble != 0)
-      {
-        <input type="hidden" asp-for="IdInmueble" />
-      }
-
+    <form id="formularioInmueble" asp-action="Create" method="post" enctype="multipart/form-data">
       <div class="form-group mb-3">
         <label asp-for="Direccion" class="control-label"></label>
         <input asp-for="Direccion" class="form-control" />
@@ -87,20 +82,17 @@
         <span asp-validation-for="IdPropietario" class="text-danger"></span>
       </div>
 
-      @if (Model.IdInmueble == 0)
-      {
-        <div class="form-group mb-3">
-          <label for="PortadaFile" class="control-label">Imagen de Portada</label>
-          <input type="file" class="form-control" id="PortadaFile" name="archivo" accept="image/*">
-          <small class="form-text text-muted">Seleccione una imagen para la portada del inmueble.</small>
-        </div>
-      }
-      <input type="hidden" name="idRelacionado" value="@Model.IdInmueble" />
+      <div class="form-group mb-3">
+        <label for="PortadaFile" class="control-label">Imagen de Portada</label>
+        <input type="file" class="form-control" id="PortadaFile" name="archivo" accept="image/*">
+        <small class="form-text text-muted">Seleccione una imagen para la portada del inmueble.</small>
+      </div>
+
       <input type="hidden" name="tipoImagen" value="InmueblePortada" />
 
-      <div class="card-footer d-flex justify-content-end">
+      <div class="card-footer d-flex justify-content-end mt-4">
         <button type="button" id="btnGuardar" class="btn btn-primary btn-sm me-2">
-          Guardar cambios
+          Guardar
         </button>
         <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">
           Volver al listado
@@ -121,8 +113,8 @@
 
       botonGuardar.addEventListener("click", function () {
         Swal.fire({
-          title: '¿Deseás guardar los cambios?',
-          text: "Se guardarán los datos del inmueble.",
+          title: '¿Deseás guardar este nuevo inmueble?',
+          text: "Se creará el registro con los datos proporcionados.",
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'Sí, guardar',

@@ -33,7 +33,7 @@
   </div>
 
   <!-- Miniaturas -->
-  <div class="d-flex justify-content-start mt-3">
+  <div id="galeriaMiniaturas" class="d-flex justify-content-start mt-3">
     @foreach (var imagen in Model.Imagenes
       .Where(img => img.TipoImagen == "InmuebleInterior")
       .Select((img, i) => new { img, i }))
@@ -57,3 +57,37 @@ else
     <p class="text-muted">No hay imágenes disponibles.</p>
   </div>
 }
+
+<!-- Formulario para cargar nuevas imágenes -->
+<div class="mt-4">
+  <form id="formImagen" asp-action="GuardarImagen" asp-antiforgery="true" enctype="multipart/form-data">
+    <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
+    <input type="hidden" name="esReemplazoPortada" id="esReemplazoPortada" value="false" />
+
+    <div class="row">
+      <!-- Campo para cargar archivo (mitad izquierda) -->
+      <div class="col-6">
+        <div class="mb-3">
+          <input type="file" name="archivos" id="archivo" class="form-control" accept="image/*" multiple required
+            onchange="mostrarNombreArchivo(event)" aria-describedby="subirImagenesHelp">
+          <div id="fileNameDisplay" class="mt-2 text-muted"></div>
+        </div>
+      </div>
+
+      <!-- Botón y casilla (mitad derecha) -->
+      <div class="col-6 d-flex align-items-start ms-auto">
+        <button type="submit" class="btn btn-primary me-2" style="margin-top: -2px;">
+          <i class="fas fa-upload me-1"></i> Subir
+        </button>
+
+        <!-- Casilla Establecer como portada -->
+        <div class="form-check" style="margin-top: 5px;">
+          <input class="form-check-input" type="checkbox" id="nuevaPortada"
+            onchange="document.getElementById('esReemplazoPortada').value = this.checked;">
+          <label class="form-check-label" for="nuevaPortada">Portada</label>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+

@@ -270,3 +270,33 @@ table tr {
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+/* Estilo para el contenedor de las miniaturas */
+#galeriaMiniaturas .position-relative {
+  position: relative;
+  display: inline-block;
+}
+
+/* Estilo para el botón de eliminar (X) */
+#galeriaMiniaturas .btn-danger {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20px; /* Hacer la X más pequeña */
+  height: 20px;
+  font-size: 12px; /* Reducir el tamaño de la X */
+  padding: 0;
+  border-radius: 50%; /* Hacer la X redonda */
+  opacity: 0; /* Inicialmente oculto */
+  transition: opacity 0.3s ease; /* Transición suave */
+}
+
+/* Mostrar la X solo cuando el cursor está sobre la miniatura */
+#galeriaMiniaturas .position-relative:hover .btn-danger {
+  opacity: 1; /* Mostrar la X al hacer hover */
+}
+
+/* Opcional: Estilo para cambiar el cursor cuando se pasa sobre la miniatura */
+#galeriaMiniaturas .position-relative:hover {
+  cursor: pointer;
+}

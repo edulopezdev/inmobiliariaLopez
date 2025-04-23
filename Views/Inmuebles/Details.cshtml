@@ -19,229 +19,168 @@
   </div>
 
   <div class="card-body d-flex">
-    <!-- Info -->
-    <div class="w-50 pe-3">
-      <h4>Inmueble</h4>
-      <hr />
-      <dl class="row">
-        <dt class="col-sm-4">ID</dt>
-        <dd class="col-sm-8">@Model.IdInmueble</dd>
-
-        <dt class="col-sm-4">Dirección</dt>
-        <dd class="col-sm-8">@Model.Direccion</dd>
-
-        <dt class="col-sm-4">Uso</dt>
-        <dd class="col-sm-8">@Model.Uso</dd>
-
-        <dt class="col-sm-4">Tipo</dt>
-        <dd class="col-sm-8">@Model.TipoNombre</dd>
-
-        <dt class="col-sm-4">Ambientes</dt>
-        <dd class="col-sm-8">@Model.Ambientes</dd>
-
-        <dt class="col-sm-4">Coordenadas</dt>
-        <dd class="col-sm-8">
-          @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
+    <!-- Info del inmueble con portada al lado del título -->
+    <div class="w-50 pe-3 d-flex flex-column justify-content-between">
+      <div>
+        <h4 class="d-flex align-items-center">
+          Inmueble
+          @if (Model.Imagenes?.Any(i => i.TipoImagen == "InmueblePortada") == true)
           {
-            <span>Latitud: @Model.Latitud.Value, Longitud: @Model.Longitud.Value</span>
+            var portada = Model.Imagenes.FirstOrDefault(i => i.TipoImagen == "InmueblePortada" && i.Activo);
+            if (portada != null)
+            {
+              <img src="@portada.Ruta" class="img-fluid ms-2" style="width: 80px; height: 60px; object-fit: cover;" />
+            }
           }
-          else
-          {
-            <span>No disponibles</span>
-          }
-        </dd>
+        </h4>
+        <hr />
+        <dl class="row">
+          <dt class="col-sm-4">ID</dt>
+          <dd class="col-sm-8">@Model.IdInmueble</dd>
 
-        <dt class="col-sm-4">Precio</dt>
-        <dd class="col-sm-8">@Model.Precio</dd>
+          <dt class="col-sm-4">Dirección</dt>
+          <dd class="col-sm-8">@Model.Direccion</dd>
 
-        <dt class="col-sm-4">Estado</dt>
-        <dd class="col-sm-8">@Model.Estado</dd>
+          <dt class="col-sm-4">Uso</dt>
+          <dd class="col-sm-8">@Model.Uso</dd>
 
-        <dt class="col-sm-4">Propietario</dt>
-        <dd class="col-sm-8">
-          @Model.PropietarioCompleto
-          <a asp-controller="Propietarios" asp-action="Details" asp-route-id="@Model.IdPropietario"
-            class="btn-link ms-2" data-bs-toggle="tooltip" title="Ver propietario">
-            <i class="fas fa-eye"></i>
-          </a>
-        </dd>
-      </dl>
+          <dt class="col-sm-4">Tipo</dt>
+          <dd class="col-sm-8">@Model.TipoNombre</dd>
+
+          <dt class="col-sm-4">Ambientes</dt>
+          <dd class="col-sm-8">@Model.Ambientes</dd>
+
+          <dt class="col-sm-4">Coordenadas</dt>
+          <dd class="col-sm-8">
+            @if (Model.Latitud.HasValue && Model.Longitud.HasValue)
+            {
+              <span>Latitud: @Model.Latitud.Value, Longitud: @Model.Longitud.Value</span>
+            }
+            else
+            {
+              <span>No disponibles</span>
+            }
+          </dd>
+
+          <dt class="col-sm-4">Precio</dt>
+          <dd class="col-sm-8">
+            @Model.Precio.ToString("C", new System.Globalization.CultureInfo("es-AR"))
+          </dd>
+
+
+          <dt class="col-sm-4">Estado</dt>
+          <dd class="col-sm-8">@Model.Estado</dd>
+
+          <dt class="col-sm-4">Propietario</dt>
+          <dd class="col-sm-8">
+            @Model.PropietarioCompleto
+            <a asp-controller="Propietarios" asp-action="Details" asp-route-id="@Model.IdPropietario"
+              class="btn-link ms-2" data-bs-toggle="tooltip" title="Ver propietario">
+              <i class="fas fa-eye"></i>
+            </a>
+          </dd>
+        </dl>
+      </div>
     </div>
+
 
     <!-- Galería -->
     <div class="w-50 ps-3" id="galeriaContainer">
-      @if (Model.Imagenes?.Any(img => img.TipoImagen == "InmuebleInterior") == true)
-      {
-        <div id="inmuebleCarousel" class="carousel slide" data-bs-ride="carousel">
-          <div class="carousel-indicators">
-            @for (int i = 0; i < Model.Imagenes.Count(img => img.TipoImagen == "InmuebleInterior"); i++)
-            {
-              <button type="button" data-bs-target="#inmuebleCarousel" data-bs-slide-to="@i"
-                class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "")"></button>
-            }
-          </div>
-          <div class="carousel-inner rounded-3">
-            @foreach (var imagen in Model.Imagenes
-                      .Where(img => img.TipoImagen == "InmuebleInterior")
-                      .Select((img, i) => new { img, i }))
-            {
-              <div class="carousel-item @(imagen.i == 0 ? "active" : "")" data-id-imagen="@imagen.img.IdImagen">
-                <img src="@imagen.img.Ruta" class="d-block w-100" style="height: 400px; object-fit: cover;" />
-              </div>
-            }
-          </div>
-          @if (Model.Imagenes.Count(img => img.TipoImagen == "InmuebleInterior") > 1)
-          {
-            <button class="carousel-control-prev" type="button" data-bs-target="#inmuebleCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#inmuebleCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon"></span>
-            </button>
-          }
-        </div>
-
-        <div class="d-flex justify-content-start mt-3">
-          @foreach (var imagen in Model.Imagenes
-                  .Where(img => img.TipoImagen == "InmuebleInterior")
-                  .Select((img, i) => new { img, i }))
-          {
-            <div class="position-relative me-2" data-id-imagen="@imagen.img.IdImagen">
-              <img src="@imagen.img.Ruta" class="img-thumbnail"
-                style="cursor: pointer; height: 80px; object-fit: cover; transition: transform 0.3s ease-in-out;"
-                data-bs-target="#inmuebleCarousel" data-bs-slide-to="@imagen.i" title="Ver imagen"
-                onclick="cambiarImagenCarrusel(@imagen.i)" />
-
-              <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0"
-                style="width: 1rem; height: 1rem; font-size: 0.7rem;" onclick="confirmarEliminacion(@imagen.img.IdImagen)">
-                <i class="fas fa-times" style="font-size: 0.6rem;"></i>
-              </button>
-            </div>
-          }
-        </div>
-      }
-      else
-      {
-        <div class="text-center py-5">
-          <i class="fas fa-image fa-5x text-muted mb-3"></i>
-          <p class="text-muted">No hay imágenes disponibles.</p>
-        </div>
-      }
-
-      <div class="mt-4">
-        <form asp-action="GuardarImagen" asp-antiforgery="true" enctype="multipart/form-data">
-          <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
-          <input type="hidden" name="esReemplazoPortada" id="esReemplazoPortada" value="false" />
-
-          <div class="row">
-            <!-- Campo para cargar archivo (mitad izquierda) -->
-            <div class="col-6">
-              <div class="mb-3">
-                <input type="file" name="archivos" id="archivo" class="form-control" accept="image/*" multiple required
-                  onchange="mostrarNombreArchivo(event)" aria-describedby="subirImagenesHelp">
-                <div id="fileNameDisplay" class="mt-2 text-muted"></div>
-              </div>
-            </div>
-
-            <!-- Botón y casilla (mitad derecha) -->
-            <div class="col-6 d-flex align-items-start ms-auto"> 
-              <button type="submit" class="btn btn-primary me-2" style="margin-top: -2px;">
-                <i class="fas fa-upload me-1"></i> Subir
-              </button>
-
-              <!-- Casilla Establecer como portada -->
-              <div class="form-check" style="margin-top: 5px;">
-                <input class="form-check-input" type="checkbox" id="nuevaPortada"
-                  onchange="document.getElementById('esReemplazoPortada').value = this.checked;">
-                <label class="form-check-label" for="nuevaPortada">Portada</label>
-              </div>
-            </div>
-          </div>
-        </form>
-      </div>
+      @await Html.PartialAsync("_GaleriaImagenes", Model)
     </div>
   </div>
 
-  <!-- Formulario para subir imagen -->
   <div class="card-footer">
     <form asp-action="GuardarImagen" asp-antiforgery="true" enctype="multipart/form-data">
       <input type="hidden" name="idInmueble" value="@Model.IdInmueble" />
       <input type="hidden" name="esReemplazoPortada" id="esReemplazoPortada" value="false" />
 
       <div class="d-flex justify-content-end mt-3">
-        <a asp-action="CreateOrEdit" asp-route-id="@Model.IdInmueble" class="btn btn-warning btn-sm me-2">Editar</a>
-        <a asp-action="Index" class="btn btn-secondary btn-sm">Volver a la lista</a>
+        <a asp-action="Edit" asp-route-id="@Model.IdInmueble" class="btn btn-warning btn-sm me-2">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">Volver</a>
       </div>
     </form>
   </div>
 </div>
+
 
 @section Scripts {
   @await Html.PartialAsync("_ValidationScriptsPartial")
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    // En la función de eliminación
-    function confirmarEliminacion(idImagen) {
-      const idInmueble = @Model.IdInmueble;
-      const token = document.querySelector('#eliminarImagenForm input[name="__RequestVerificationToken"]').value;
-
+    function mostrarMensajePortada() {
       Swal.fire({
-        title: '¿Eliminar esta imagen?',
-        text: 'Esta acción no se puede deshacer.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          fetch('@Url.Action("EliminarImagen", "Inmuebles")', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams({
-              idImagen,
-              idInmueble,
-              __RequestVerificationToken: token
-            })
-          })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                // Aquí eliminamos la miniatura de forma animada
-                $(`[data-id-imagen='${idImagen}']`).fadeOut(300, function () {
-                  $(this).remove();
-                });
-
-                // Recargar la galería de forma suave
-                const galeria = document.getElementById('galeriaContainer');
-                galeria.innerHTML = `<div class="text-center py-5">
-                                            <div class="spinner-border text-primary" role="status">
-                                              <span class="visually-hidden">Cargando...</span>
-                                            </div>
-                                          </div>`;
-
-                fetch(`@Url.Action("GaleriaImagenes", "Inmuebles")?idInmueble=${idInmueble}`)
-                  .then(res => res.text())
-                  .then(html => {
-                    galeria.innerHTML = html;
-                    Swal.fire('¡Listo!', data.message, 'success');
-                  })
-                  .catch(() => {
-                    Swal.fire('Error', 'Error al actualizar la galería.', 'error');
-                  });
-              } else {
-                Swal.fire('Error', data.message, 'error');
-              }
-            })
-            .catch(() => {
-              Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error');
-            });
-        }
+        title: '¡Portada actualizada!',
+        text: 'La imagen ha sido establecida como portada correctamente.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#28a745'
       });
+    }
+
+    function mostrarErrorCarga(msg) {
+      Swal.fire({
+        title: 'Error',
+        text: msg,
+        icon: 'error',
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#dc3545'
+      });
+    }
+
+    // Enviar el formulario de imagen (vista parcial)
+    $(document).on('submit', 'form[asp-action="GuardarImagen"]', function (event) {
+      event.preventDefault();
+
+      const form = this;
+      const formData = new FormData(form);
+      const esPortada = document.getElementById('nuevaPortada')?.checked === true;
+
+      formData.set('esReemplazoPortada', esPortada); // Asegura el valor en el FormData
+
+      fetch('@Url.Action("GuardarImagen", "Inmuebles")', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            if (esPortada) {
+              mostrarMensajePortada(); // Muestra SweetAlert2
+            }
+
+            // Refrescar galería
+            const galeria = document.getElementById('galeriaContainer');
+            galeria.innerHTML = `<div class="text-center py-5">
+                                           <div class="spinner-border text-primary" role="status">
+                                             <span class="visually-hidden">Cargando...</span>
+                                           </div>
+                                         </div>`;
+
+            fetch(`@Url.Action("GaleriaImagenes", "Inmuebles")?idInmueble=${@Model.IdInmueble}`)
+              .then(res => res.text())
+              .then(html => {
+                galeria.innerHTML = html;
+              });
+
+          } else {
+            mostrarErrorCarga(data.message ?? 'Ocurrió un error al subir la imagen.');
+          }
+        })
+        .catch(() => {
+          mostrarErrorCarga('No se pudo conectar con el servidor.');
+        });
+    });
+
+    // Mostrar nombre del archivo
+    function mostrarNombreArchivo(event) {
+      const archivos = event.target.files;
+      const nombres = Array.from(archivos).map(file => file.name).join(', ');
+      document.getElementById('fileNameDisplay').textContent = nombres;
     }
 
     $(document).ready(function () {

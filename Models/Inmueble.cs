@@ -22,7 +22,7 @@ public class Inmueble
 
     // Nueva propiedad para concatenar apellido y nombre del propietario
     public string PropietarioCompleto =>
-        $"{PropietarioApellido ?? ""} {PropietarioNombre ?? ""}".Trim();
+        $"{PropietarioNombre ?? ""} {PropietarioApellido ?? ""}".Trim();
 
     // Propiedades de Navegación
     public Propietario? Propietario { get; set; }

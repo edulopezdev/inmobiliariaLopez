@@ -88,6 +88,12 @@
   <!-- Scripts Select2 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+  <!-- Cargar jQuery Validation y mensajes en español -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/localization/messages_es.min.js"></script>
+
+  @await Html.PartialAsync("_ValidationScriptsPartial")
+
   <!-- Única invocación de RenderSectionAsync -->
   @await RenderSectionAsync("Scripts", required: false)
 

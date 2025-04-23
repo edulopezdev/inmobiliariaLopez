@@ -151,7 +151,7 @@ namespace InmobiliariaLopez.Repositories
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
                             @"INSERT INTO inmueble (Direccion, Uso, IdTipoInmueble, Ambientes, Latitud, Longitud, Precio, Estado, IdPropietario)
-                              VALUES (@Direccion, @Uso, @IdTipoInmueble, @Ambientes, @Latitud, @Longitud, @Precio, @Estado, @IdPropietario)";
+                      VALUES (@Direccion, @Uso, @IdTipoInmueble, @Ambientes, @Latitud, @Longitud, @Precio, @Estado, @IdPropietario)";
 
                         command.Parameters.AddWithValue("@Direccion", entidad.Direccion);
                         command.Parameters.AddWithValue("@Uso", entidad.Uso);
@@ -177,6 +177,8 @@ namespace InmobiliariaLopez.Repositories
                         command.Parameters.AddWithValue("@IdPropietario", entidad.IdPropietario);
 
                         command.ExecuteNonQuery();
+
+                        // Retorna el ID del inmueble recién insertado
                         return (int)command.LastInsertedId;
                     }
                 }
@@ -191,19 +193,31 @@ namespace InmobiliariaLopez.Repositories
         // Actualiza un inmueble existente
         public int Edit(Inmueble entidad)
         {
+            Console.WriteLine($"[DEBUG] Editando inmueble con ID: {entidad.IdInmueble}");
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
                 {
                     connection.Open();
+                    Console.WriteLine("Conexión abierta con la base de datos.");
+
                     using (var command = new MySqlCommand())
                     {
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
                             @"UPDATE inmueble
-                              SET Direccion = @Direccion, Uso = @Uso, IdTipoInmueble = @IdTipoInmueble, Ambientes = @Ambientes,
-                                  Latitud = @Latitud, Longitud = @Longitud, Precio = @Precio, Estado = @Estado, IdPropietario = @IdPropietario
-                              WHERE IdInmueble = @IdInmueble";
+                    SET Direccion = @Direccion,
+                        Uso = @Uso,
+                        IdTipoInmueble = @IdTipoInmueble,
+                        Ambientes = @Ambientes,
+                        Latitud = @Latitud,
+                        Longitud = @Longitud,
+                        Precio = @Precio,
+                        Estado = @Estado,
+                        IdPropietario = @IdPropietario
+                    WHERE IdInmueble = @IdInmueble";
+
+                        Console.WriteLine("Comando SQL preparado.");
 
                         command.Parameters.AddWithValue("@IdInmueble", entidad.IdInmueble);
                         command.Parameters.AddWithValue("@Direccion", entidad.Direccion);
@@ -212,14 +226,12 @@ namespace InmobiliariaLopez.Repositories
                         command.Parameters.AddWithValue("@Ambientes", entidad.Ambientes);
                         command.Parameters.AddWithValue(
                             "@Latitud",
-                            entidad.Latitud.HasValue
-                                ? (object)Convert.ToDecimal(entidad.Latitud)
-                                : DBNull.Value
+                            entidad.Latitud.HasValue ? (object)entidad.Latitud.Value : DBNull.Value
                         );
                         command.Parameters.AddWithValue(
                             "@Longitud",
                             entidad.Longitud.HasValue
-                                ? (object)Convert.ToDecimal(entidad.Longitud)
+                                ? (object)entidad.Longitud.Value
                                 : DBNull.Value
                         );
                         command.Parameters.AddWithValue(
@@ -229,12 +241,22 @@ namespace InmobiliariaLopez.Repositories
                         command.Parameters.AddWithValue("@Estado", entidad.Estado);
                         command.Parameters.AddWithValue("@IdPropietario", entidad.IdPropietario);
 
-                        return command.ExecuteNonQuery();
+                        int filasAfectadas = command.ExecuteNonQuery();
+                        Console.WriteLine($"[DEBUG] Filas afectadas: {filasAfectadas}");
+
+                        if (filasAfectadas == 0)
+                        {
+                            Console.WriteLine(
+                                $"[ADVERTENCIA] No se actualizó ningún registro con ID {entidad.IdInmueble}"
+                            );
+                        }
+
+                        return filasAfectadas;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al actualizar inmueble: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Error al actualizar inmueble: {ex.Message}");
                     throw;
                 }
             }
