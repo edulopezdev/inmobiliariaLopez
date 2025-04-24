@@ -61,7 +61,7 @@ namespace InmobiliariaLopez.Controllers
                 .Select(m => new SelectListItem
                 {
                     Value = m.IdMulta.ToString(),
-                    Text = $"{m.IdMulta} - {m.Motivo}|{m.Monto}" // ⚠️ "|" separa el texto visible del importe
+                    Text = $"{m.IdMulta} - {m.Motivo}|{m.Monto}",
                 })
                 .ToList();
 
@@ -161,15 +161,23 @@ namespace InmobiliariaLopez.Controllers
         public IActionResult Edit(int id, Pago pago)
         {
             if (id != pago.IdPago)
-            {
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
-                _pagoRepository.Edit(pago);
+                var pagoExistente = _pagoRepository.Details(id);
+                if (pagoExistente == null)
+                    return NotFound();
+
+                // Solo actualizamos los campos editables
+                pagoExistente.FechaPago = pago.FechaPago;
+                pagoExistente.Estado = pago.Estado;
+                pagoExistente.Detalle = pago.Detalle;
+
+                _pagoRepository.Edit(pagoExistente);
                 return RedirectToAction(nameof(Index));
             }
+
             return View(pago);
         }
 
@@ -186,11 +194,22 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Pago/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            _pagoRepository.Delete(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                _pagoRepository.Delete(id);
+                TempData["SuccessMessage"] = "El pago fue eliminado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                // Log opcional
+                // _logger.LogError(ex, $"Error al eliminar el pago con ID {id}");
+
+                TempData["ErrorMessage"] = "Ocurrió un error al intentar eliminar el pago.";
+                return RedirectToAction(nameof(Index));
+            }
         }
 
         // GET: Pago/PagosPorContrato/5
@@ -273,7 +292,7 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                var contrato = _contratoRepository.ObtenerPorId(id);
+                var contrato = _contratoRepository.Details(id);
                 if (contrato != null)
                 {
                     return Json(new { success = true, monto = contrato.MontoMensual });

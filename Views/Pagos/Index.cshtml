@@ -52,7 +52,7 @@
           {
             <tr
               class="@(pago.Estado == "Anulado" ? "fila-anulado" : pago.Estado == "Pendiente" ? "fila-pendiente-anulacion" : "fila-finalizado")">
-              <td>@pago.NumeroPagoContrato</td>
+              <td>@pago.IdPago</td>
               <td>@pago.FechaPago.ToShortDateString()</td>
               <td>
                 @if (pago.TipoPago == "Alquiler")

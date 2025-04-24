@@ -368,27 +368,22 @@ namespace InmobiliariaLopez.Repositories
         // "Elimina" (desactiva) un Pago por su ID
         public int Delete(int id)
         {
-            using (var connection = _dbConnection.CreateConnection())
+            using var connection = _dbConnection.CreateConnection();
+            try
             {
-                try
-                {
-                    connection.Open();
-                    using (
-                        var command = new MySqlCommand(
-                            "UPDATE pago SET Activo = 0 WHERE IdPago = @IdPago",
-                            (MySqlConnection)connection
-                        )
-                    )
-                    {
-                        command.Parameters.AddWithValue("@IdPago", id);
-                        return command.ExecuteNonQuery();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error al eliminar pago: {ex.Message}");
-                    throw;
-                }
+                connection.Open();
+                using var command = new MySqlCommand(
+                    "UPDATE pago SET Activo = 0 WHERE IdPago = @IdPago",
+                    (MySqlConnection)connection
+                );
+                command.Parameters.AddWithValue("@IdPago", id);
+
+                return command.ExecuteNonQuery(); // Devuelve la cantidad de filas afectadas (1 si todo OK)
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] No se pudo eliminar el pago (ID: {id}): {ex.Message}");
+                throw; // Re-lanza para que el controlador lo maneje
             }
         }
 
