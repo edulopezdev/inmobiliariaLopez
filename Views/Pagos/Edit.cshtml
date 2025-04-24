@@ -1,0 +1,153 @@
+@model InmobiliariaLopez.Models.Pago
+
+@{
+  ViewData["Title"] = "Editar Pago";
+}
+
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">
+  Editar Pago
+</h1>
+
+<div class="card shadow-lg border-0 rounded-4">
+  <div class="card-header bg-gradient text-dark border-0 rounded-4">
+    <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Formulario de Pago</h5>
+  </div>
+  <div class="card-body" style="padding: 1.5rem;">
+    <form asp-action="Edit" method="post">
+      @Html.AntiForgeryToken()
+
+      <!-- Contrato -->
+      <div class="form-group">
+        <label asp-for="IdContrato" class="control-label">Ingrese Domicilio o Inquilino</label>
+        <select asp-for="IdContrato" class="form-control select2" id="IdContrato">
+          <option value="">Seleccione una propiedad</option>
+          @foreach (var contrato in (List<SelectListItem>)ViewBag.Contratos)
+          {
+            <option value="@contrato.Value">@contrato.Text</option> <!-- Corrección aquí -->
+          }
+        </select>
+        <span asp-validation-for="IdContrato" class="text-danger"></span>
+      </div>
+
+      <!-- Fecha de Pago -->
+      <div class="form-group">
+        <label asp-for="FechaPago" class="control-label">Fecha de Pago</label>
+        <input asp-for="FechaPago" class="form-control" type="date" value="@Model.FechaPago.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="FechaPago" class="text-danger"></span>
+      </div>
+
+      <!-- Tipo de Pago -->
+      <div class="form-group">
+        <label asp-for="TipoPago" class="control-label">Tipo de Pago</label>
+        <select asp-for="TipoPago" class="form-control" id="tipoPago">
+          <option value="Alquiler" selected>Alquiler</option>
+          <option value="Multa">Multa</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <span asp-validation-for="TipoPago" class="text-danger"></span>
+      </div>
+
+      <!-- Multa asociada -->
+      <div class="form-group d-none mt-3" id="multaGroup">
+        <label asp-for="IdMulta" class="control-label">Seleccione la multa</label>
+        <select asp-for="IdMulta" class="form-control select2" id="IdMulta" name="IdMulta">
+          <option value="">Seleccione una multa</option>
+          @foreach (var multa in ViewBag.MultasSinPagar as List<SelectListItem>)
+          {
+            var partes = multa.Text.Split('|');
+            <option value="@multa.Value" data-importe="@partes[1]">@partes[0]</option> <!-- Corrección aquí -->
+          }
+        </select>
+        <span asp-validation-for="IdMulta" class="text-danger"></span>
+      </div>
+
+      <!-- Importe -->
+      <div class="form-group mt-3">
+        <label asp-for="Importe" class="control-label fw-bold text-primary">Importe</label>
+        <div class="input-group">
+          <span class="input-group-text">$</span>
+          <input asp-for="Importe" class="form-control" type="number" step="0.01" min="0" id="importe" />
+        </div>
+        <span asp-validation-for="Importe" class="text-danger"></span>
+      </div>
+
+      <!-- Estado -->
+      <div class="form-group">
+        <label asp-for="Estado" class="control-label"></label>
+        <select asp-for="Estado" class="form-control">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Pagado" selected>Pagado</option>
+          <option value="Anulado">Anulado</option>
+        </select>
+        <span asp-validation-for="Estado" class="text-danger"></span>
+      </div>
+
+      <!-- Detalle -->
+      <div class="form-group">
+        <label asp-for="Detalle" class="control-label"></label>
+        <input asp-for="Detalle" class="form-control" />
+        <span asp-validation-for="Detalle" class="text-danger"></span>
+      </div>
+
+      <!-- Usuario -->
+      <div class="form-group">
+        <label asp-for="IdUsuarioCrea" class="control-label">Usuario Sistema</label>
+        <select asp-for="IdUsuarioCrea" class="form-control">
+          <option value="1">admin1@example.com</option>
+          <option value="2">empleado1@example.com</option>
+          <option value="3">empleado2@example.com</option>
+          <option value="4">admin2@example.com</option>
+          <option value="5">empleado3@example.com</option>
+        </select>
+        <span asp-validation-for="IdUsuarioCrea" class="text-danger"></span>
+      </div>
+
+      <!-- Botones -->
+      <div class="card-footer d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary btn-sm me-2">Guardar</button>
+        <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  @await Html.PartialAsync("_ValidationScriptsPartial")
+  <script>
+    $(document).ready(function () {
+      // Inicializa select2 en contratos
+      $('.select2').select2({
+        placeholder: "Seleccione una propiedad",
+        allowClear: true,
+        language: "es"
+      });
+
+      // Mostrar u ocultar el grupo de multa según el tipo de pago
+      $('#tipoPago').change(function () {
+        const tipo = $(this).val();
+        const contratoId = $('#IdContrato').val();
+
+        if (tipo === 'Multa') {
+          $('#multaGroup').removeClass('d-none');
+          $('#importe').prop('readonly', true);
+
+          // Realiza una petición AJAX para obtener las multas pendientes
+          $.ajax({
+            type: 'GET',
+            url: '/Pago/GetMultasPendientes',
+            data: { contratoId },
+            success: function (response) {
+              $('#IdMulta').empty().append('<option value="">Seleccione una multa</option>');
+              response.forEach(function (multa) {
+                $('#IdMulta').append('<option value="' + multa.Value + '">' + multa.Text + '</option>');
+              });
+            }
+          });
+        } else {
+          $('#multaGroup').addClass('d-none');
+          $('#importe').prop('readonly', false);
+        }
+      });
+    });
+  </script>
+}

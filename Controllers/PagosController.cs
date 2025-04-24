@@ -122,11 +122,36 @@ namespace InmobiliariaLopez.Controllers
         // GET: Pago/Edit/5
         public IActionResult Edit(int id)
         {
+            // Obtener el pago que se va a editar
             var pago = _pagoRepository.Details(id);
             if (pago == null)
             {
                 return NotFound();
             }
+
+            // Obtener contratos
+            var contratos = _contratoRepository.Index();
+            var contratosSelectList = contratos
+                .Select(c => new SelectListItem
+                {
+                    Value = c.IdContrato.ToString(),
+                    Text = $"{c.DireccionInmueble} - {c.NombreInquilino}",
+                })
+                .ToList();
+            ViewBag.Contratos = contratosSelectList;
+
+            // Obtener multas sin pagar
+            var multas = _pagoRepository.ObtenerMultasSinPagar();
+            var multasSelectList = multas
+                .Select(m => new SelectListItem
+                {
+                    Value = m.IdMulta.ToString(),
+                    Text = $"{m.IdMulta} - {m.Motivo}|{m.Monto}",
+                })
+                .ToList();
+            ViewBag.MultasSinPagar = multasSelectList;
+
+            // Devolver la vista con el pago y las listas
             return View(pago);
         }
 
