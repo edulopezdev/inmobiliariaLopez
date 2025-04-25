@@ -17,7 +17,7 @@ namespace InmobiliariaLopez.Repositories
 
         // Métodos heredados de IRepositorio<T>
 
-        /// Lista todos los propietarios
+        // Lista todos los propietarios
         public IList<Propietario> Index()
         {
             var propietarios = new List<Propietario>();

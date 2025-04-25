@@ -7,22 +7,16 @@ namespace InmobiliariaLopez.Models
     {
         public int IdUsuario { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El email es requerido")]
+        public string Email { get; set; }
 
-        [Required]
-        public string Contrasena { get; set; } = string.Empty;
+        [Required(ErrorMessage = "La contraseña es requerida")]
+        public string ContrasenaHasheada { get; set; }
 
-        [Required]
-        public string Rol { get; set; } = string.Empty; // Puede ser un enum: Administrador, Empleado
-
-        public string? Avatar { get; set; }
-
-        [Required]
-        public DateTime FechaCreacion { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "El rol es requerido")]
+        public string Rol { get; set; } // "Administrador" o "Empleado"
+        public string? Avatar { get; set; } // Ruta de imagen
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
         public bool Activo { get; set; }
     }
 }

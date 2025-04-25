@@ -1,0 +1,77 @@
+@model InmobiliariaLopez.Models.Usuario
+
+@{
+  Layout = "_LayoutLogin"; // Layout personalizado
+  ViewData["Title"] = "Iniciar sesión";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@ViewData["Title"] - inmobiliariaLopez</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Enlace al archivo de estilos CSS -->
+  <link rel="stylesheet" href="~/login.css" />
+</head>
+
+<body>
+  <!-- Fondo desenfocado -->
+  <div class="blur-background"></div>
+
+  <div class="login-container">
+    <h2>Iniciar sesión</h2>
+
+    <form method="post">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="contrasena">Contraseña</label>
+        <input type="password" class="form-control" id="contrasena" name="contrasena" required />
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn-modern">Iniciar sesión</button>
+      </div>
+
+      @if (!string.IsNullOrEmpty(ViewData["ErrorMessage"]?.ToString()))
+      {
+        <div class="alert alert-danger">
+          @ViewData["ErrorMessage"]
+        </div>
+      }
+
+      @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+      {
+        <div class="alert alert-danger">@error.ErrorMessage</div>
+      }
+    </form>
+  </div>
+
+  @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+      // Mostrar el mensaje de error si el ModelState tiene errores
+      @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
+        {
+          <text>
+            Swal.fire({
+              icon: 'error',
+            title: 'Oops...',
+            text: 'El correo o la contraseña son incorrectos.',
+              });
+          </text>
+      }
+    </script>
+  }
+</body>
+
+</html>

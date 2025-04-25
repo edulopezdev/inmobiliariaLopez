@@ -1,0 +1,105 @@
+/* Fondo desenfocado */
+body {
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("/images/fondo_app.jpg") no-repeat center center fixed;
+  background-size: cover;
+  font-family: "Roboto", sans-serif;
+}
+
+.blur-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  filter: blur(8px); /* Desenfoque del fondo */
+  z-index: -1;
+  /* Aseguramos que el fondo no cambie al hacer hover */
+  pointer-events: none; /* No afecta las interacciones con otros elementos */
+}
+
+/* Estilo del contenedor del formulario */
+.login-container {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.9
+  ); /* Fondo blanco semi-transparente */
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 100%;
+  z-index: 1;
+}
+
+/* Títulos */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Ajustes al formulario */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Botón */
+.btn {
+  width: 100%;
+}
+
+/* Ajustar texto de error */
+.alert-danger {
+  margin-top: 10px;
+}
+
+/* Evitar que el fondo desenfocado cambie en hover */
+.login-container:hover {
+  background-color: rgba(255, 255, 255, 0.9); /* Mantener el fondo igual */
+}
+/* Botón moderno, sin borde negro, con fondo sólido */
+.btn-modern {
+  display: block;
+  width: 80%; /* Ancho del botón */
+  padding: 14px 22px;
+  font-size: 16px;
+  color: white; /* Color del texto */
+  background-color: #ff6f61; /* Color de fondo suave */
+  border: none; /* Sin borde */
+  border-radius: 50px; /* Bordes completamente redondeados */
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  transition: all 0.3s ease; /* Transición suave */
+  outline: none;
+
+  /* Centramos el botón */
+  margin: 0 auto; /* Centrado horizontal */
+}
+
+
+/* Efecto hover */
+.btn-modern:hover {
+  background-color: #f17c7c; /* Color de fondo cambia al hacer hover */
+  box-shadow: 0 4px 15px rgba(255, 111, 97, 0.3); /* Sombra sutil para un efecto de profundidad */
+  transform: scale(1.05); /* El botón aumenta un poco de tamaño */
+}
+
+/* Efecto de enfoque (cuando el botón recibe el foco con el teclado o al hacer clic) */
+.btn-modern:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 111, 97, 0.6); /* Resalta el botón con una sombra más pronunciada */
+}
+
+/* Efecto de clic */
+.btn-modern:active {
+  transform: scale(0.98); /* El botón se reduce al hacer clic */
+}
