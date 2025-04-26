@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
@@ -12,14 +13,17 @@ namespace InmobiliariaLopez.Controllers
     public class ImagenesController : Controller
     {
         private readonly IRepositorioImagen _repositorioImagen;
+        private readonly IRepositorioUsuario _repositorioUsuario;
         private readonly IWebHostEnvironment _environment;
 
         public ImagenesController(
             IRepositorioImagen repositorioImagen,
+            IRepositorioUsuario repositorioUsuario,
             IWebHostEnvironment environment
         )
         {
             _repositorioImagen = repositorioImagen;
+            _repositorioUsuario = repositorioUsuario;
             _environment = environment;
         }
 
@@ -74,6 +78,19 @@ namespace InmobiliariaLopez.Controllers
             _repositorioImagen.Create(imagen);
 
             return Ok(new { RutaImagen = rutaRelativa, TipoImagen = tipoImagen });
+        }
+
+        [HttpGet("/Avatar/Actual")]
+        public IActionResult AvatarActual()
+        {
+            var idClaim = User.Claims.FirstOrDefault(c => c.Type == "IdUsuario")?.Value;
+            if (string.IsNullOrEmpty(idClaim))
+                return NotFound();
+
+            var usuario = _repositorioUsuario.Details(int.Parse(idClaim));
+            var avatar = usuario?.Avatar ?? "/img/usuarios/default-avatar.png";
+
+            return Redirect(avatar); // Redirige directamente a la imagen
         }
     }
 }

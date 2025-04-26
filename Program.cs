@@ -31,7 +31,15 @@ builder
         options.LogoutPath = "/Usuarios/Logout";
     });
 
-// 4. Configuración del logging
+// 4. Configurar la política de autorización global
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser() // Asegura que todas las rutas requieran autenticación
+        .Build();
+});
+
+// 5. Configuración del logging
 builder.Logging.AddConsole(); // Asegura que los logs se escriban en la consola
 builder.Logging.AddDebug(); // Asegura que los logs se escriban en la salida de depuración
 
@@ -58,7 +66,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Definimos la ruta predeterminada para las vistas Razor
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Usuarios}/{action=Login}/{id?}");
 
 // Iniciamos la aplicación
 app.Run();

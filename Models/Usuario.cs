@@ -10,8 +10,7 @@ namespace InmobiliariaLopez.Models
         [Required(ErrorMessage = "El email es requerido")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "La contraseña es requerida")]
-        public string ContrasenaHasheada { get; set; }
+        public string? ContrasenaHasheada { get; set; }
 
         [Required(ErrorMessage = "El rol es requerido")]
         public string Rol { get; set; } // "Administrador" o "Empleado"

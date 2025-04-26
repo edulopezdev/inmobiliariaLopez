@@ -107,7 +107,43 @@ namespace InmobiliariaLopez.Repositories
 
         public Usuario? Details(int id)
         {
-            throw new NotImplementedException();
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (
+                    var command = new MySqlCommand(
+                        @"SELECT IdUsuario, Email, ContrasenaHasheada, Rol, Avatar, FechaCreacion, Activo
+                  FROM usuario
+                  WHERE IdUsuario = @id",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Usuario
+                            {
+                                IdUsuario = Convert.ToInt32(reader["IdUsuario"]),
+                                Email = reader["Email"].ToString()!,
+                                ContrasenaHasheada = reader["ContrasenaHasheada"].ToString()!,
+                                Rol = reader["Rol"].ToString()!,
+                                Avatar =
+                                    reader["Avatar"] != DBNull.Value
+                                        ? reader["Avatar"].ToString()
+                                        : null,
+                                FechaCreacion = Convert.ToDateTime(reader["FechaCreacion"]),
+                                Activo = Convert.ToBoolean(reader["Activo"]),
+                            };
+                        }
+                    }
+                }
+            }
+
+            return null; // Si no encuentra el usuario
         }
 
         public int Create(Usuario entidad)
@@ -118,9 +154,9 @@ namespace InmobiliariaLopez.Repositories
                 using (
                     var command = new MySqlCommand(
                         @"INSERT INTO usuario 
-        (Email, ContrasenaHasheada, Rol, Avatar, FechaCreacion, Activo)
-        VALUES 
-        (@Email, @ContrasenaHasheada, @Rol, @Avatar, @FechaCreacion, @Activo)",
+                            (Email, ContrasenaHasheada, Rol, Avatar, FechaCreacion, Activo)
+                            VALUES 
+                            (@Email, @ContrasenaHasheada, @Rol, @Avatar, @FechaCreacion, @Activo)",
                         (MySqlConnection)connection
                     )
                 )
@@ -140,7 +176,6 @@ namespace InmobiliariaLopez.Repositories
 
                     command.ExecuteNonQuery();
 
-                    System.Diagnostics.Debug.WriteLine(">>>>> INSERT ejecutado");
                     return (int)command.LastInsertedId;
                 }
             }
@@ -148,12 +183,91 @@ namespace InmobiliariaLopez.Repositories
 
         public int Edit(Usuario entidad)
         {
-            throw new NotImplementedException();
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+
+                // Primero vamos a verificar si hay un avatar y lo eliminamos
+                if (!string.IsNullOrEmpty(entidad.Avatar))
+                {
+                    var usuarioExistente = Details(entidad.IdUsuario);
+                    if (usuarioExistente != null && !string.IsNullOrEmpty(usuarioExistente.Avatar))
+                    {
+                        // Eliminar el avatar antiguo
+                        var avatarAntiguoRuta = Path.Combine(
+                            Directory.GetCurrentDirectory(),
+                            "wwwroot",
+                            usuarioExistente.Avatar.TrimStart('/')
+                        );
+                        if (File.Exists(avatarAntiguoRuta))
+                        {
+                            try
+                            {
+                                File.Delete(avatarAntiguoRuta); // Elimina el archivo físicamente
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(
+                                    $"Error al eliminar el avatar antiguo: {ex.Message}"
+                                );
+                            }
+                        }
+                    }
+                }
+                // Ahora pocedemos a la actualización
+                using (
+                    var command = new MySqlCommand(
+                        @"UPDATE usuario 
+                  SET Email = @Email, 
+                      ContrasenaHasheada = @ContrasenaHasheada, 
+                      Rol = @Rol, 
+                      Avatar = @Avatar, 
+                      FechaCreacion = @FechaCreacion
+                  WHERE IdUsuario = @IdUsuario",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    // Parámetros para actualizar el usuario
+                    command.Parameters.AddWithValue("@IdUsuario", entidad.IdUsuario);
+                    command.Parameters.AddWithValue("@Email", entidad.Email);
+                    command.Parameters.AddWithValue(
+                        "@ContrasenaHasheada",
+                        entidad.ContrasenaHasheada
+                    );
+                    command.Parameters.AddWithValue("@Rol", entidad.Rol);
+                    command.Parameters.AddWithValue(
+                        "@Avatar",
+                        (object?)entidad.Avatar ?? DBNull.Value
+                    );
+                    command.Parameters.AddWithValue("@FechaCreacion", entidad.FechaCreacion);
+
+                    // Ejecutar la actualización y devolver el número de filas afectadas
+                    return command.ExecuteNonQuery();
+                }
+            }
         }
 
         public int Delete(int id)
         {
-            throw new NotImplementedException();
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (
+                    var command = new MySqlCommand(
+                        @"UPDATE usuario 
+                  SET Activo = 0
+                  WHERE IdUsuario = @IdUsuario",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    command.Parameters.AddWithValue("@IdUsuario", id);
+
+                    // Ejecuta la actualización y devuelve el número de filas afectadas
+                    return command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

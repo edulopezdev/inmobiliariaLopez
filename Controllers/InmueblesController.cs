@@ -112,33 +112,6 @@ namespace InmobiliariaLopez.Controllers
             return View(inmueble);
         }
 
-        // GET: Inmuebles/Edit/5
-        public IActionResult Edit(int id)
-        {
-            var inmueble = _repositorio.Details(id); // Obtienes el inmueble por su ID
-            if (inmueble == null)
-            {
-                return NotFound(); // Si no se encuentra el inmueble, retorna un 404
-            }
-
-            // Rellenar el ViewBag para los dropdowns
-            ViewBag.Propietarios = new SelectList(
-                _repoPropietario.Index(),
-                "IdPropietario",
-                "NombreCompleto",
-                inmueble.IdPropietario
-            );
-
-            ViewBag.TiposInmueble = new SelectList(
-                _repositorio.ObtenerTiposInmuebles(),
-                "IdTipoInmueble",
-                "Nombre",
-                inmueble.IdTipoInmueble
-            );
-
-            return View(inmueble); // Devuelve la vista con los datos
-        }
-
         // POST: Inmuebles/Edit/5
         [HttpPost]
         public IActionResult Edit(int id, Inmueble inmueble)
@@ -177,6 +150,34 @@ namespace InmobiliariaLopez.Controllers
             }
         }
 
+        // GET: Inmuebles/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var inmueble = _repositorio.Details(id); // Obtienes el inmueble por su ID
+            if (inmueble == null)
+            {
+                return NotFound(); // Si no se encuentra el inmueble, retorna un 404
+            }
+
+            // Rellenar el ViewBag para los dropdowns
+            ViewBag.Propietarios = new SelectList(
+                _repoPropietario.Index(),
+                "IdPropietario",
+                "NombreCompleto",
+                inmueble.IdPropietario
+            );
+
+            ViewBag.TiposInmueble = new SelectList(
+                _repositorio.ObtenerTiposInmuebles(),
+                "IdTipoInmueble",
+                "Nombre",
+                inmueble.IdTipoInmueble
+            );
+
+            return View(inmueble); // Devuelve la vista con los datos
+        }
+
+        // GET: Inmuebles/Details/5
         public IActionResult Details(int id)
         {
             var inmueble = _repositorio.Details(id);
