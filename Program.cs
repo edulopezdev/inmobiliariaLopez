@@ -29,6 +29,15 @@ builder
     {
         options.LoginPath = "/Usuarios/Login";
         options.LogoutPath = "/Usuarios/Logout";
+
+        // Estas líneas aseguran que la cookie no sea persistente
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Opcional, puede ser lo que quieras
+        options.SlidingExpiration = true;
+        options.Cookie.IsEssential = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.Name = "InmobiliariaAuth";
     });
 
 // 4. Configurar la política de autorización global
