@@ -9,18 +9,19 @@ namespace InmobiliariaLopez.Repositories
     public class InquilinoRepository : IRepositorioInquilino
     {
         private readonly DatabaseConnection _dbConnection;
+        private readonly int _registrosPorPagina = 10; // Define la cantidad de registros por página
 
         public InquilinoRepository(DatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
 
-        // Métodos heredados de IRepositorio<T>
-
-        /// Lista de Inquilinos
-        public IList<Inquilino> Index()
+        /// Lista de Inquilinos con paginación
+        public IList<Inquilino> Index(int pagina = 1)
         {
-            var Inquilinos = new List<Inquilino>();
+            var inquilinos = new List<Inquilino>();
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
+
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
@@ -28,16 +29,19 @@ namespace InmobiliariaLopez.Repositories
                     connection.Open();
                     using (
                         var command = new MySqlCommand(
-                            "SELECT IdInquilino, DNI, Apellido, Nombre, Telefono, Email FROM Inquilino WHERE Activo = 1",
+                            "SELECT IdInquilino, DNI, Apellido, Nombre, Telefono, Email FROM Inquilino WHERE Activo = 1 LIMIT @limit OFFSET @offset",
                             (MySqlConnection)connection
                         )
                     )
                     {
+                        command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                        command.Parameters.AddWithValue("@offset", skipAmount);
+
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                Inquilinos.Add(
+                                inquilinos.Add(
                                     new Inquilino
                                     {
                                         IdInquilino = reader.GetInt32("IdInquilino"),
@@ -56,17 +60,45 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener Inquilinos: {ex.Message}");
+                    Console.WriteLine($"Error al obtener Inquilinos paginados: {ex.Message}");
                     throw;
                 }
             }
-            return Inquilinos;
+            return inquilinos;
+        }
+
+        /// Obtiene la cantidad total de inquilinos activos
+        public int ObtenerTotal()
+        {
+            int totalRegistros = 0;
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    using (
+                        var command = new MySqlCommand(
+                            "SELECT COUNT(*) FROM Inquilino WHERE Activo = 1",
+                            (MySqlConnection)connection
+                        )
+                    )
+                    {
+                        totalRegistros = Convert.ToInt32(command.ExecuteScalar());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al obtener el total de inquilinos: {ex.Message}");
+                    throw;
+                }
+            }
+            return totalRegistros;
         }
 
         /// Obtiene un Inquilino por su ID
         public Inquilino? Details(int id)
         {
-            Inquilino? Inquilino = null;
+            Inquilino? inquilino = null;
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
@@ -84,7 +116,7 @@ namespace InmobiliariaLopez.Repositories
                         {
                             if (reader.Read())
                             {
-                                Inquilino = new Inquilino
+                                inquilino = new Inquilino
                                 {
                                     IdInquilino = reader.GetInt32("IdInquilino"),
                                     DNI = reader.GetString("DNI"),
@@ -105,7 +137,7 @@ namespace InmobiliariaLopez.Repositories
                     throw;
                 }
             }
-            return Inquilino;
+            return inquilino;
         }
 
         /// Agrega un nuevo Inquilino
@@ -179,7 +211,7 @@ namespace InmobiliariaLopez.Repositories
             }
         }
 
-        /// Elimina un Inquilino por su ID
+        /// Elimina un Inquilino por su ID (baja lógica)
         public int Delete(int id)
         {
             using (var connection = _dbConnection.CreateConnection())
@@ -192,9 +224,9 @@ namespace InmobiliariaLopez.Repositories
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
                             @"
-                        UPDATE Inquilino
-                        SET Activo = 0
-                        WHERE IdInquilino = @IdInquilino";
+                            UPDATE Inquilino
+                            SET Activo = 0
+                            WHERE IdInquilino = @IdInquilino";
                         command.Parameters.AddWithValue("@IdInquilino", id);
                         return command.ExecuteNonQuery(); // Retorna el número de filas afectadas
                     }
@@ -207,12 +239,10 @@ namespace InmobiliariaLopez.Repositories
             }
         }
 
-        // Métodos específicos de IRepositorioInquilino
-
         /// Obtiene un Inquilino por su DNI
         public Inquilino? ObtenerPorDNI(string dni)
         {
-            Inquilino? Inquilino = null;
+            Inquilino? inquilino = null;
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
@@ -230,7 +260,7 @@ namespace InmobiliariaLopez.Repositories
                         {
                             if (reader.Read())
                             {
-                                Inquilino = new Inquilino
+                                inquilino = new Inquilino
                                 {
                                     IdInquilino = reader.GetInt32("IdInquilino"),
                                     DNI = reader.GetString("DNI"),
@@ -251,7 +281,7 @@ namespace InmobiliariaLopez.Repositories
                     throw;
                 }
             }
-            return Inquilino;
+            return inquilino;
         }
     }
 }

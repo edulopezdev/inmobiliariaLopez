@@ -9,6 +9,7 @@ namespace InmobiliariaLopez.Repositories
     public class ContratoRepository : IRepositorioContrato
     {
         private readonly DatabaseConnection _dbConnection;
+        private readonly int _registrosPorPagina = 10;
 
         public ContratoRepository(DatabaseConnection dbConnection)
         {
@@ -17,32 +18,36 @@ namespace InmobiliariaLopez.Repositories
 
         // Métodos heredados de IRepositorio<T>
 
-        // Lista los contratos
-        public IList<Contrato> Index()
+        // Lista los contratos con paginación
+        public IList<Contrato> Index(int pagina = 1)
         {
             var lista = new List<Contrato>();
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
+
             using (var connection = _dbConnection.CreateConnection())
             {
                 connection.Open();
-                using (
-                    var command = new MySqlCommand(
-                        @"
-                SELECT 
-                    c.*, 
-                    i.Direccion AS DireccionInmueble, 
-                    CONCAT(q.Nombre, ' ', q.Apellido) AS NombreInquilino,
-                    c.FechaRescision  -- Aseguramos que se seleccione la fecha de rescisión
-                FROM contrato c
-                JOIN inmueble i ON c.IdInmueble = i.IdInmueble
-                JOIN inquilino q ON c.IdInquilino = q.IdInquilino
-                WHERE c.Activo = 1 
-                  AND i.Activo = 1 
-                  AND q.Activo = 1
-                  AND c.EstadoContrato IN ('Vigente', 'PendienteAnulacion', 'Anulado', 'Finalizado');",
-                        (MySqlConnection)connection
-                    )
-                )
+                using (var command = new MySqlCommand())
                 {
+                    command.Connection = (MySqlConnection)connection;
+                    command.CommandText =
+                        @"
+                        SELECT
+                            c.*,
+                            i.Direccion AS DireccionInmueble,
+                            CONCAT(q.Nombre, ' ', q.Apellido) AS NombreInquilino,
+                            c.FechaRescision
+                        FROM contrato c
+                        JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+                        JOIN inquilino q ON c.IdInquilino = q.IdInquilino
+                        WHERE c.Activo = 1
+                          AND i.Activo = 1
+                          AND q.Activo = 1
+                          AND c.EstadoContrato IN ('Vigente', 'PendienteAnulacion', 'Anulado', 'Finalizado')
+                        LIMIT @limit OFFSET @offset;";
+                    command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                    command.Parameters.AddWithValue("@offset", skipAmount);
+
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -74,6 +79,26 @@ namespace InmobiliariaLopez.Repositories
                 }
             }
             return lista;
+        }
+
+        // Obtiene la cantidad total de contratos activos
+        public int ObtenerTotal()
+        {
+            int totalRegistros = 0;
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (
+                    var command = new MySqlCommand(
+                        "SELECT COUNT(*) FROM contrato WHERE Activo = 1",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    totalRegistros = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+            return totalRegistros;
         }
 
         // Obtiene un contrato por su ID

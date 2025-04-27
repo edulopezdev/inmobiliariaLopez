@@ -9,16 +9,18 @@ namespace InmobiliariaLopez.Repositories
     public class PagoRepository : IRepositorioPago
     {
         private readonly DatabaseConnection _dbConnection;
+        private readonly int _registrosPorPagina = 10;
 
         public PagoRepository(DatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
 
-        // Lista todos los Pagos
-        public IList<Pago> Index()
+        // Lista todos los Pagos con paginación
+        public IList<Pago> Index(int pagina = 1)
         {
             var pagos = new List<Pago>();
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
 
             using (var connection = _dbConnection.CreateConnection())
             {
@@ -28,56 +30,63 @@ namespace InmobiliariaLopez.Repositories
                     using (
                         var command = new MySqlCommand(
                             @"
-                        SELECT IdPago, NumeroPagoContrato, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
-                               IdUsuarioCrea, IdUsuarioAnula, FechaCreacion, FechaAnulacion, IdMulta, IdContrato, Activo
-                        FROM pago WHERE Activo = 1",
+                            SELECT IdPago, NumeroPagoContrato, FechaPago, TipoPago, MesesAdeudados, Estado, Detalle, Importe,
+                                   IdUsuarioCrea, IdUsuarioAnula, FechaCreacion, FechaAnulacion, IdMulta, IdContrato, Activo
+                            FROM pago
+                            WHERE Activo = 1
+                            LIMIT @limit OFFSET @offset",
                             (MySqlConnection)connection
                         )
                     )
-                    using (var reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                        command.Parameters.AddWithValue("@offset", skipAmount);
+
+                        using (var reader = command.ExecuteReader())
                         {
-                            pagos.Add(
-                                new Pago
-                                {
-                                    IdPago = reader.GetInt32("IdPago"),
-                                    NumeroPagoContrato = reader.GetInt32("NumeroPagoContrato"),
-                                    FechaPago = reader.GetDateTime("FechaPago"),
-                                    TipoPago = reader.GetString("TipoPago"),
-                                    MesesAdeudados = reader.IsDBNull(
-                                        reader.GetOrdinal("MesesAdeudados")
-                                    )
-                                        ? (int?)null
-                                        : reader.GetInt32("MesesAdeudados"),
-                                    Estado = reader.GetString("Estado"),
-                                    Detalle = reader.IsDBNull(reader.GetOrdinal("Detalle"))
-                                        ? null
-                                        : reader.GetString("Detalle"),
-                                    Importe = reader.GetDecimal("Importe"),
-                                    IdUsuarioCrea = reader.IsDBNull(
-                                        reader.GetOrdinal("IdUsuarioCrea")
-                                    )
-                                        ? (int?)null
-                                        : reader.GetInt32("IdUsuarioCrea"),
-                                    IdUsuarioAnula = reader.IsDBNull(
-                                        reader.GetOrdinal("IdUsuarioAnula")
-                                    )
-                                        ? (int?)null
-                                        : reader.GetInt32("IdUsuarioAnula"),
-                                    FechaCreacion = reader.GetDateTime("FechaCreacion"),
-                                    FechaAnulacion = reader.IsDBNull(
-                                        reader.GetOrdinal("FechaAnulacion")
-                                    )
-                                        ? (DateTime?)null
-                                        : reader.GetDateTime("FechaAnulacion"),
-                                    IdMulta = reader.IsDBNull(reader.GetOrdinal("IdMulta"))
-                                        ? (int?)null
-                                        : reader.GetInt32("IdMulta"),
-                                    IdContrato = reader.GetInt32("IdContrato"),
-                                    Activo = reader.GetBoolean("Activo"),
-                                }
-                            );
+                            while (reader.Read())
+                            {
+                                pagos.Add(
+                                    new Pago
+                                    {
+                                        IdPago = reader.GetInt32("IdPago"),
+                                        NumeroPagoContrato = reader.GetInt32("NumeroPagoContrato"),
+                                        FechaPago = reader.GetDateTime("FechaPago"),
+                                        TipoPago = reader.GetString("TipoPago"),
+                                        MesesAdeudados = reader.IsDBNull(
+                                            reader.GetOrdinal("MesesAdeudados")
+                                        )
+                                            ? (int?)null
+                                            : reader.GetInt32("MesesAdeudados"),
+                                        Estado = reader.GetString("Estado"),
+                                        Detalle = reader.IsDBNull(reader.GetOrdinal("Detalle"))
+                                            ? null
+                                            : reader.GetString("Detalle"),
+                                        Importe = reader.GetDecimal("Importe"),
+                                        IdUsuarioCrea = reader.IsDBNull(
+                                            reader.GetOrdinal("IdUsuarioCrea")
+                                        )
+                                            ? (int?)null
+                                            : reader.GetInt32("IdUsuarioCrea"),
+                                        IdUsuarioAnula = reader.IsDBNull(
+                                            reader.GetOrdinal("IdUsuarioAnula")
+                                        )
+                                            ? (int?)null
+                                            : reader.GetInt32("IdUsuarioAnula"),
+                                        FechaCreacion = reader.GetDateTime("FechaCreacion"),
+                                        FechaAnulacion = reader.IsDBNull(
+                                            reader.GetOrdinal("FechaAnulacion")
+                                        )
+                                            ? (DateTime?)null
+                                            : reader.GetDateTime("FechaAnulacion"),
+                                        IdMulta = reader.IsDBNull(reader.GetOrdinal("IdMulta"))
+                                            ? (int?)null
+                                            : reader.GetInt32("IdMulta"),
+                                        IdContrato = reader.GetInt32("IdContrato"),
+                                        Activo = reader.GetBoolean("Activo"),
+                                    }
+                                );
+                            }
                         }
                     }
                 }
@@ -89,6 +98,32 @@ namespace InmobiliariaLopez.Repositories
             }
 
             return pagos;
+        }
+
+        // Obtiene la cantidad total de pagos activos
+        public int ObtenerTotal()
+        {
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    using (
+                        var command = new MySqlCommand(
+                            "SELECT COUNT(*) FROM pago WHERE Activo = 1",
+                            (MySqlConnection)connection
+                        )
+                    )
+                    {
+                        return Convert.ToInt32(command.ExecuteScalar());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al obtener el total de pagos: {ex.Message}");
+                    throw;
+                }
+            }
         }
 
         // Obtiene un Pago por su ID

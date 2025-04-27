@@ -9,6 +9,7 @@ namespace InmobiliariaLopez.Repositories
     public class ImagenRepository : IRepositorioImagen
     {
         private readonly DatabaseConnection _dbConnection;
+        private readonly int _registrosPorPagina = 10; // Define la cantidad de registros por página
 
         public ImagenRepository(DatabaseConnection dbConnection)
         {
@@ -26,14 +27,14 @@ namespace InmobiliariaLopez.Repositories
                     command.Connection = connection;
                     command.CommandText =
                         @"INSERT INTO imagen (Ruta, TipoImagen, IdRelacionado, Activo)
-                  VALUES (@Ruta, @TipoImagen, @IdRelacionado, @Activo);
-                  SELECT LAST_INSERT_ID();";
+                    VALUES (@Ruta, @TipoImagen, @IdRelacionado, @Activo);
+                    SELECT LAST_INSERT_ID();";
                     command.Parameters.AddWithValue("@Ruta", imagen.Ruta);
                     command.Parameters.AddWithValue("@TipoImagen", imagen.TipoImagen);
                     command.Parameters.AddWithValue("@IdRelacionado", imagen.IdRelacionado);
                     command.Parameters.AddWithValue("@Activo", imagen.Activo);
 
-                    lastInsertId = (long)(ulong)command.ExecuteScalar(); // Línea corregida
+                    lastInsertId = (long)(ulong)command.ExecuteScalar();
                 }
             }
             return (int)lastInsertId;
@@ -67,12 +68,12 @@ namespace InmobiliariaLopez.Repositories
                     command.Connection = connection;
                     command.CommandText =
                         @"
-                        UPDATE imagen
-                        SET Ruta = @Ruta,
-                            TipoImagen = @TipoImagen,
-                            IdRelacionado = @IdRelacionado,
-                            Activo = @Activo
-                        WHERE IdImagen = @IdImagen;";
+                    UPDATE imagen
+                    SET Ruta = @Ruta,
+                        TipoImagen = @TipoImagen,
+                        IdRelacionado = @IdRelacionado,
+                        Activo = @Activo
+                    WHERE IdImagen = @IdImagen;";
                     command.Parameters.AddWithValue("@IdImagen", imagen.IdImagen);
                     command.Parameters.AddWithValue("@Ruta", imagen.Ruta);
                     command.Parameters.AddWithValue("@TipoImagen", imagen.TipoImagen);
@@ -127,7 +128,7 @@ namespace InmobiliariaLopez.Repositories
                 {
                     command.Connection = connection;
                     command.CommandText =
-                        "SELECT IdImagen, Ruta, TipoImagen, IdRelacionado, Activo FROM imagen WHERE IdRelacionado = @IdRelacionado AND TipoImagen LIKE 'Inmueble%'";
+                        "SELECT IdImagen, Ruta, TipoImagen, IdRelacionado, Activo FROM imagen WHERE IdRelacionado = @IdRelacionado AND TipoImagen LIKE 'Inmueble%' AND Activo = 1";
                     command.Parameters.AddWithValue("@IdRelacionado", idInmueble);
 
                     using (var reader = command.ExecuteReader())
@@ -151,11 +152,65 @@ namespace InmobiliariaLopez.Repositories
             return imagenes;
         }
 
-        // Implementación de los métodos de IRepositorio<Imagen> (si es necesario para otras partes de tu aplicación)
-        public IList<Imagen> Index()
+        // Implementación de los métodos de IRepositorio<Imagen> con paginación
+        public IList<Imagen> Index(int pagina = 1)
         {
-            // Implementación para obtener todas las imágenes (si lo necesitas)
-            throw new NotImplementedException();
+            var imagenes = new List<Imagen>();
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (var command = new MySqlCommand())
+                {
+                    command.Connection = connection;
+                    command.CommandText =
+                        @"
+                        SELECT IdImagen, Ruta, TipoImagen, IdRelacionado, Activo
+                        FROM imagen
+                        WHERE Activo = 1
+                        LIMIT @limit OFFSET @offset;";
+                    command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                    command.Parameters.AddWithValue("@offset", skipAmount);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            imagenes.Add(
+                                new Imagen
+                                {
+                                    IdImagen = reader.GetInt32("IdImagen"),
+                                    Ruta = reader.GetString("Ruta"),
+                                    TipoImagen = reader.GetString("TipoImagen"),
+                                    IdRelacionado = reader.GetInt32("IdRelacionado"),
+                                    Activo = reader.GetBoolean("Activo"),
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+            return imagenes;
+        }
+
+        public int ObtenerTotal()
+        {
+            int totalRegistros = 0;
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (
+                    var command = new MySqlCommand(
+                        "SELECT COUNT(*) FROM imagen WHERE Activo = 1",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    totalRegistros = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+            return totalRegistros;
         }
 
         public Imagen? Details(int id)

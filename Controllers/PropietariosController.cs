@@ -8,6 +8,8 @@ namespace InmobiliariaLopez.Controllers
     {
         private readonly IRepositorioPropietario _propietarioRepository;
 
+        private readonly int _registrosPorPagina = 10; // Puedes definirlo aquí también
+
         // Constructor para inyectar el repositorio
         public PropietariosController(IRepositorioPropietario propietarioRepository)
         {
@@ -16,17 +18,32 @@ namespace InmobiliariaLopez.Controllers
 
         // GET: Propietarios
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1)
         {
             try
             {
-                var propietarios = _propietarioRepository.Index();
-                return View(propietarios);
+                // Obtener los propietarios para la página actual desde el repositorio
+                // CAMBIO 1: Ya no pasamos directamente la lista a la vista
+                var propietarios = _propietarioRepository.Index(pagina);
+
+                // Calcular el total de registros
+                // CAMBIO 2: Usar el método para obtener el total de propietarios (activos, preferiblemente)
+                int totalRegistros = _propietarioRepository.ObtenerTotal(); // O _propietarioRepository.ObtenerTotal()
+
+                // Calcular el número total de páginas
+                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
+
+                // Pasar los datos a la vista
+                // CAMBIO 3: Pasar la lista de propietarios (la página actual)
+                ViewBag.PaginaActual = pagina;
+                ViewBag.TotalPaginas = totalPaginas;
+
+                return View(propietarios); // La vista ahora recibirá una lista de Propietario
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error al cargar los propietarios: {ex.Message}";
-                return RedirectToAction("Error");
+                return RedirectToAction("Error"); // Asegúrate de tener una acción "Error"
             }
         }
 

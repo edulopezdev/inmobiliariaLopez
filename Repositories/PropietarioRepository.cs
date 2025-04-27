@@ -9,30 +9,41 @@ namespace InmobiliariaLopez.Repositories
     public class PropietarioRepository : IRepositorioPropietario
     {
         private readonly DatabaseConnection _dbConnection;
+        private readonly int _registrosPorPagina = 10;
 
         public PropietarioRepository(DatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
 
+        // Propiedad pública para acceder a la cantidad de registros por página
+        public int RegistrosPorPagina => _registrosPorPagina;
+
         // Métodos heredados de IRepositorio<T>
 
-        // Lista todos los propietarios
-        public IList<Propietario> Index()
+        // Método para obtener todos los propietarios
+        public IList<Propietario> Index(int pagina = 1)
         {
             var propietarios = new List<Propietario>();
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
+
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
                 {
                     connection.Open();
-                    using (
-                        var command = new MySqlCommand(
-                            "SELECT IdPropietario, DNI, Apellido, Nombre, Telefono, Email FROM propietario WHERE Activo = 1",
-                            (MySqlConnection)connection
-                        )
-                    )
+                    using (var command = new MySqlCommand())
                     {
+                        command.Connection = (MySqlConnection)connection;
+                        command.CommandText =
+                            @"
+                    SELECT IdPropietario, DNI, Apellido, Nombre, Telefono, Email
+                    FROM propietario
+                    WHERE Activo = 1
+                    LIMIT @limit OFFSET @offset";
+                        command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                        command.Parameters.AddWithValue("@offset", skipAmount);
+
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
@@ -56,11 +67,38 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener propietarios: {ex.Message}");
+                    Console.WriteLine($"Error al obtener propietarios paginados: {ex.Message}");
                     throw;
                 }
             }
             return propietarios;
+        }
+
+        public int ObtenerTotal()
+        {
+            int totalRegistros = 0;
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    using (
+                        var command = new MySqlCommand(
+                            "SELECT COUNT(*) FROM propietario WHERE Activo = 1",
+                            (MySqlConnection)connection
+                        )
+                    )
+                    {
+                        totalRegistros = Convert.ToInt32(command.ExecuteScalar());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al obtener el total de propietarios: {ex.Message}");
+                    throw;
+                }
+            }
+            return totalRegistros;
         }
 
         /// Obtiene un propietario por su ID.

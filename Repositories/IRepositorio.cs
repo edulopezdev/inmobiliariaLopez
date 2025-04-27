@@ -5,7 +5,7 @@ namespace InmobiliariaLopez.Repositories
     public interface IRepositorio<T>
     {
         // Obtener todos los elementos
-        IList<T> Index();
+        IList<T> Index(int pagina = 1);
 
         // Obtener un elemento por su ID
         T? Details(int id);
@@ -18,5 +18,8 @@ namespace InmobiliariaLopez.Repositories
 
         // Eliminar un elemento por su ID
         int Delete(int id);
+
+        // Obtener el total de elementos
+        int ObtenerTotal();
     }
 }

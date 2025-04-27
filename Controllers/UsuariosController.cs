@@ -13,6 +13,7 @@ namespace InmobiliariaLopez.Controllers
     {
         private readonly IRepositorioUsuario _usuarioRepository;
         private readonly IWebHostEnvironment _environment;
+        private const int _registrosPorPagina = 10;
 
         public UsuariosController(
             IRepositorioUsuario usuarioRepository,
@@ -113,14 +114,24 @@ namespace InmobiliariaLopez.Controllers
         // GET: Lista de usuarios
         [Authorize(Roles = "Administrador")]
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1)
         {
             try
             {
-                // Llamamos al repositorio para obtener la lista de usuarios
-                var usuarios = _usuarioRepository.Index();
+                // Llamamos al repositorio para obtener la lista paginada de usuarios
+                var usuarios = _usuarioRepository.Index(pagina);
 
-                // Pasamos la lista de usuarios a la vista
+                // Obtenemos la cantidad total de usuarios activos
+                int totalRegistros = _usuarioRepository.ObtenerTotal(); // O _usuarioRepository.ObtenerTotalUsuariosActivos()
+
+                // Calculamos el número total de páginas
+                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
+
+                // Pasamos la información de paginación a la vista
+                ViewBag.PaginaActual = pagina;
+                ViewBag.TotalPaginas = totalPaginas;
+
+                // Pasamos la lista de usuarios de la página actual a la vista
                 return View(usuarios);
             }
             catch (Exception ex)

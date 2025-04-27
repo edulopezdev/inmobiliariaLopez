@@ -4,7 +4,6 @@
   ViewData["Title"] = "Lista de Propietarios";
 }
 
-<!-- Títuloo -->
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Lista de
   Propietarios</h1>
 
@@ -15,13 +14,11 @@
   </div>
 }
 
-<!-- Card para envolver la tabla -->
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-gradient text-dark border-0">
     <h5 class="mb-0">Propietarios</h5>
   </div>
   <div class="card-body">
-    <!-- Botón "Agregar Propietario" en la parte superior derecha -->
     <div class="d-flex justify-content-end mb-3">
       <a asp-action="Create" class="btn btn-primary btn-sm">
         <i class="fas fa-plus-circle me-2"></i> Nuevo Propietario
@@ -61,17 +58,14 @@
               <td>@propietario.Telefono</td>
               <td>@propietario.Email</td>
               <td class="text-center">
-                <!-- Detalles -->
                 <a asp-action="Details" asp-route-id="@propietario.IdPropietario" class="btn-link"
                   data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles del propietario">
                   <i class="fas fa-eye"></i>
                 </a>
-                <!-- Editar -->
                 <a asp-action="Edit" asp-route-id="@propietario.IdPropietario" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Editar propietario">
                   <i class="fas fa-edit"></i>
                 </a>
-                <!-- Eliminar -->
                 <a asp-action="Delete" asp-route-id="@propietario.IdPropietario" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Eliminar propietario">
                   <i class="fas fa-trash-alt"></i>
@@ -82,6 +76,43 @@
         </tbody>
       </table>
     </div>
+
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        @if (ViewBag.PaginaActual > 1)
+        {
+          <li class="page-item">
+            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">Anterior</a>
+          </li>
+        }
+        else
+        {
+          <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+          </li>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+        {
+          <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+            <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+          </li>
+        }
+
+        @if (ViewBag.PaginaActual < ViewBag.TotalPaginas)
+        {
+          <li class="page-item">
+            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">Siguiente</a>
+          </li>
+        }
+        else
+        {
+          <li class="page-item disabled">
+            <span class="page-link">Siguiente</span>
+          </li>
+        }
+      </ul>
+    </nav>
   </div>
 </div>
 

@@ -10,6 +10,7 @@ namespace InmobiliariaLopez.Repositories
     {
         private readonly DatabaseConnection _dbConnection;
         private readonly ILogger<UsuarioRepository> _logger;
+        private const int _registrosPorPagina = 10; // Declaración de la constante
 
         public UsuarioRepository(DatabaseConnection dbConnection, ILogger<UsuarioRepository> logger)
         {
@@ -17,63 +18,31 @@ namespace InmobiliariaLopez.Repositories
             _logger = logger;
         }
 
-        public Usuario? ObtenerPorEmail(string email)
-        {
-            Usuario? usuario = null;
+        public int RegistrosPorPagina => _registrosPorPagina; // Propiedad que usa la constante
 
-            using (var connection = _dbConnection.CreateConnection())
-            {
-                connection.Open();
-                var cmd = connection.CreateCommand();
-                cmd.CommandText =
-                    @"SELECT * FROM Usuario WHERE Email = @email AND Activo = 1 LIMIT 1;";
-                cmd.Parameters.AddWithValue("@email", email);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        usuario = new Usuario
-                        {
-                            IdUsuario = reader.GetInt32("IdUsuario"),
-                            Email = reader.GetString("Email"),
-                            ContrasenaHasheada = reader.GetString("ContrasenaHasheada"),
-                            Rol = reader.GetString("Rol"),
-                            Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar"))
-                                ? null
-                                : reader.GetString("Avatar"),
-                            FechaCreacion = reader.GetDateTime("FechaCreacion"),
-                            Activo = reader.GetBoolean("Activo"),
-                        };
-                    }
-                }
-            }
-
-            if (usuario == null)
-            {
-                throw new Exception("Usuario no encontrado.");
-            }
-
-            return usuario;
-        }
-
-        // Métodos obligatorios del IRepositorio - aún sin lógica (podés completarlos luego)
-
-        public IList<Usuario> Index()
+        public IList<Usuario> Index(int pagina = 1)
         {
             var usuarios = new List<Usuario>();
-            using (var connection = _dbConnection.CreateConnection()) // Usamos la conexión que ya tienes definida
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
+
+            using (var connection = _dbConnection.CreateConnection())
             {
                 try
                 {
                     connection.Open();
                     using (
                         var command = new MySqlCommand(
-                            "SELECT IdUsuario, Email, ContrasenaHasheada, Rol, Avatar, FechaCreacion, Activo FROM usuario WHERE Activo = 1",
+                            @"SELECT IdUsuario, Email, ContrasenaHasheada, Rol, Avatar, FechaCreacion, Activo
+                              FROM usuario
+                              WHERE Activo = 1
+                              LIMIT @limit OFFSET @offset",
                             (MySqlConnection)connection
                         )
                     )
                     {
+                        command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                        command.Parameters.AddWithValue("@offset", skipAmount);
+
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
@@ -98,11 +67,28 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener usuarios: {ex.Message}");
+                    _logger.LogError($"Error al obtener usuarios paginados: {ex.Message}");
                     throw;
                 }
             }
             return usuarios;
+        }
+
+        public int ObtenerTotal()
+        {
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (
+                    var command = new MySqlCommand(
+                        "SELECT COUNT(*) FROM usuario WHERE Activo = 1",
+                        (MySqlConnection)connection
+                    )
+                )
+                {
+                    return Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
         }
 
         public Usuario? Details(int id)
@@ -273,6 +259,46 @@ namespace InmobiliariaLopez.Repositories
                     return command.ExecuteNonQuery();
                 }
             }
+        }
+
+        public Usuario? ObtenerPorEmail(string email)
+        {
+            Usuario? usuario = null;
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText =
+                    @"SELECT * FROM Usuario WHERE Email = @email AND Activo = 1 LIMIT 1;";
+                cmd.Parameters.AddWithValue("@email", email);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        usuario = new Usuario
+                        {
+                            IdUsuario = reader.GetInt32("IdUsuario"),
+                            Email = reader.GetString("Email"),
+                            ContrasenaHasheada = reader.GetString("ContrasenaHasheada"),
+                            Rol = reader.GetString("Rol"),
+                            Avatar = reader.IsDBNull(reader.GetOrdinal("Avatar"))
+                                ? null
+                                : reader.GetString("Avatar"),
+                            FechaCreacion = reader.GetDateTime("FechaCreacion"),
+                            Activo = reader.GetBoolean("Activo"),
+                        };
+                    }
+                }
+            }
+
+            if (usuario == null)
+            {
+                throw new Exception("Usuario no encontrado.");
+            }
+
+            return usuario;
         }
     }
 }

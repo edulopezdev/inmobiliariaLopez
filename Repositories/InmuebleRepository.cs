@@ -9,16 +9,18 @@ namespace InmobiliariaLopez.Repositories
     public class InmuebleRepository : IRepositorioInmueble
     {
         private readonly DatabaseConnection _dbConnection;
+        private readonly int _registrosPorPagina = 10; // Define la cantidad de registros por página
 
         public InmuebleRepository(DatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
 
-        // Lista todos los Inmuebles
-        public IList<Inmueble> Index()
+        // Lista todos los Inmuebles con paginación
+        public IList<Inmueble> Index(int pagina = 1)
         {
             var inmuebles = new List<Inmueble>();
+            int skipAmount = (pagina - 1) * _registrosPorPagina;
 
             using (var connection = _dbConnection.CreateConnection())
             {
@@ -27,15 +29,19 @@ namespace InmobiliariaLopez.Repositories
                     connection.Open();
                     using (
                         var command = new MySqlCommand(
-                            "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre "
-                                + "FROM inmueble i "
-                                + "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble "
-                                + "JOIN propietario p ON i.IdPropietario = p.IdPropietario "
-                                + "WHERE i.Activo = 1 AND p.Activo = 1",
+                            @"SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre
+                            FROM inmueble i
+                            JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble
+                            JOIN propietario p ON i.IdPropietario = p.IdPropietario
+                            WHERE i.Activo = 1 AND p.Activo = 1
+                            LIMIT @limit OFFSET @offset;",
                             (MySqlConnection)connection
                         )
                     )
                     {
+                        command.Parameters.AddWithValue("@limit", _registrosPorPagina);
+                        command.Parameters.AddWithValue("@offset", skipAmount);
+
                         using (var reader = command.ExecuteReader())
                         {
                             while (reader.Read())
@@ -71,12 +77,39 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener inmuebles: {ex.Message}");
+                    Console.WriteLine($"Error al obtener inmuebles paginados: {ex.Message}");
                     throw;
                 }
             }
-
             return inmuebles;
+        }
+
+        // Obtiene la cantidad total de inmuebles activos
+        public int ObtenerTotal()
+        {
+            int totalRegistros = 0;
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    using (
+                        var command = new MySqlCommand(
+                            "SELECT COUNT(*) FROM inmueble WHERE Activo = 1",
+                            (MySqlConnection)connection
+                        )
+                    )
+                    {
+                        totalRegistros = Convert.ToInt32(command.ExecuteScalar());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al obtener el total de inmuebles: {ex.Message}");
+                    throw;
+                }
+            }
+            return totalRegistros;
         }
 
         // Obtiene un Inmueble por su ID
@@ -90,11 +123,11 @@ namespace InmobiliariaLopez.Repositories
                     connection.Open();
                     using (
                         var command = new MySqlCommand(
-                            "SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre "
-                                + "FROM inmueble i "
-                                + "JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble "
-                                + "JOIN propietario p ON i.IdPropietario = p.IdPropietario "
-                                + "WHERE i.IdInmueble = @IdInmueble AND i.Activo = 1 AND p.Activo = 1",
+                            @"SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre
+                            FROM inmueble i
+                            JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble
+                            JOIN propietario p ON i.IdPropietario = p.IdPropietario
+                            WHERE i.IdInmueble = @IdInmueble AND i.Activo = 1 AND p.Activo = 1",
                             (MySqlConnection)connection
                         )
                     )
@@ -151,7 +184,7 @@ namespace InmobiliariaLopez.Repositories
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
                             @"INSERT INTO inmueble (Direccion, Uso, IdTipoInmueble, Ambientes, Latitud, Longitud, Precio, Estado, IdPropietario)
-                      VALUES (@Direccion, @Uso, @IdTipoInmueble, @Ambientes, @Latitud, @Longitud, @Precio, @Estado, @IdPropietario)";
+                        VALUES (@Direccion, @Uso, @IdTipoInmueble, @Ambientes, @Latitud, @Longitud, @Precio, @Estado, @IdPropietario)";
 
                         command.Parameters.AddWithValue("@Direccion", entidad.Direccion);
                         command.Parameters.AddWithValue("@Uso", entidad.Uso);
@@ -206,16 +239,16 @@ namespace InmobiliariaLopez.Repositories
                         command.Connection = (MySqlConnection)connection;
                         command.CommandText =
                             @"UPDATE inmueble
-                    SET Direccion = @Direccion,
-                        Uso = @Uso,
-                        IdTipoInmueble = @IdTipoInmueble,
-                        Ambientes = @Ambientes,
-                        Latitud = @Latitud,
-                        Longitud = @Longitud,
-                        Precio = @Precio,
-                        Estado = @Estado,
-                        IdPropietario = @IdPropietario
-                    WHERE IdInmueble = @IdInmueble";
+                        SET Direccion = @Direccion,
+                            Uso = @Uso,
+                            IdTipoInmueble = @IdTipoInmueble,
+                            Ambientes = @Ambientes,
+                            Latitud = @Latitud,
+                            Longitud = @Longitud,
+                            Precio = @Precio,
+                            Estado = @Estado,
+                            IdPropietario = @IdPropietario
+                        WHERE IdInmueble = @IdInmueble";
 
                         Console.WriteLine("Comando SQL preparado.");
 
@@ -262,7 +295,7 @@ namespace InmobiliariaLopez.Repositories
             }
         }
 
-        // Elimina un inmueble por su ID
+        // Elimina un inmueble por su ID (lógica de "baja lógica")
         public int Delete(int id)
         {
             using (var connection = _dbConnection.CreateConnection())
@@ -353,12 +386,13 @@ namespace InmobiliariaLopez.Repositories
                     connection.Open();
                     using (
                         var command = new MySqlCommand(
-                            @"SELECT COUNT(*) 
-                          FROM contrato c
-                          INNER JOIN inmueble i ON c.IdInmueble = i.IdInmueble
-                          WHERE c.IdInmueble = @IdInmueble 
-                            AND i.Activo = 1
-                            AND ((@FechaInicio BETWEEN FechaInicio AND FechaFin) OR (@FechaFin BETWEEN FechaInicio AND FechaFin))",
+                            @"SELECT COUNT(*)
+                            FROM contrato c
+                            INNER JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+                            WHERE c.IdInmueble = @IdInmueble
+                              AND i.Activo = 1
+                              AND ((@FechaInicio BETWEEN FechaInicio AND FechaFin) OR (@FechaFin BETWEEN FechaInicio AND FechaFin) OR (FechaInicio BETWEEN @FechaInicio AND @FechaFin) OR (FechaFin BETWEEN @FechaInicio AND @FechaFin))
+                              AND c.Activo = 1",
                             (MySqlConnection)connection
                         )
                     )
