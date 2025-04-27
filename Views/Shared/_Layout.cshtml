@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -101,6 +103,16 @@
                 <!-- Otros elementos de administración aquí -->
               </ul>
             </div>
+          </li>
+        }
+
+        @if (User.IsInRole("Empleado"))
+        {
+          <li class="nav-item">
+            <a class="nav-link text-white"
+              href="@Url.Action("Edit", "Usuarios", new { id = User.FindFirst("IdUsuario")?.Value })">
+              <i class="fas fa-user me-2"></i> Perfil
+            </a>
           </li>
         }
 

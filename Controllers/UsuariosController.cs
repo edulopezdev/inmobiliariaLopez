@@ -281,9 +281,17 @@ namespace InmobiliariaLopez.Controllers
 
         // GET: Editar usuario
         [HttpGet]
-        [Authorize(Roles = "Administrador")]
+        [Authorize]
         public IActionResult Edit(int id)
         {
+            var userId = User.FindFirst("IdUsuario")?.Value;
+
+            // Convertir id a string para comparación
+            if (userId == null || (id.ToString() != userId && !User.IsInRole("Administrador")))
+            {
+                return Unauthorized(); // Si no es el mismo usuario o no es admin, se deniega el acceso
+            }
+
             var usuario = _usuarioRepository.Details(id);
 
             if (usuario == null)
@@ -296,14 +304,9 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Editar usuario
         [HttpPost]
-        [Authorize(Roles = "Administrador")]
+        [Authorize]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(
-            int id,
-            Usuario usuario,
-            IFormFile? Avatar,
-            string? nuevaContrasena
-        )
+        public IActionResult Edit(int id, Usuario usuario, IFormFile? Avatar)
         {
             try
             {
@@ -313,49 +316,64 @@ namespace InmobiliariaLopez.Controllers
                     return View(usuario); // Retorna la vista con los errores
                 }
 
-                // Obtener el usuario desde la base de datos para actualizarlo
+                // Buscar el usuario existente
                 var usuarioExistente = _usuarioRepository.Details(id);
-
                 if (usuarioExistente == null)
                 {
                     ModelState.AddModelError("", "Usuario no encontrado.");
                     return View(usuario);
                 }
 
-                // Si se proporciona una nueva contraseña, hashearla
-                if (!string.IsNullOrEmpty(nuevaContrasena))
+                // Verificar si el usuario es un Empleado y si está intentando editar su propio perfil
+                if (User.IsInRole("Empleado") && usuario.IdUsuario != id)
                 {
-                    usuario.ContrasenaHasheada = BCrypt.Net.BCrypt.HashPassword(nuevaContrasena);
+                    // Si el empleado está intentando editar otro usuario, redirigirlo
+                    return RedirectToAction("AccessDenied", "Home");
+                }
+
+                // Si el usuario es un empleado, no permitir la modificación del rol
+                if (User.IsInRole("Empleado"))
+                {
+                    usuario.Rol = usuarioExistente.Rol; // Mantener el rol actual
+                }
+
+                // Si se proporciona una nueva contraseña, la hasheamos
+                if (!string.IsNullOrEmpty(usuario.NuevaContrasena))
+                {
+                    usuario.ContrasenaHasheada = BCrypt.Net.BCrypt.HashPassword(
+                        usuario.NuevaContrasena
+                    );
                 }
                 else
                 {
-                    // Si no se ha proporcionado una nueva contraseña, mantener la actual
+                    // Si no se ha proporcionado una nueva contraseña, mantener la contraseña actual
                     usuario.ContrasenaHasheada = usuarioExistente.ContrasenaHasheada;
                 }
 
-                // Manejo del archivo Avatar
+                // Manejo del avatar
                 if (Avatar != null)
                 {
                     var resultadoSubida = SubirAvatar(usuario, Avatar);
-
                     if (!resultadoSubida.success)
                     {
                         ModelState.AddModelError("", resultadoSubida.message);
                         return View(usuario);
                     }
-
-                    // Asignar la URL del avatar subido
                     usuario.Avatar = resultadoSubida.avatarUrl;
                 }
                 else
                 {
-                    // Si no se sube un nuevo avatar, mantener el avatar actual
                     usuario.Avatar = usuarioExistente.Avatar;
                 }
 
-                // Llamar al repositorio para actualizar el usuario
+                // Otros datos que no vienen del formulario directamente
+                usuario.FechaCreacion = usuarioExistente.FechaCreacion;
+                usuario.Activo = usuarioExistente.Activo;
+
+                // Guardar cambios
                 _usuarioRepository.Edit(usuario);
 
+                // Redirigir a Index
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -369,78 +387,65 @@ namespace InmobiliariaLopez.Controllers
             }
         }
 
-        public IActionResult ActualizarAvatar(int idUsuario, IFormFile Avatar)
+        // GET: Eliminar usuario
+        [Authorize(Roles = "Administrador")]
+        [HttpGet]
+        public IActionResult Delete(int id)
         {
             try
             {
-                if (Avatar == null || Avatar.Length == 0)
-                {
-                    ModelState.AddModelError(
-                        "",
-                        "Por favor, selecciona una imagen para el avatar."
-                    );
-                    return RedirectToAction("Details", new { id = idUsuario });
-                }
+                // Obtener el usuario por ID
+                var usuario = _usuarioRepository.Details(id);
 
-                var usuario = _usuarioRepository.Details(idUsuario); // Llamada síncrona
+                // Si el usuario no existe, devolver NotFound
                 if (usuario == null)
                 {
                     return NotFound();
                 }
 
-                var resultadoSubida = SubirAvatar(usuario, Avatar);
-                if (!resultadoSubida.success)
-                {
-                    ModelState.AddModelError("", resultadoSubida.message);
-                    return RedirectToAction("Details", new { id = idUsuario });
-                }
-
-                usuario.Avatar = resultadoSubida.avatarUrl;
-                _usuarioRepository.Edit(usuario); // Llamada síncrona
-
-                return RedirectToAction("Details", new { id = idUsuario });
+                // Pasar el usuario a la vista para confirmación
+                return View(usuario);
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Hubo un error: {ex.Message}" });
+                // Si ocurre algún error, redirigir a una página de error
+                TempData["ErrorMessage"] = $"Error al intentar cargar el usuario: {ex.Message}";
+                return RedirectToAction("Error");
             }
         }
 
-        [HttpPost]
+        // POST: Eliminar usuario
+        [Authorize(Roles = "Administrador")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EliminarAvatar(int idUsuario)
+        public IActionResult DeleteConfirmed(int id)
         {
             try
             {
-                var usuario = await _usuarioRepository.Details(idUsuario);
-                if (usuario == null)
-                {
-                    return Json(new { success = false, message = "Usuario no encontrado." });
-                }
+                // Verificar si el usuario actual es un administrador y si está intentando eliminar su propia cuenta
+                var currentUserId = User.FindFirst("IdUsuario")?.Value;
 
-                // Eliminar el avatar del servidor (si existe)
-                if (!string.IsNullOrEmpty(usuario.Avatar))
+                if (currentUserId == id.ToString())
                 {
-                    var path = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot",
-                        usuario.Avatar.TrimStart('/')
+                    // Si es el mismo usuario (administrador) que intenta eliminarse a sí mismo
+                    ModelState.AddModelError(
+                        "",
+                        "No puedes eliminar tu propia cuenta de administrador."
                     );
-                    if (System.IO.File.Exists(path))
-                    {
-                        System.IO.File.Delete(path); // Eliminar el archivo del servidor
-                    }
+                    return RedirectToAction("Index"); // Redirige a la lista de usuarios
                 }
 
-                // Eliminar avatar de la base de datos
-                usuario.Avatar = null;
-                await _usuarioRepository.Edit(usuario);
+                // Llamar al método Delete del repositorio para eliminar al usuario
+                _usuarioRepository.Delete(id);
 
-                return Json(new { success = true, message = "Avatar eliminado correctamente." });
+                // Redirigir a la vista Index después de eliminar el usuario
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = $"Hubo un error: {ex.Message}" });
+                // Si ocurre algún error, mostrar mensaje de error
+                TempData["ErrorMessage"] = $"Error al eliminar el usuario: {ex.Message}";
+                return RedirectToAction("Error");
             }
         }
 

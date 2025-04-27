@@ -2,6 +2,21 @@
 
 @{
   ViewData["Title"] = "Lista de Usuarios";
+
+  // Aquí obtenemos el Id del usuario logueado como un string
+  var loggedInUserId = User.FindFirst("IdUsuario")?.Value;
+
+  // Convertimos el IdUsuario logueado a int para poder compararlo con el usuario.IdUsuario
+  int loggedInUserIdInt = 0;
+  if (int.TryParse(loggedInUserId, out loggedInUserIdInt))
+  {
+    // Si la conversión es exitosa, podemos utilizar loggedInUserIdInt
+  }
+  else
+  {
+    // Si la conversión falla, loggedInUserIdInt permanecerá en 0
+    // Aquí podrías manejar el caso si el valor no es válido.
+  }
 }
 
 <!-- Título -->
@@ -65,11 +80,14 @@
                   data-bs-placement="top" title="Editar usuario">
                   <i class="fas fa-edit"></i>
                 </a>
-                <!-- Eliminar -->
-                <a asp-action="Delete" asp-route-id="@usuario.IdUsuario" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Eliminar usuario">
-                  <i class="fas fa-trash-alt"></i>
-                </a>
+                <!-- Eliminar, pero no para el usuario logueado -->
+                @if (usuario.IdUsuario != loggedInUserIdInt)
+                {
+                  <a asp-action="Delete" asp-route-id="@usuario.IdUsuario" class="btn-link" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Eliminar usuario">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                }
               </td>
             </tr>
           }

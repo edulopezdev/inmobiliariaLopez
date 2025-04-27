@@ -5,7 +5,8 @@
 }
 
 <!-- Título -->
-<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Usuario</h1>
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Usuario
+</h1>
 
 <!-- Card para envolver el formulario -->
 <div class="card shadow-lg border-0 rounded-4">
@@ -24,21 +25,34 @@
         <span asp-validation-for="Email" class="text-danger"></span>
       </div>
 
-      <!-- Campo contraseña solo si querés permitir modificarla desde acá -->
+      <!-- Campo para modificar la contraseña -->
       <div class="form-group mb-3">
-        <label asp-for="ContrasenaHasheada">Nueva contraseña (opcional)</label>
-        <input asp-for="ContrasenaHasheada" type="password" class="form-control" />
-        <span asp-validation-for="ContrasenaHasheada" class="text-danger"></span>
+        <label for="NuevaContrasena">Nueva contraseña (opcional)</label>
+        <input asp-for="NuevaContrasena" type="password" class="form-control" />
+        <span asp-validation-for="NuevaContrasena" class="text-danger"></span>
       </div>
 
+      <!-- Campo para modificar la Rol -->
       <div class="form-group mb-3">
         <label asp-for="Rol" class="control-label"></label>
-        <select asp-for="Rol" class="form-control">
-          <option value="Administrador">Administrador</option>
-          <option value="Empleado">Empleado</option>
-        </select>
+
+        @if (User.IsInRole("Administrador") && Model.IdUsuario != Convert.ToInt32(User.FindFirst("IdUsuario")?.Value))
+        {
+          <!-- Si el usuario es un administrador y no es el propio usuario logueado, mostramos el rol como un select -->
+          <select asp-for="Rol" class="form-control">
+            <option value="Administrador" @(Model.Rol == "Administrador" ? "selected" : "")>Administrador</option>
+            <option value="Empleado" @(Model.Rol == "Empleado" ? "selected" : "")>Empleado</option>
+          </select>
+        }
+        else
+        {
+          <!-- Si el usuario es un empleado, o está editando su propio perfil, mostramos el rol como texto (solo lectura) -->
+          <input asp-for="Rol" class="form-control" disabled />
+        }
+
         <span asp-validation-for="Rol" class="text-danger"></span>
       </div>
+
 
       <div class="form-group mb-3">
         <label for="Avatar">Actualizar Avatar (opcional)</label>

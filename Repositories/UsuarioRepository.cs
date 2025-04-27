@@ -187,33 +187,38 @@ namespace InmobiliariaLopez.Repositories
             {
                 connection.Open();
 
-                // Primero vamos a verificar si hay un avatar y lo eliminamos
+                // Solo eliminar el avatar si ha cambiado o si se proporciona un nuevo archivo
                 if (!string.IsNullOrEmpty(entidad.Avatar))
                 {
                     var usuarioExistente = Details(entidad.IdUsuario);
                     if (usuarioExistente != null && !string.IsNullOrEmpty(usuarioExistente.Avatar))
                     {
-                        // Eliminar el avatar antiguo
-                        var avatarAntiguoRuta = Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot",
-                            usuarioExistente.Avatar.TrimStart('/')
-                        );
-                        if (File.Exists(avatarAntiguoRuta))
+                        // Eliminar el avatar antiguo solo si hay uno nuevo o diferente
+                        if (usuarioExistente.Avatar != entidad.Avatar)
                         {
-                            try
+                            var avatarAntiguoRuta = Path.Combine(
+                                Directory.GetCurrentDirectory(),
+                                "wwwroot",
+                                usuarioExistente.Avatar.TrimStart('/')
+                            );
+
+                            if (File.Exists(avatarAntiguoRuta))
                             {
-                                File.Delete(avatarAntiguoRuta); // Elimina el archivo físicamente
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(
-                                    $"Error al eliminar el avatar antiguo: {ex.Message}"
-                                );
+                                try
+                                {
+                                    File.Delete(avatarAntiguoRuta); // Elimina el archivo físicamente
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(
+                                        $"Error al eliminar el avatar antiguo: {ex.Message}"
+                                    );
+                                }
                             }
                         }
                     }
                 }
+
                 // Ahora pocedemos a la actualización
                 using (
                     var command = new MySqlCommand(

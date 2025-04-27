@@ -11,6 +11,7 @@ namespace InmobiliariaLopez.Models
         public string Email { get; set; }
 
         public string? ContrasenaHasheada { get; set; }
+        public string? NuevaContrasena { get; set; }
 
         [Required(ErrorMessage = "El rol es requerido")]
         public string Rol { get; set; } // "Administrador" o "Empleado"
