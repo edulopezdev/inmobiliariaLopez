@@ -403,16 +403,19 @@ namespace InmobiliariaLopez.Repositories
             {
                 connection.Open();
                 using var command = new MySqlCommand(
-                    "UPDATE pago SET Activo = 0 WHERE IdPago = @IdPago",
+                    "UPDATE pago SET Activo = 0 WHERE IdPago = @IdPago", // Solo actualiza si el pago está activo
                     (MySqlConnection)connection
                 );
                 command.Parameters.AddWithValue("@IdPago", id);
 
-                return command.ExecuteNonQuery(); // Devuelve la cantidad de filas afectadas (1 si todo OK)
+                var filasAfectadas = command.ExecuteNonQuery();
+
+                return filasAfectadas; // Asegúrate de que retorna filas afectadas
             }
             catch (Exception ex)
             {
-                throw; // Re-lanza para que el controlador lo maneje
+                Console.WriteLine($"Error al eliminar: {ex.Message}");
+                throw;
             }
         }
 

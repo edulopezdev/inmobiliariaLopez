@@ -1,6 +1,7 @@
 using System;
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -203,6 +204,8 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Inmuebles/Delete/5
+        [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Delete(int id)
         {
             var inmueble = _repositorio.Details(id);
@@ -215,6 +218,7 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Inmuebles/Delete/5
         [HttpPost, ActionName("Delete")]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {

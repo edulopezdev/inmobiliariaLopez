@@ -3,14 +3,22 @@
 @{
   ViewData["Title"] = "Lista de Contratos";
 }
-
+<!-- Título -->
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Lista de
   Contratos</h1>
 
+@if (TempData["ErrorMessage"] != null)
+{
+  <div class="alert alert-danger">
+    @TempData["ErrorMessage"]
+  </div>
+}
+<!-- Card para envolver la tabla -->
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-gradient text-dark border-0 rounded-4">
     <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Contratos</h5>
   </div>
+  <!-- Botón "Agregar Inquilino" en la parte superior derecha -->
   <div class="card-body" style="padding: 0.5rem 1rem;">
     <div class="d-flex justify-content-end mb-3">
       <a asp-action="Create" class="btn btn-primary btn-sm">
@@ -22,32 +30,42 @@
       <table class="table table-hover" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">
           <tr>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">#CONTRATO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              #CONTRATO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">INMUEBLE
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              INMUEBLE
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">INQUILINO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              INQUILINO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA INICIO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              FECHA INICIO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA FIN
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              FECHA FIN
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">MONTO MENSUAL
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              MONTO MENSUAL
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ESTADO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              ESTADO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA ANULACIÓN
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              FECHA ANULACIÓN
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ACCIONES
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              ACCIONES
             </th>
           </tr>
         </thead>
         <tbody>
           @foreach (var contrato in Model)
           {
-            <tr class="@(contrato.EstadoContrato == "PendienteAnulacion" ? "fila-pendiente-anulacion" 
-                                                : contrato.EstadoContrato == "Anulado" ? "fila-anulado" 
-                                                : contrato.EstadoContrato == "Finalizado" ? "fila-finalizado" : "")">
+            <tr
+              class="@(contrato.EstadoContrato == "PendienteAnulacion" ? "fila-pendiente-anulacion" 
+                                                                                            : contrato.EstadoContrato == "Anulado" ? "fila-anulado" 
+                                                                                            : contrato.EstadoContrato == "Finalizado" ? "fila-finalizado" : "")">
             <td>@contrato.IdContrato</td>
             <td>@contrato.DireccionInmueble</td>
             <td>@contrato.NombreInquilino</td>
@@ -125,6 +143,13 @@
                     title="No se puede anular un contrato @contrato.EstadoContrato.ToLower()">
                     <i class="fa-solid fa-ban"></i>
                   </span>
+                }
+                @if (User.IsInRole("Administrador"))
+                {
+                  <a asp-action="Delete" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
+                    title="Eliminar contrato">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
                 }
               </td>
             </tr>

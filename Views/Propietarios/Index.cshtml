@@ -66,10 +66,13 @@
                   data-bs-placement="top" title="Editar propietario">
                   <i class="fas fa-edit"></i>
                 </a>
-                <a asp-action="Delete" asp-route-id="@propietario.IdPropietario" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Eliminar propietario">
-                  <i class="fas fa-trash-alt"></i>
-                </a>
+                @if (User.IsInRole("Administrador"))
+                {
+                  <a asp-action="Delete" asp-route-id="@propietario.IdPropietario" class="btn-link" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Eliminar propietario">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                }
               </td>
             </tr>
           }

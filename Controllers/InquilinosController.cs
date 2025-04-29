@@ -1,5 +1,6 @@
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InmobiliariaLopez.Controllers
@@ -122,6 +123,7 @@ namespace InmobiliariaLopez.Controllers
 
         // GET: Inquilinos/Delete/5
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Delete(int id)
         {
             try
@@ -142,6 +144,7 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Inquilinos/Delete/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id, Inquilino Inquilino)
         {

@@ -1,6 +1,7 @@
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Models.Dtos; // Para incluir el DTO
 using InmobiliariaLopez.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -167,6 +168,8 @@ namespace InmobiliariaLopez.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Pago pago)
         {
+            Console.WriteLine($"Eliminando pago con ID: {id}");
+
             if (id != pago.IdPago)
                 return NotFound();
 
@@ -189,33 +192,61 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Pago/Delete/5
+        [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Delete(int id)
         {
-            var pago = _pagoRepository.Details(id);
-            if (pago == null)
+            try
             {
-                return NotFound();
+                var pago = _pagoRepository.Details(id); // Obtener los detalles del Pago por ID
+                if (pago == null)
+                {
+                    TempData["ErrorMessage"] = $"No se encontró el Pago con ID {id}.";
+                    return RedirectToAction("Index"); // Redirigir a la lista si no se encuentra
+                }
+                return View(pago); // Pasar el Pago a la vista de confirmación
             }
-            return View(pago);
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al cargar el Pago: {ex.Message}";
+                return RedirectToAction("Error"); // En caso de error, redirigir a página de error
+            }
         }
 
         // POST: Pago/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
+        [Authorize(Roles = "Administrador")]
         public IActionResult DeleteConfirmed(int id)
         {
             try
             {
-                _pagoRepository.Delete(id);
-                TempData["SuccessMessage"] = "El pago fue eliminado correctamente.";
-                return RedirectToAction(nameof(Index));
+                var pago = _pagoRepository.Details(id);
+                if (pago == null)
+                {
+                    TempData["ErrorMessage"] = $"No se encontró el Pago con ID {id}.";
+                    return RedirectToAction("Index"); // Redirigir a la lista si no se encuentra
+                }
+
+                // Realizar la eliminación
+                int rowsAffected = _pagoRepository.Delete(id);
+
+                if (rowsAffected > 0)
+                {
+                    TempData["SuccessMessage"] =
+                        $"El Pago con ID {id} ha sido eliminado exitosamente.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] =
+                        $"No se pudo eliminar el Pago con ID {id}. Verifique que el pago exista o no haya sido eliminado previamente.";
+                }
+
+                return RedirectToAction(nameof(Index)); // Redirigir a la lista de pagos
             }
             catch (Exception ex)
             {
-                // Log opcional
-                // _logger.LogError(ex, $"Error al eliminar el pago con ID {id}");
-
-                TempData["ErrorMessage"] = "Ocurrió un error al intentar eliminar el pago.";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = $"Error al eliminar el Pago: {ex.Message}";
+                return RedirectToAction("Error"); // Redirigir a página de error
             }
         }
 

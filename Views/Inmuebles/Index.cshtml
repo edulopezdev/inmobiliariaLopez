@@ -115,10 +115,13 @@
                   data-bs-placement="top" title="Editar inmueble">
                   <i class="fas fa-edit"></i>
                 </a>
-                <a asp-action="Delete" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Eliminar inmueble">
-                  <i class="fas fa-trash-alt"></i>
-                </a>
+                @if (User.IsInRole("Administrador"))
+                {
+                  <a asp-action="Delete" asp-route-id="@inmueble.IdInmueble" class="btn-link" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Eliminar inmueble">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                }
               </td>
             </tr>
           }

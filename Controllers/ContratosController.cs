@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
@@ -164,36 +165,65 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Contratos/Delete/5
-        public IActionResult Delete(int? id)
+        [HttpGet]
+        [Authorize(Roles = "Administrador")]
+        public IActionResult Delete(int id)
         {
-            if (id == null)
+            try
             {
-                return NotFound();
-            }
+                Console.WriteLine(
+                    $"Recibiendo solicitud de eliminación para el contrato con ID: {id}"
+                );
 
-            var contrato = _repositorioContrato.Details(id.Value);
-            if (contrato == null)
+                var contrato = _repositorioContrato.Details(id);
+
+                if (contrato == null)
+                {
+                    Console.WriteLine($"No se encontró el contrato con ID: {id}.");
+                    return NotFound($"No se encontró el contrato con ID {id}."); // Mostrar error si no se encuentra
+                }
+
+                return View(contrato);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                Console.WriteLine($"Error al cargar el contrato: {ex.Message}");
+                TempData["ErrorMessage"] = $"Error al cargar el Contrato: {ex.Message}";
+                return RedirectToAction("Error"); // En caso de error, redirigir a página de error
             }
-
-            return View(contrato);
         }
 
         // POST: Contratos/Delete/5
         [HttpPost]
-        public IActionResult Delete(int id)
+        [Authorize(Roles = "Administrador")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
         {
             var contrato = _repositorioContrato.ObtenerPorId(id);
             if (contrato == null)
             {
-                return NotFound();
+                // Devolver un JSON de error
+                return Json(new { success = false, message = "Contrato no encontrado." });
             }
 
-            contrato.Activo = false;
-            _repositorioContrato.Edit(contrato);
-
-            return RedirectToAction(nameof(Index));
+            int rowsAffected = _repositorioContrato.Delete(id);
+            if (rowsAffected > 0)
+            {
+                // Devolver un JSON de éxito
+                return Json(
+                    new
+                    {
+                        success = true,
+                        message = "El contrato ha sido marcado como inactivo.",
+                        data = contrato,
+                    }
+                );
+            }
+            else
+            {
+                // Devolver un JSON de error
+                return Json(new { success = false, message = "No se pudo eliminar el contrato." });
+            }
         }
 
         // GET: Contratos/Anular

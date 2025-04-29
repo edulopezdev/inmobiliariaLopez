@@ -1,5 +1,6 @@
 using InmobiliariaLopez.Models;
 using InmobiliariaLopez.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InmobiliariaLopez.Controllers
@@ -45,14 +46,26 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Propietarios/Create
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Propietario propietario)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _propietarioRepository.Create(propietario); // Guarda el propietario en la base de datos
-                return RedirectToAction(nameof(Index)); // Redirige a la lista de propietarios
+                // Si el modelo tiene errores, devolvés la vista con los datos actuales
+                return View(propietario);
             }
-            return View(propietario); // Si hay errores de validación, vuelve a mostrar la vista con los datos ingresados
+
+            try
+            {
+                _propietarioRepository.Create(propietario);
+                TempData["SuccessMessage"] = "Propietario creado exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al crear el propietario: {ex.Message}";
+                return View(propietario);
+            }
         }
 
         // GET: Buscar Propietario
@@ -122,6 +135,7 @@ namespace InmobiliariaLopez.Controllers
 
         // GET: Propietarios/Delete/5
         [HttpGet]
+        [Authorize(Roles = "Administrador")]
         public IActionResult Delete(int id)
         {
             try
@@ -142,6 +156,7 @@ namespace InmobiliariaLopez.Controllers
 
         // POST: Propietarios/Delete/5
         [HttpPost]
+        [Authorize(Roles = "Administrador")]
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id, Propietario propietario)
         {
