@@ -9,11 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
     // Validación personalizada
     const errores = [];
 
-    // Validar usuario
-    if (!formObject.IdUsuarioAnula) {
-      errores.push("Debés seleccionar el usuario que anula el contrato.");
-    }
-
     // Validar fecha rescisión
     if (!formObject.FechaRescision) {
       errores.push("Debés ingresar la fecha de rescisión.");

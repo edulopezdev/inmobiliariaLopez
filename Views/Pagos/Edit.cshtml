@@ -13,14 +13,13 @@
     <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Formulario de Pago</h5>
   </div>
   <div class="card-body" style="padding: 1.5rem;">
-    <form asp-action="Edit" method="post">
+    <form asp-action="Edit" method="post" id="formPago">
       @Html.AntiForgeryToken()
       <input type="hidden" asp-for="IdPago" />
       <input type="hidden" asp-for="IdContrato" />
       <input type="hidden" asp-for="TipoPago" />
       <input type="hidden" asp-for="IdMulta" />
       <input type="hidden" asp-for="Importe" />
-      <input type="hidden" asp-for="IdUsuarioCrea" />
       <input type="hidden" asp-for="NumeroPagoContrato" />
       <input type="hidden" asp-for="FechaCreacion" />
 
@@ -39,7 +38,8 @@
       <!-- Fecha de Pago (editable) -->
       <div class="form-group">
         <label asp-for="FechaPago" class="control-label">Fecha de Pago</label>
-        <input asp-for="FechaPago" class="form-control" type="date" value="@Model.FechaPago.ToString("yyyy-MM-dd")" />
+        <input asp-for="FechaPago" class="form-control" type="date" value="@Model.FechaPago.ToString("yyyy-MM-dd")"
+          required />
         <span asp-validation-for="FechaPago" class="text-danger"></span>
       </div>
 
@@ -71,7 +71,7 @@
       <!-- Estado (editable) -->
       <div class="form-group">
         <label asp-for="Estado" class="control-label">Estado</label>
-        <select asp-for="Estado" class="form-control">
+        <select asp-for="Estado" class="form-control" required>
           <option value="Pendiente" selected="@("Pendiente" == Model.Estado)">Pendiente</option>
           <option value="Pagado" selected="@("Pagado" == Model.Estado)">Pagado</option>
           <option value="Anulado" selected="@("Anulado" == Model.Estado)">Anulado</option>
@@ -82,20 +82,8 @@
       <!-- Detalle (editable) -->
       <div class="form-group">
         <label asp-for="Detalle" class="control-label">Detalle</label>
-        <input asp-for="Detalle" class="form-control" />
+        <input asp-for="Detalle" class="form-control" required />
         <span asp-validation-for="Detalle" class="text-danger"></span>
-      </div>
-
-      <!-- Usuario (solo vista) -->
-      <div class="form-group">
-        <label asp-for="IdUsuarioCrea" class="control-label">Usuario Sistema</label>
-        <select class="form-control" disabled>
-          <option value="1" selected="@("1" == Model.IdUsuarioCrea.ToString())">admin1@example.com</option>
-          <option value="2" selected="@("2" == Model.IdUsuarioCrea.ToString())">empleado1@example.com</option>
-          <option value="3" selected="@("3" == Model.IdUsuarioCrea.ToString())">empleado2@example.com</option>
-          <option value="4" selected="@("4" == Model.IdUsuarioCrea.ToString())">admin2@example.com</option>
-          <option value="5" selected="@("5" == Model.IdUsuarioCrea.ToString())">empleado3@example.com</option>
-        </select>
       </div>
 
       <!-- Botones -->
@@ -104,83 +92,55 @@
         <a href="@Url.Action("Index")" class="btn btn-secondary btn-sm">Volver al listado</a>
       </div>
     </form>
-
   </div>
 </div>
 
 @section Scripts {
   @await Html.PartialAsync("_ValidationScriptsPartial")
-  <script>
-    $(document).ready(function () {
-      // Inicializa select2 en contratos
-      $('.select2').select2({
-        placeholder: "Seleccione una propiedad",
-        allowClear: true,
-        language: "es"
-      });
-
-      // Mostrar u ocultar el grupo de multa según el tipo de pago
-      $('#tipoPago').change(function () {
-        const tipo = $(this).val();
-        const contratoId = $('#IdContrato').val();
-
-        if (tipo === 'Multa') {
-          $('#multaGroup').removeClass('d-none');
-          $('#importe').prop('readonly', true);
-
-          // Realiza una petición AJAX para obtener las multas pendientes
-          $.ajax({
-            type: 'GET',
-            url: '/Pago/GetMultasPendientes',
-            data: { contratoId },
-            success: function (response) {
-              $('#IdMulta').empty().append('<option value="">Seleccione una multa</option>');
-              response.forEach(function (multa) {
-                $('#IdMulta').append('<option value="' + multa.Value + '">' + multa.Text + '</option>');
-              });
-            }
-          });
-        } else {
-          $('#multaGroup').addClass('d-none');
-          $('#importe').prop('readonly', false);
-        }
-      });
-    });
-  </script>
-
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const form = document.querySelector("form");
+      const form = document.querySelector("#formPago");
 
       form.addEventListener("submit", async function (event) {
         event.preventDefault(); // Evita el envío tradicional del formulario
 
-        // Confirmación antes de enviar el formulario de edición
-        const confirmacion = await Swal.fire({
-          title: "¿Estás seguro?",
-          text: "¿Estás seguro de guardar los cambios en este pago?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#dc3545",
-          cancelButtonColor: "#6c757d",
-          confirmButtonText: "Sí, guardar",
-          cancelButtonText: "Cancelar",
-        });
+        // Verificar si el formulario es válido
+        if ($(form).valid()) {
+          // Mostrar confirmación antes de enviar el formulario
+          const confirmacion = await Swal.fire({
+            title: "¿Estás seguro?",
+            text: "¿Estás seguro de guardar los cambios en este pago?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#dc3545",
+            cancelButtonColor: "#6c757d",
+            confirmButtonText: "Sí, guardar",
+            cancelButtonText: "Cancelar",
+          });
 
-        if (!confirmacion.isConfirmed) return; // Si el usuario cancela, no enviamos el formulario
+          if (!confirmacion.isConfirmed) return; // Si el usuario cancela, no enviamos el formulario
 
-        Swal.fire({
-          title: "Procesando...",
-          allowOutsideClick: false,
-          didOpen: () => Swal.showLoading(), // Muestra el spinner de carga
-        });
+          // Mostrar mensaje de procesamiento mientras se envía el formulario
+          Swal.fire({
+            title: "Procesando...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading(), // Muestra el spinner de carga
+          });
 
-        // Enviar el formulario de forma tradicional si se confirma la acción
-        form.submit();  // Esta línea vuelve a enviar el formulario normalmente
+          // Enviar el formulario si el usuario confirma
+          form.submit();  // Esta línea vuelve a enviar el formulario normalmente
+        } else {
+          // Si el formulario no es válido, muestra un mensaje de error
+          Swal.fire({
+            title: "Error",
+            text: "Por favor, corrige los errores en el formulario.",
+            icon: "error",
+            confirmButtonColor: "#dc3545",
+          });
+        }
       });
     });
   </script>
-
-
 }

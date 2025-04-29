@@ -167,6 +167,16 @@ namespace InmobiliariaLopez.Repositories
 
         public int Create(Contrato entidad)
         {
+            // Imprimir los datos que estamos enviando al repositorio para depuración
+            Console.WriteLine("Datos a insertar en la base de datos:");
+            Console.WriteLine($"IdUsuarioCrea: {entidad.IdUsuarioCrea}");
+            Console.WriteLine($"FechaCreacion: {entidad.FechaCreacion}");
+            Console.WriteLine($"IdInmueble: {entidad.IdInmueble}");
+            Console.WriteLine($"IdInquilino: {entidad.IdInquilino}");
+            Console.WriteLine($"FechaInicio: {entidad.FechaInicio}");
+            Console.WriteLine($"FechaFin: {entidad.FechaFin}");
+            Console.WriteLine($"MontoMensual: {entidad.MontoMensual}");
+            Console.WriteLine($"EstadoContrato: {entidad.EstadoContrato ?? "N/A"}");
             using (var connection = _dbConnection.CreateConnection())
             {
                 connection.Open();
@@ -185,6 +195,10 @@ namespace InmobiliariaLopez.Repositories
                     if (entidad.FechaCreacion == default(DateTime))
                     {
                         entidad.FechaCreacion = DateTime.Now; // Asigna la fecha y hora actual
+                    }
+                    else
+                    {
+                        entidad.FechaCreacion = entidad.FechaCreacion.ToLocalTime();
                     }
 
                     command.Parameters.AddWithValue("@IdUsuarioCrea", entidad.IdUsuarioCrea);

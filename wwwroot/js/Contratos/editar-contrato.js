@@ -8,8 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const errores = [];
 
     // Validaciones del formulario
-    if (!formData.get("IdUsuarioCrea"))
-      errores.push("Debés seleccionar un usuario del sistema.");
     if (!formData.get("IdInmueble"))
       errores.push("Debés seleccionar un inmueble.");
     if (!formData.get("IdInquilino"))

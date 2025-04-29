@@ -14,17 +14,6 @@
   <div class="card-body" style="padding: 1.5rem;">
     <form id="createContratoForm" asp-action="Create" method="post">
       @Html.AntiForgeryToken()
-      <div class="form-group">
-        <label asp-for="IdUsuarioCrea" class="control-label">Usuario Sistema</label>
-        <select asp-for="IdUsuarioCrea" class="form-control">
-          <option value="1">admin1@example.com</option>
-          <option value="2">empleado1@example.com</option>
-          <option value="3">empleado2@example.com</option>
-          <option value="4">admin2@example.com</option>
-          <option value="5">empleado3@example.com</option>
-        </select>
-        <span asp-validation-for="IdUsuarioCrea" class="text-danger"></span>
-      </div>
 
       <div class="form-group mb-3">
         <label class="control-label">Inmueble</label>
@@ -42,11 +31,8 @@
         <span asp-validation-for="IdInquilino" class="text-danger"></span>
       </div>
 
-      <div class="form-group">
-        <label asp-for="FechaInicio" class="control-label"></label>
-        <input asp-for="FechaInicio" type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="FechaInicio" class="text-danger"></span>
-      </div>
+      <input asp-for="FechaInicio" type="date" class="form-control"
+        min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
 
       <div class="form-group">
         <label asp-for="FechaFin" class="control-label"></label>

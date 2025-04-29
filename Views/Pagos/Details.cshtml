@@ -71,57 +71,59 @@
       </dd>
     </dl>
 
-    <!-- Sección expandible -->
-    <div class="accordion mt-4" id="adminInfoAccordion">
-      <div class="accordion-item border-0">
-        <h2 class="accordion-header" id="headingAdmin">
-          <button class="accordion-button collapsed text-muted bg-light" type="button" data-bs-toggle="collapse"
-            data-bs-target="#collapseAdmin" aria-expanded="false" aria-controls="collapseAdmin">
-            <i class="fas fa-shield-alt me-2"></i> Ver información administrativa
-          </button>
-        </h2>
-        <div id="collapseAdmin" class="accordion-collapse collapse" aria-labelledby="headingAdmin"
-          data-bs-parent="#adminInfoAccordion">
-          <div class="accordion-body text-muted small">
+    @if (User.IsInRole("Administrador"))
+    {
+      <div class="accordion mt-4" id="adminInfoAccordion">
+        <div class="accordion-item border-0">
+          <h2 class="accordion-header" id="headingAdmin">
+            <button class="accordion-button collapsed text-muted bg-light" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseAdmin" aria-expanded="false" aria-controls="collapseAdmin">
+              <i class="fas fa-shield-alt me-2"></i> Ver información administrativa
+            </button>
+          </h2>
+          <div id="collapseAdmin" class="accordion-collapse collapse" aria-labelledby="headingAdmin"
+            data-bs-parent="#adminInfoAccordion">
+            <div class="accordion-body text-muted small">
 
-            <dl class="row mb-0">
-              <dt class="col-sm-4">ID del pago</dt>
-              <dd class="col-sm-8">@Model.IdPago</dd>
+              <dl class="row mb-0">
+                <dt class="col-sm-4">ID del pago</dt>
+                <dd class="col-sm-8">@Model.IdPago</dd>
 
-              <dt class="col-sm-4">Registrado por (usuario ID)</dt>
-              <dd class="col-sm-8">@Model.IdUsuarioCrea</dd>
+                <dt class="col-sm-4">Registrado por (usuario ID)</dt>
+                <dd class="col-sm-8">@Model.IdUsuarioCrea</dd>
 
-              <dt class="col-sm-4">Fecha de creación</dt>
-              <dd class="col-sm-8">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
+                <dt class="col-sm-4">Fecha de creación</dt>
+                <dd class="col-sm-8">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</dd>
 
-              <dt class="col-sm-4">Meses adeudados</dt>
-              <dd class="col-sm-8">
-                @(Model.MesesAdeudados.HasValue ? Model.MesesAdeudados.Value.ToString() : "-")
-              </dd>
+                <dt class="col-sm-4">Meses adeudados</dt>
+                <dd class="col-sm-8">
+                  @(Model.MesesAdeudados.HasValue ? Model.MesesAdeudados.Value.ToString() : "-")
+                </dd>
 
-              @if (Model.IdUsuarioAnula.HasValue)
-              {
-                <dt class="col-sm-4">Anulado por (usuario ID)</dt>
-                <dd class="col-sm-8">@Model.IdUsuarioAnula.Value</dd>
-              }
+                @if (Model.IdUsuarioAnula.HasValue)
+                {
+                  <dt class="col-sm-4">Anulado por (usuario ID)</dt>
+                  <dd class="col-sm-8">@Model.IdUsuarioAnula.Value</dd>
+                }
 
-              @if (Model.FechaAnulacion.HasValue)
-              {
-                <dt class="col-sm-4">Fecha de anulación</dt>
-                <dd class="col-sm-8">@Model.FechaAnulacion.Value.ToString("dd/MM/yyyy HH:mm")</dd>
-              }
+                @if (Model.FechaAnulacion.HasValue)
+                {
+                  <dt class="col-sm-4">Fecha de anulación</dt>
+                  <dd class="col-sm-8">@Model.FechaAnulacion.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                }
 
-              @if (Model.IdMulta.HasValue)
-              {
-                <dt class="col-sm-4">Multa asociada</dt>
-                <dd class="col-sm-8">ID: @Model.IdMulta</dd>
-              }
-            </dl>
+                @if (Model.IdMulta.HasValue)
+                {
+                  <dt class="col-sm-4">Multa asociada</dt>
+                  <dd class="col-sm-8">ID: @Model.IdMulta</dd>
+                }
+              </dl>
 
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    }
   </div>
 
   <div class="card-footer d-flex justify-content-end">

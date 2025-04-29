@@ -7,16 +7,16 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelector("dd[data-pago-numero]")?.textContent?.trim() ||
     "desconocido";
 
+  console.log("Número de pago:", numeroPago); // Verifica que el número de pago se obtiene correctamente
+
   confirmarBtn.addEventListener("click", function () {
     const formData = new FormData(form);
     const formObject = Object.fromEntries(formData);
 
+    console.log("Datos del formulario:", formObject); // Verifica que los datos del formulario se están leyendo correctamente
+
     // Validación personalizada
     const errores = [];
-
-    if (!formObject.IdUsuarioAnula) {
-      errores.push("Debés seleccionar el usuario que anula el pago.");
-    }
 
     if (
       !formObject.MotivoAnulacion ||
@@ -32,6 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
         icon: "warning",
         confirmButtonText: "Ok",
       });
+      console.log("Errores en los datos de anulación:", errores); // Muestra los errores si los hay
       return;
     }
 
@@ -61,10 +62,11 @@ document.addEventListener("DOMContentLoaded", function () {
         // Armamos el objeto JSON que espera el backend
         const payload = {
           IdPago: parseInt(formObject.IdPago),
-          IdUsuarioAnula: parseInt(formObject.IdUsuarioAnula),
           MotivoAnulacion: formObject.MotivoAnulacion.trim(),
           FechaAnulacion: new Date(formObject.FechaAnulacion).toISOString(),
         };
+
+        console.log("Datos que se enviarán al servidor:", payload); // Verifica los datos antes de enviarlos
 
         fetch(anularPagoUrl, {
           method: "POST",
@@ -75,12 +77,14 @@ document.addEventListener("DOMContentLoaded", function () {
           body: JSON.stringify(payload),
         })
           .then((res) => {
+            console.log("Respuesta del servidor:", res); // Verifica la respuesta del servidor
             if (!res.ok) {
               throw new Error("Error en el servidor para anular el pago.");
             }
             return res.json();
           })
           .then((data) => {
+            console.log("Datos de la respuesta:", data); // Muestra los datos de la respuesta
             if (data.success) {
               Swal.fire({
                 title: "¡Éxito!",
@@ -95,6 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           })
           .catch((error) => {
+            console.error("Error en la anulación del pago:", error); // Muestra el error en caso de fallo
             Swal.fire("Error", error.message, "error");
           })
           .finally(() => {

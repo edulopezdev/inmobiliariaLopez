@@ -100,30 +100,55 @@ namespace InmobiliariaLopez.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Pago pago)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                // No necesitamos comprobar la sesión ni repositorios, solo asignar el IdUsuarioCrea desde el formulario
-                if (pago.IdUsuarioCrea == null)
+                // Si es una solicitud AJAX, devolvemos errores en JSON
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    ModelState.AddModelError("IdUsuarioCrea", "Debe seleccionar un usuario.");
-                    return View(pago);
+                    var errores = ModelState
+                        .Values.SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return Json(new { success = false, message = string.Join("<br>", errores) });
                 }
 
-                // Asignamos la fecha de creación
-                pago.FechaCreacion = DateTime.Now;
-
-                // Obtener el último número de pago para el contrato y calcular el nuevo número de pago
-                var ultimoNumeroPago = _pagoRepository.ObtenerUltimoNumeroPago(pago.IdContrato);
-                // Si no hay pagos previos, comenzamos con 1; de lo contrario, sumamos 1 al último número de pago
-                pago.NumeroPagoContrato = (ultimoNumeroPago ?? 0) + 1;
-
-                // Crear el pago
-                _pagoRepository.Create(pago);
-
-                return RedirectToAction(nameof(Index));
+                return View(pago);
             }
 
-            return View(pago);
+            var idUsuarioClaim = User.FindFirst("IdUsuario");
+            if (idUsuarioClaim == null)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = false, message = "Usuario no autenticado." });
+                }
+
+                ModelState.AddModelError("", "Usuario no autenticado.");
+                return View(pago);
+            }
+
+            pago.IdUsuarioCrea = int.Parse(idUsuarioClaim.Value);
+            pago.FechaCreacion = DateTime.Now;
+
+            var ultimoNumeroPago = _pagoRepository.ObtenerUltimoNumeroPago(pago.IdContrato);
+            pago.NumeroPagoContrato = (ultimoNumeroPago ?? 0) + 1;
+
+            var idPagoCreado = _pagoRepository.Create(pago);
+
+            // Si es una solicitud AJAX, devolvemos la URL de redirección
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(
+                    new
+                    {
+                        success = true,
+                        redirectUrl = Url.Action("Details", new { id = idPagoCreado }),
+                    }
+                );
+            }
+
+            // Si no es AJAX, redirigimos a la vista de detalles
+            return RedirectToAction("Details", new { id = idPagoCreado });
         }
 
         // GET: Pago/Edit/5
@@ -237,14 +262,14 @@ namespace InmobiliariaLopez.Controllers
             return View(pago);
         }
 
-        // POST: Pago/Anular/5
+        // POST: Pago/Anular
         [HttpPost]
         public IActionResult Anular([FromBody] AnularPagoDTO anularPagoDTO)
         {
             try
             {
-                // Validación: asegurarse de que MotivoAnulacion no sea nulo o vacío
-                if (string.IsNullOrEmpty(anularPagoDTO.MotivoAnulacion))
+                // Validación del motivo
+                if (string.IsNullOrWhiteSpace(anularPagoDTO.MotivoAnulacion))
                 {
                     return Json(
                         new
@@ -254,23 +279,39 @@ namespace InmobiliariaLopez.Controllers
                         }
                     );
                 }
-                // Buscar el pago en la base de datos usando el IdPago del DTO
-                var pago = _pagoRepository.Details(anularPagoDTO.IdPago);
 
+                // Obtener usuario autenticado desde claims
+                var idUsuarioClaim = User.FindFirst("IdUsuario");
+                if (idUsuarioClaim == null)
+                {
+                    return Json(new { success = false, message = "Usuario no autenticado." });
+                }
+
+                int idUsuarioAnula = int.Parse(idUsuarioClaim.Value);
+
+                // Buscar el pago
+                var pago = _pagoRepository.Details(anularPagoDTO.IdPago);
                 if (pago == null)
                 {
                     return Json(new { success = false, message = "Pago no encontrado." });
                 }
 
+                // Ejecutar anulación con ID del usuario logueado
                 var resultado = _pagoRepository.AnularPago(
-                    anularPagoDTO.IdPago, // ID del pago
-                    anularPagoDTO.IdUsuarioAnula, // ID del usuario que está anulando
-                    anularPagoDTO.MotivoAnulacion // Motivo de la anulación
+                    anularPagoDTO.IdPago,
+                    idUsuarioAnula, // tomado del claim
+                    anularPagoDTO.MotivoAnulacion
                 );
 
                 if (resultado > 0)
                 {
-                    return Json(new { success = true, redirectUrl = Url.Action("Index") });
+                    return Json(
+                        new
+                        {
+                            success = true,
+                            redirectUrl = Url.Action("Details", new { id = anularPagoDTO.IdPago }),
+                        }
+                    );
                 }
                 else
                 {

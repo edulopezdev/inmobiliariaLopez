@@ -80,12 +80,22 @@ namespace InmobiliariaLopez.Controllers
                 return Json(new { success = false, errors });
             }
 
+            if (contrato.FechaFin <= contrato.FechaInicio)
+            {
+                return Json(
+                    new
+                    {
+                        success = false,
+                        message = "La fecha de fin debe ser posterior a la fecha de inicio.",
+                    }
+                );
+            }
+
             var fechasOcupadas = _repositorioContrato.ControlFechas(
                 contrato.IdInmueble,
                 contrato.FechaInicio,
                 contrato.FechaFin
             );
-
             if (fechasOcupadas.Any())
             {
                 string mensaje = "El inmueble ya tiene contratos en las siguientes fechas:<br/>";
@@ -93,12 +103,29 @@ namespace InmobiliariaLopez.Controllers
                     "<br/>",
                     fechasOcupadas.Select(f => $"• {f.Item1:dd/MM/yyyy} al {f.Item2:dd/MM/yyyy}")
                 );
-
                 return Json(new { success = false, message = mensaje });
             }
 
-            _repositorioContrato.Create(contrato);
-            return Json(new { success = true, redirectUrl = Url.Action("Index") });
+            try
+            {
+                // Obtener ID del usuario logueado desde los claims
+                var idUsuarioClaim = User.FindFirst("IdUsuario");
+                if (idUsuarioClaim == null)
+                    return Json(new { success = false, message = "Usuario no autenticado." });
+
+                contrato.IdUsuarioCrea = int.Parse(idUsuarioClaim.Value);
+                contrato.EstadoContrato ??= "Vigente";
+                contrato.Activo = true;
+
+                _repositorioContrato.Create(contrato);
+                return Json(new { success = true, redirectUrl = Url.Action("Index") });
+            }
+            catch (Exception ex)
+            {
+                return Json(
+                    new { success = false, message = "Error al guardar el contrato: " + ex.Message }
+                );
+            }
         }
 
         // GET: Contratos/Edit/5
@@ -219,14 +246,12 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                // Buscar el contrato en la base de datos
                 var contratoExistente = _repositorioContrato.ObtenerPorId(contrato.IdContrato);
                 if (contratoExistente == null)
                 {
                     return Json(new { success = false, message = "Contrato no encontrado." });
                 }
 
-                // Verifica si el contrato ya está en estado 'PendienteAnulacion'
                 if (contratoExistente.EstadoContrato == "PendienteAnulacion")
                 {
                     return Json(
@@ -238,18 +263,22 @@ namespace InmobiliariaLopez.Controllers
                     );
                 }
 
-                // Actualizar el contrato: cambiar estado a 'PendienteAnulacion'
-                contratoExistente.EstadoContrato = "PendienteAnulacion";
-                contratoExistente.FechaRescision = contrato.FechaRescision; // Usamos la fecha de rescisión proporcionada
-                contratoExistente.IdUsuarioAnula = contrato.IdUsuarioAnula;
-                contratoExistente.FechaUsuarioAnula = DateTime.Now; // Fecha y hora de la anulación
-                contratoExistente.Observaciones = contrato.Observaciones;
-                contratoExistente.Activo = true; // No desactivamos el contrato aún, solo lo marcamos como pendiente de anulación
+                // ✅ Obtener ID del usuario logueado desde los claims
+                var idUsuarioClaim = User.FindFirst("IdUsuario");
+                if (idUsuarioClaim == null)
+                {
+                    return Json(new { success = false, message = "Usuario no autenticado." });
+                }
 
-                // Llamar al método de repositorio para realizar la actualización en la base de datos
+                contratoExistente.EstadoContrato = "PendienteAnulacion";
+                contratoExistente.FechaRescision = contrato.FechaRescision;
+                contratoExistente.IdUsuarioAnula = int.Parse(idUsuarioClaim.Value);
+                contratoExistente.FechaUsuarioAnula = DateTime.Now;
+                contratoExistente.Observaciones = contrato.Observaciones;
+                contratoExistente.Activo = true;
+
                 var filasAfectadas = _repositorioContrato.AnularContrato(contratoExistente);
 
-                // Verificar si la actualización fue exitosa
                 if (filasAfectadas > 0)
                 {
                     return Json(
@@ -265,7 +294,6 @@ namespace InmobiliariaLopez.Controllers
             }
             catch (Exception ex)
             {
-                // Capturar cualquier error y devolver un mensaje de error
                 return Json(new { success = false, message = $"Error: {ex.Message}" });
             }
         }

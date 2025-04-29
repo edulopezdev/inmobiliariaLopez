@@ -13,12 +13,12 @@
     <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Formulario de Pago</h5>
   </div>
   <div class="card-body" style="padding: 1.5rem;">
-    <form asp-action="Create" method="post">
+    <form asp-action="Create" method="post" id="formPago">
       @Html.AntiForgeryToken()
 
       <!-- Contrato -->
       <div class="form-group">
-        <label asp-for="IdContrato" class="control-label">Ingrese Domicilio o Inquilino</object></label>
+        <label asp-for="IdContrato" class="control-label">Ingrese Domicilio o Inquilino</label>
         <select asp-for="IdContrato" class="form-control select2" id="IdContrato">
           <option value="">Seleccione una propiedad</option>
           @foreach (var contrato in (List<SelectListItem>)ViewBag.Contratos)
@@ -72,7 +72,6 @@
         <span asp-validation-for="Importe" class="text-danger"></span>
       </div>
 
-
       <!-- Estado -->
       <div class="form-group">
         <label asp-for="Estado" class="control-label"></label>
@@ -91,19 +90,6 @@
         <span asp-validation-for="Detalle" class="text-danger"></span>
       </div>
 
-      <!-- Usuario -->
-      <div class="form-group">
-        <label asp-for="IdUsuarioCrea" class="control-label">Usuario Sistema</label>
-        <select asp-for="IdUsuarioCrea" class="form-control">
-          <option value="1">admin1@example.com</option>
-          <option value="2">empleado1@example.com</option>
-          <option value="3">empleado2@example.com</option>
-          <option value="4">admin2@example.com</option>
-          <option value="5">empleado3@example.com</option>
-        </select>
-        <span asp-validation-for="IdUsuarioCrea" class="text-danger"></span>
-      </div>
-
       <!-- Botones -->
       <div class="card-footer d-flex justify-content-end">
         <button type="submit" class="btn btn-primary btn-sm me-2">Guardar</button>
@@ -115,6 +101,7 @@
 
 @section Scripts {
   @await Html.PartialAsync("_ValidationScriptsPartial")
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     $(document).ready(function () {
       // Inicializa select2 en contratos
@@ -174,9 +161,7 @@
           multaSelect.empty();
           multaSelect.append('<option value="">Seleccione una multa</option>');
           data.forEach(multa => {
-            multaSelect.append(`<option value="${multa.idMulta}" data-importe="${multa.monto}">
-                                    $${multa.monto.toFixed(2)} - ${multa.motivo}
-                                  </option>`);
+            multaSelect.append(`<option value="${multa.idMulta}" data-importe="${multa.monto}">$${multa.monto.toFixed(2)} - ${multa.motivo}</option>`);
           });
         }).fail(function () {
           alert("Hubo un problema al cargar las multas.");
@@ -201,6 +186,81 @@
 
       // Al cargar la vista, forzar el comportamiento del tipo de pago
       $('#tipoPago').trigger('change');
+
+      // Mostrar SweetAlert al enviar el formulario
+      $('#formPago').submit(function (event) {
+        event.preventDefault(); // Evita el envío del formulario
+
+        const formData = $(this).serialize();
+
+        // Validaciones previas antes de la confirmación
+        let errores = [];
+        if ($('#IdContrato').val() === "") {
+          errores.push("Debés seleccionar un contrato.");
+        }
+        if ($('#FechaPago').val() === "") {
+          errores.push("Debés ingresar la fecha de pago.");
+        }
+        if ($('#importe').val() === "" || parseFloat($('#importe').val()) <= 0) {
+          errores.push("Debés ingresar un importe válido.");
+        }
+
+        if (errores.length > 0) {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Faltan datos',
+            html: errores.map((e) => `<p>• ${e}</p>`).join(""),
+            confirmButtonText: 'Ok'
+          });
+          return;
+        }
+
+        // Mostrar confirmación antes de guardar
+        Swal.fire({
+          title: '¿Estás seguro?',
+          text: "¿Quieres guardar este pago?",
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, guardar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            $.ajax({
+              type: 'POST',
+              url: $(this).attr('action'),
+              data: formData,
+              success: function (data) {
+                if (data.success) {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Pago guardado correctamente',
+                    text: 'El pago se registró con éxito.',
+                    confirmButtonText: 'Aceptar'
+                  }).then(() => {
+                    // Redirigir a la vista de detalles usando la URL proporcionada en la respuesta JSON
+                    window.location.href = data.redirectUrl;
+                  });
+                } else {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error al guardar el pago',
+                    text: 'Hubo un problema al registrar el pago. Inténtelo nuevamente.',
+                    confirmButtonText: 'Aceptar'
+                  });
+                }
+              },
+              error: function () {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error de conexión',
+                  text: 'Hubo un error al conectar con el servidor.',
+                  confirmButtonText: 'Aceptar'
+                });
+              }
+            });
+          }
+        });
+      });
     });
   </script>
 }
