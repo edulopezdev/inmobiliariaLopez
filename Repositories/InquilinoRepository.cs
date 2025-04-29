@@ -16,6 +16,9 @@ namespace InmobiliariaLopez.Repositories
             _dbConnection = dbConnection;
         }
 
+        // Propiedad pública para acceder a la cantidad de registros por página
+        public int RegistrosPorPagina => _registrosPorPagina;
+
         /// Lista de Inquilinos con paginación
         public IList<Inquilino> Index(int pagina = 1)
         {
@@ -60,7 +63,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener Inquilinos paginados: {ex.Message}");
                     throw;
                 }
             }
@@ -88,7 +90,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener el total de inquilinos: {ex.Message}");
                     throw;
                 }
             }
@@ -133,7 +134,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener Inquilino por ID: {ex.Message}");
                     throw;
                 }
             }
@@ -169,7 +169,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al agregar Inquilino: {ex.Message}");
                     throw;
                 }
             }
@@ -205,7 +204,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al actualizar Inquilino: {ex.Message}");
                     throw;
                 }
             }
@@ -233,7 +231,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al dar de baja Inquilino: {ex.Message}");
                     throw;
                 }
             }
@@ -277,7 +274,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener Inquilino por DNI: {ex.Message}");
                     throw;
                 }
             }

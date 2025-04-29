@@ -7,8 +7,7 @@ namespace InmobiliariaLopez.Controllers
     public class PropietariosController : Controller
     {
         private readonly IRepositorioPropietario _propietarioRepository;
-
-        private readonly int _registrosPorPagina = 10; // Puedes definirlo aquí también
+        private readonly int _registrosPorPagina = 10;
 
         // Constructor para inyectar el repositorio
         public PropietariosController(IRepositorioPropietario propietarioRepository)
@@ -22,19 +21,9 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                // Obtener los propietarios para la página actual desde el repositorio
-                // CAMBIO 1: Ya no pasamos directamente la lista a la vista
                 var propietarios = _propietarioRepository.Index(pagina);
-
-                // Calcular el total de registros
-                // CAMBIO 2: Usar el método para obtener el total de propietarios (activos, preferiblemente)
-                int totalRegistros = _propietarioRepository.ObtenerTotal(); // O _propietarioRepository.ObtenerTotal()
-
-                // Calcular el número total de páginas
+                int totalRegistros = _propietarioRepository.ObtenerTotal();
                 int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
-
-                // Pasar los datos a la vista
-                // CAMBIO 3: Pasar la lista de propietarios (la página actual)
                 ViewBag.PaginaActual = pagina;
                 ViewBag.TotalPaginas = totalPaginas;
 
@@ -156,10 +145,6 @@ namespace InmobiliariaLopez.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id, Propietario propietario)
         {
-            // Imprime el id recibido y el id del modelo Propietario
-            Console.WriteLine($"ID recibido en la URL: {id}");
-            Console.WriteLine($"ID recibido en el formulario: {propietario.IdPropietario}");
-
             if (id != propietario.IdPropietario)
             {
                 return BadRequest("ID del propietario no coincide." + propietario.IdPropietario);

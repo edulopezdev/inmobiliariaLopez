@@ -92,7 +92,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener pagos: {ex.Message}");
                     throw;
                 }
             }
@@ -120,7 +119,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener el total de pagos: {ex.Message}");
                     throw;
                 }
             }
@@ -195,7 +193,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener pago por ID: {ex.Message}");
                     throw;
                 }
             }
@@ -309,7 +306,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al crear pago: {ex.Message}");
                     throw;
                 }
             }
@@ -394,7 +390,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al editar pago: {ex.Message}");
                     throw;
                 }
             }
@@ -417,7 +412,6 @@ namespace InmobiliariaLopez.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] No se pudo eliminar el pago (ID: {id}): {ex.Message}");
                 throw; // Re-lanza para que el controlador lo maneje
             }
         }
@@ -493,7 +487,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener pagos por contrato: {ex.Message}");
                     throw;
                 }
             }
@@ -526,7 +519,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener el último número de pago: {ex.Message}");
                     throw;
                 }
             }
@@ -564,7 +556,6 @@ namespace InmobiliariaLopez.Repositories
                         // Log para depuración
                         if (result == 0)
                         {
-                            Console.WriteLine($"No se actualizó el pago con ID = {pagoId}");
                             throw new Exception("No se pudo actualizar el pago.");
                         }
 
@@ -573,8 +564,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    // Log de error
-                    Console.WriteLine($"Error al anular pago: {ex.Message}");
                     throw; // Re-lanzamos el error para que lo capture el controller
                 }
             }
@@ -618,7 +607,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener las multas sin pagar: {ex.Message}");
                     throw;
                 }
             }

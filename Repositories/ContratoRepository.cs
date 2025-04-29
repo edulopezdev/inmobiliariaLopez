@@ -159,7 +159,7 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error al obtener el contrato: " + ex.Message);
+                    throw;
                 }
             }
             return contrato;

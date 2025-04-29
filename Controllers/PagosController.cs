@@ -21,9 +21,16 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Pago
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1)
         {
-            var pagos = _pagoRepository.Index();
+            var pagos = _pagoRepository.Index(pagina);
+            int cantidadTotal = _pagoRepository.ObtenerTotal();
+            int registrosPorPagina = 10;
+            int totalPaginas = (int)Math.Ceiling((double)cantidadTotal / registrosPorPagina);
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+
             return View(pagos);
         }
 
@@ -247,12 +254,6 @@ namespace InmobiliariaLopez.Controllers
                         }
                     );
                 }
-
-                // Log para depuración
-                Console.WriteLine(
-                    $"DTO recibido: IdPago={anularPagoDTO.IdPago}, MotivoAnulacion={anularPagoDTO.MotivoAnulacion}, FechaAnulacion={anularPagoDTO.FechaAnulacion}, IdUsuarioAnula={anularPagoDTO.IdUsuarioAnula}"
-                );
-
                 // Buscar el pago en la base de datos usando el IdPago del DTO
                 var pago = _pagoRepository.Details(anularPagoDTO.IdPago);
 
@@ -278,8 +279,6 @@ namespace InmobiliariaLopez.Controllers
             }
             catch (Exception ex)
             {
-                // Log de error para depuración
-                Console.WriteLine("Error al procesar el DTO: " + ex.Message);
                 return Json(
                     new { success = false, message = "Hubo un error al procesar la solicitud." }
                 );
@@ -302,7 +301,6 @@ namespace InmobiliariaLopez.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al obtener el importe del contrato: {ex.Message}");
                 return Json(new { success = false });
             }
         }

@@ -27,9 +27,16 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Inmuebles
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1)
         {
-            var inmuebles = _repositorio.Index();
+            const int cantidadPorPagina = 10;
+
+            // Usar el repositorio que ya devuelve la página correcta
+            var inmuebles = _repositorio.Index(pagina); // ya está paginado
+
+            var totalInmuebles = _repositorio.ObtenerTotal(); // obtener el total
+            var totalPaginas = (int)Math.Ceiling(totalInmuebles / (double)cantidadPorPagina);
+
             var portadas = new Dictionary<int, string?>();
 
             foreach (var inmueble in inmuebles)
@@ -40,7 +47,10 @@ namespace InmobiliariaLopez.Controllers
                 portadas[inmueble.IdInmueble] = portada?.Ruta;
             }
 
-            ViewBag.Portadas = portadas; // ¡Esta línea es crucial!
+            ViewBag.Portadas = portadas;
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+
             return View(inmuebles);
         }
 
@@ -308,7 +318,6 @@ namespace InmobiliariaLopez.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = $"Ocurrió un error al guardar las imágenes: {ex.Message}";
-                Console.WriteLine($"Error en GuardarImagen: {ex.Message}");
             }
 
             return RedirectToAction("Details", new { id = idInmueble });
@@ -430,7 +439,6 @@ namespace InmobiliariaLopez.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error en SubirPortada: {ex.Message}");
                 return Json(
                     new
                     {

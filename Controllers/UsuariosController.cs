@@ -74,8 +74,6 @@ namespace InmobiliariaLopez.Controllers
                     return View(); // Devuelve la vista con el error
                 }
 
-                // Verificar el rol del usuario
-                Console.WriteLine($"Rol del usuario: '{usuario.Rol}'");
                 // Crear los claims para la autenticación del usuario
                 var claims = new List<Claim>
                 {
@@ -112,31 +110,38 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Lista de usuarios
-        [Authorize(Roles = "Administrador")]
+        [Authorize]
         [HttpGet]
         public IActionResult Index(int pagina = 1)
         {
             try
             {
-                // Llamamos al repositorio para obtener la lista paginada de usuarios
-                var usuarios = _usuarioRepository.Index(pagina);
+                // Obtener ID del usuario logueado y su rol
+                var userId = int.Parse(User.FindFirst("IdUsuario")!.Value);
+                var esAdmin = User.IsInRole("Administrador");
 
-                // Obtenemos la cantidad total de usuarios activos
-                int totalRegistros = _usuarioRepository.ObtenerTotal(); // O _usuarioRepository.ObtenerTotalUsuariosActivos()
+                if (esAdmin)
+                {
+                    // Lógica paginada para administradores
+                    var usuarios = _usuarioRepository.Index(pagina);
+                    int totalRegistros = _usuarioRepository.ObtenerTotal();
+                    int totalPaginas = (int)
+                        Math.Ceiling((double)totalRegistros / _registrosPorPagina);
 
-                // Calculamos el número total de páginas
-                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
+                    ViewBag.PaginaActual = pagina;
+                    ViewBag.TotalPaginas = totalPaginas;
 
-                // Pasamos la información de paginación a la vista
-                ViewBag.PaginaActual = pagina;
-                ViewBag.TotalPaginas = totalPaginas;
-
-                // Pasamos la lista de usuarios de la página actual a la vista
-                return View(usuarios);
+                    return View(usuarios);
+                }
+                else
+                {
+                    // Si es un empleado, solo mostrar su propio perfil en la vista
+                    var usuario = _usuarioRepository.Details(userId);
+                    return View(new List<Usuario> { usuario });
+                }
             }
             catch (Exception ex)
             {
-                // Si ocurre un error, mostramos el mensaje en TempData y redirigimos a la vista de error
                 TempData["ErrorMessage"] = $"Error al cargar los usuarios: {ex.Message}";
                 return RedirectToAction("Error");
             }
@@ -346,6 +351,7 @@ namespace InmobiliariaLopez.Controllers
                 if (User.IsInRole("Empleado"))
                 {
                     usuario.Rol = usuarioExistente.Rol; // Mantener el rol actual
+                    usuario.Email = usuarioExistente.Email; // Mantener el email actual
                 }
 
                 // Si se proporciona una nueva contraseña, la hasheamos
@@ -384,8 +390,8 @@ namespace InmobiliariaLopez.Controllers
                 // Guardar cambios
                 _usuarioRepository.Edit(usuario);
 
-                // Redirigir a Index
-                return RedirectToAction("Index");
+                // retornamos a la vista Details del usuario editado
+                return RedirectToAction("Details", new { id = usuario.IdUsuario });
             }
             catch (Exception ex)
             {

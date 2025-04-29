@@ -6,21 +6,27 @@ namespace InmobiliariaLopez.Controllers
 {
     public class InquilinosController : Controller
     {
-        private readonly IRepositorioInquilino _InquilinoRepository;
+        private readonly IRepositorioInquilino _inquilinoRepository;
+        private readonly int _registrosPorPagina = 10;
 
         // Constructor para inyectar el repositorio
-        public InquilinosController(IRepositorioInquilino InquilinoRepository)
+        public InquilinosController(IRepositorioInquilino inquilinoRepository)
         {
-            _InquilinoRepository = InquilinoRepository;
+            _inquilinoRepository = inquilinoRepository;
         }
 
         // GET: Inquilinos
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index(int pagina = 1)
         {
             try
             {
-                var Inquilinos = _InquilinoRepository.Index();
+                var Inquilinos = _inquilinoRepository.Index(pagina);
+                int totalRegistros = _inquilinoRepository.ObtenerTotal();
+                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
+                ViewBag.PaginaActual = pagina;
+                ViewBag.TotalPaginas = totalPaginas;
+
                 return View(Inquilinos);
             }
             catch (Exception ex)
@@ -43,7 +49,7 @@ namespace InmobiliariaLopez.Controllers
         {
             if (ModelState.IsValid)
             {
-                _InquilinoRepository.Create(Inquilino); // Guarda el Inquilino en la base de datos
+                _inquilinoRepository.Create(Inquilino); // Guarda el Inquilino en la base de datos
                 return RedirectToAction(nameof(Index)); // Redirige a la lista de Inquilinos
             }
             return View(Inquilino); // Si hay errores de validación, vuelve a mostrar la vista con los datos ingresados
@@ -55,7 +61,7 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                var Inquilino = _InquilinoRepository.Details(id); // Obtener el Inquilino por ID
+                var Inquilino = _inquilinoRepository.Details(id); // Obtener el Inquilino por ID
                 if (Inquilino == null)
                 {
                     return NotFound($"No se encontró ningún Inquilino con el ID {id}.");
@@ -75,7 +81,7 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                var Inquilino = _InquilinoRepository.Details(id); // Obtener el Inquilino por ID
+                var Inquilino = _inquilinoRepository.Details(id); // Obtener el Inquilino por ID
                 if (Inquilino == null)
                 {
                     return NotFound($"No se encontró ningún Inquilino con el ID {id}.");
@@ -102,7 +108,7 @@ namespace InmobiliariaLopez.Controllers
             {
                 try
                 {
-                    _InquilinoRepository.Edit(Inquilino); // Actualizar el Inquilino en la base de datos
+                    _inquilinoRepository.Edit(Inquilino); // Actualizar el Inquilino en la base de datos
                     return RedirectToAction(nameof(Index)); // Redirigir a la lista de Inquilinos
                 }
                 catch (Exception ex)
@@ -120,7 +126,7 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                var Inquilino = _InquilinoRepository.Details(id); // Obtener los detalles del Inquilino por ID
+                var Inquilino = _inquilinoRepository.Details(id); // Obtener los detalles del Inquilino por ID
                 if (Inquilino == null)
                 {
                     return NotFound($"No se encontró el Inquilino con ID {id}."); // Mostrar error si no se encuentra
@@ -139,17 +145,13 @@ namespace InmobiliariaLopez.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Delete(int id, Inquilino Inquilino)
         {
-            // Imprime el id recibido y el id del modelo Inquilino
-            Console.WriteLine($"ID recibido en la URL: {id}");
-            Console.WriteLine($"ID recibido en el formulario: {Inquilino.IdInquilino}");
-
             if (id != Inquilino.IdInquilino)
             {
                 return BadRequest("ID del Inquilino no coincide." + Inquilino.IdInquilino);
             }
 
             // Realizar la eliminación
-            int rowsAffected = _InquilinoRepository.Delete(id);
+            int rowsAffected = _inquilinoRepository.Delete(id);
 
             if (rowsAffected > 0)
             {
@@ -171,7 +173,7 @@ namespace InmobiliariaLopez.Controllers
         {
             try
             {
-                var Inquilino = _InquilinoRepository.ObtenerPorDNI(dni);
+                var Inquilino = _inquilinoRepository.ObtenerPorDNI(dni);
                 if (Inquilino == null)
                 {
                     return NotFound($"No se encontró ningún Inquilino con el DNI {dni}.");

@@ -27,10 +27,17 @@ namespace InmobiliariaLopez.Controllers
             _repositorioInquilino = repositorioInquilino;
         }
 
-        // GET: Contratos
-        public IActionResult Index()
+        // GET: Pago
+        public IActionResult Index(int pagina = 1)
         {
-            var contratos = _repositorioContrato.Index();
+            var contratos = _repositorioContrato.Index(pagina);
+            int cantidadTotal = _repositorioContrato.ObtenerTotal();
+            int registrosPorPagina = 10;
+            int totalPaginas = (int)Math.Ceiling((double)cantidadTotal / registrosPorPagina);
+
+            ViewBag.PaginaActual = pagina;
+            ViewBag.TotalPaginas = totalPaginas;
+
             return View(contratos);
         }
 

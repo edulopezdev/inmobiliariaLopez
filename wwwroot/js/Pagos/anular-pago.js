@@ -35,9 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Log para depuración: Ver lo que estamos enviando
-    console.log("Datos enviados al backend:", formObject);
-
     Swal.fire({
       title: "¿Estás seguro?",
       html: `
@@ -69,13 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
           FechaAnulacion: new Date(formObject.FechaAnulacion).toISOString(),
         };
 
-        // Log para depuración: Ver el payload que estamos enviando
-        console.log("Payload enviado:", payload);
-        console.log(
-          "Payload REAL enviado al backend:",
-          JSON.stringify(payload)
-        );
-
         fetch(anularPagoUrl, {
           method: "POST",
           headers: {
@@ -86,7 +76,6 @@ document.addEventListener("DOMContentLoaded", function () {
         })
           .then((res) => {
             if (!res.ok) {
-              console.error("Error en la respuesta del servidor", res); // Ver logs
               throw new Error("Error en el servidor para anular el pago.");
             }
             return res.json();

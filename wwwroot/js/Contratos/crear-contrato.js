@@ -31,9 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const hoy = new Date();
       hoy.setHours(0, 0, 0, 0);
 
-      console.log("Fecha Inicio ajustada: ", fechaInicio);
-      console.log("Fecha Hoy ajustada: ", hoy);
-
       // Comparación de fechas sin hora
       if (fechaInicio < hoy) {
         errores.push(
@@ -152,7 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     } catch (error) {
-      console.error("Error en la petición:", error);
       Swal.fire({
         title: "¡Error inesperado!",
         text: "No se pudo completar la operación. Intentá nuevamente.",

@@ -29,21 +29,19 @@
       <table class="table table-hover table-bordered" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">
           <tr>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              #Pago</th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Fecha</th>              
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Concepto</th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Estado</th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Importe</th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              #Contrato</th>
-            <th class="text-center"
-              style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Acciones
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">#PAGO
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">CONCEPTO
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ESTADO
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">IMPORTE
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">#CONTRATO
+            </th>
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ACCIONES
             </th>
           </tr>
         </thead>
@@ -65,10 +63,9 @@
                 }
                 else
                 {
-                  <span>@pago.TipoPago</span> <!-- fallback para tipos nuevos -->
+                  <span>@pago.TipoPago</span>
                 }
               </td>
-
               <td>
                 @if (pago.Estado == "Anulado")
                 {
@@ -89,23 +86,16 @@
                   </span>
                 }
               </td>
-
               <td class="bold-importe">
                 @pago.Importe.ToString("C")
                 <i class="fas fa-money-bill-wave-alt ms-2"></i>
               </td>
-
-
               <td>@pago.IdContrato</td>
-
               <td class="text-center">
-                <!-- Ver -->
                 <a asp-action="Details" asp-route-id="@pago.IdPago" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Ver detalles del pago">
                   <i class="fas fa-eye"></i>
                 </a>
-
-                <!-- Editar -->
                 @if (pago.Estado == "Anulado")
                 {
                   <span class="btn-link disabled-action" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -121,7 +111,6 @@
                   </a>
                 }
 
-                <!-- Anular -->
                 @if (pago.Estado == "Anulado")
                 {
                   <span class="btn-link disabled-action" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -137,7 +126,6 @@
                   </a>
                 }
 
-                <!-- Eliminar -->
                 <a asp-action="Delete" asp-route-id="@pago.IdPago" class="btn-link" data-bs-toggle="tooltip"
                   data-bs-placement="top" title="Eliminar pago">
                   <i class="fas fa-trash-alt"></i>
@@ -148,12 +136,50 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Paginación -->
+    <nav aria-label="Page navigation"></nav>
+    <ul class="pagination justify-content-center">
+      @if (ViewBag.PaginaActual > 1)
+      {
+        <li class="page-item">
+          <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">Anterior</a>
+        </li>
+      }
+      else
+      {
+        <li class="page-item disabled">
+          <span class="page-link">Anterior</span>
+        </li>
+      }
+
+      @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+      {
+        <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+          <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+        </li>
+      }
+
+      @if (ViewBag.PaginaActual < ViewBag.TotalPaginas)
+      {
+        <li class="page-item">
+          <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">Siguiente</a>
+        </li>
+      }
+      else
+      {
+        <li class="page-item disabled">
+          <span class="page-link">Siguiente</span>
+        </li>
+      }
+    </ul>
+    </nav>
+
   </div>
 </div>
 
 @section Scripts {
   <script>
-    // Activar tooltips de Bootstrap
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (tooltipTriggerEl) {
       new bootstrap.Tooltip(tooltipTriggerEl);

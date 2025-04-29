@@ -5,7 +5,8 @@
 }
 
 <!-- Título -->
-<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Usuario</h1>
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Editar Usuario
+</h1>
 
 <!-- Card para envolver el formulario -->
 <div class="card shadow-lg border-0 rounded-4">
@@ -18,11 +19,23 @@
       @Html.AntiForgeryToken()
       <input type="hidden" asp-for="IdUsuario" />
 
-      <div class="form-group mb-3">
-        <label asp-for="Email" class="control-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-      </div>
+      @if (User.IsInRole("Administrador"))
+      {
+        <div class="form-group mb-3">
+          <label asp-for="Email" class="control-label"></label>
+          <input asp-for="Email" class="form-control" />
+          <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+      }
+      else
+      {
+        <div class="form-group mb-3">
+          <label asp-for="Email" class="control-label"></label>
+          <input class="form-control" value="@Model.Email" readonly />
+          <input type="hidden" asp-for="Email" />
+        </div>
+      }
+
 
       <!-- Campo contraseña solo si querés permitir modificarla desde acá -->
       <div class="form-group mb-3">
@@ -31,14 +44,26 @@
         <span asp-validation-for="ContrasenaHasheada" class="text-danger"></span>
       </div>
 
-      <div class="form-group mb-3">
-        <label asp-for="Rol" class="control-label"></label>
-        <select asp-for="Rol" class="form-control">
-          <option value="Administrador">Administrador</option>
-          <option value="Empleado">Empleado</option>
-        </select>
-        <span asp-validation-for="Rol" class="text-danger"></span>
-      </div>
+      @if (User.IsInRole("Administrador"))
+      {
+        <div class="form-group mb-3">
+          <label asp-for="Rol" class="control-label"></label>
+          <select asp-for="Rol" class="form-control">
+            <option value="Administrador">Administrador</option>
+            <option value="Empleado">Empleado</option>
+          </select>
+          <span asp-validation-for="Rol" class="text-danger"></span>
+        </div>
+      }
+      else
+      {
+        <div class="form-group mb-3">
+          <label asp-for="Rol" class="control-label"></label>
+          <input class="form-control" value="@Model.Rol" readonly />
+          <input type="hidden" asp-for="Rol" />
+        </div>
+      }
+
 
       <div class="form-group mb-3">
         <label for="Avatar">Actualizar Avatar (opcional)</label>

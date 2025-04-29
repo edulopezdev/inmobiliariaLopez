@@ -141,7 +141,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     } catch (error) {
-      console.error("Error en la petición AJAX:", error);
       Swal.fire({
         title: "¡Error inesperado!",
         text: "No se pudo completar la operación. Intentá nuevamente.",

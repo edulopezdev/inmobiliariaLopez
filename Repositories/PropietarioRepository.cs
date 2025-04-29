@@ -67,7 +67,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener propietarios paginados: {ex.Message}");
                     throw;
                 }
             }
@@ -94,7 +93,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener el total de propietarios: {ex.Message}");
                     throw;
                 }
             }
@@ -139,7 +137,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener propietario por ID: {ex.Message}");
                     throw;
                 }
             }
@@ -175,7 +172,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al agregar propietario: {ex.Message}");
                     throw;
                 }
             }
@@ -211,7 +207,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al actualizar propietario: {ex.Message}");
                     throw;
                 }
             }
@@ -238,7 +233,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al eliminar propietario: {ex.Message}");
                     throw;
                 }
             }
@@ -284,7 +278,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener propietario por DNI: {ex.Message}");
                     throw;
                 }
             }

@@ -23,25 +23,24 @@
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ID
             </th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Portada
-            </th>
+              PORTADA</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Dirección</th>
+              DIRECCIÓN</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Uso</th>
+              USO</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Tipo</th>
+              TIPO</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Ambientes</th>
+              AMBIENTES</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Precio</th>
+              PRECIO</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Estado</th>
+              ESTADO</th>
             <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Propietario</th>
+              PROPIETARIO</th>
             <th class="text-center"
               style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Acciones</th>
+              ACCIONES</th>
           </tr>
         </thead>
         <tbody>
@@ -126,6 +125,42 @@
         </tbody>
       </table>
     </div>
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        @if (ViewBag.PaginaActual > 1)
+        {
+          <li class="page-item">
+            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">Anterior</a>
+          </li>
+        }
+        else
+        {
+          <li class="page-item disabled">
+            <span class="page-link">Anterior</span>
+          </li>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+        {
+          <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+            <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+          </li>
+        }
+
+        @if (ViewBag.PaginaActual < ViewBag.TotalPaginas)
+        {
+          <li class="page-item">
+            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">Siguiente</a>
+          </li>
+        }
+        else
+        {
+          <li class="page-item disabled">
+            <span class="page-link">Siguiente</span>
+          </li>
+        }
+      </ul>
+    </nav>
   </div>
 </div>
 @section Scripts {

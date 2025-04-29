@@ -4,8 +4,6 @@
   ViewData["Title"] = "Lista de Contratos";
 }
 
-@using System.Globalization;
-
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Lista de
   Contratos</h1>
 
@@ -19,62 +17,47 @@
         <i class="fas fa-plus-circle me-2"></i> Nuevo Contrato
       </a>
     </div>
+
     <div class="table-responsive">
       <table class="table table-hover" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">
           <tr>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              #Contrato
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">#CONTRATO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Inmueble
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">INMUEBLE
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Inquilino
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">INQUILINO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Fecha Inicio
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA INICIO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Fecha Fin
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA FIN
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Monto Mensual
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">MONTO MENSUAL
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Estado
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ESTADO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Fecha de Anulación
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA ANULACIÓN
             </th>
-            <th class="text-center"
-              style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
-              Acciones
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ACCIONES
             </th>
           </tr>
         </thead>
         <tbody>
           @foreach (var contrato in Model)
           {
-            <tr class="@(contrato.EstadoContrato == "PendienteAnulacion" 
-                                ? "fila-pendiente-anulacion" 
-                                : contrato.EstadoContrato == "Anulado" 
-                                  ? "fila-anulado" 
-                                  : contrato.EstadoContrato == "Finalizado" 
-                                    ? "fila-finalizado" 
-                                    : "")">
-
+            <tr class="@(contrato.EstadoContrato == "PendienteAnulacion" ? "fila-pendiente-anulacion" 
+                                                : contrato.EstadoContrato == "Anulado" ? "fila-anulado" 
+                                                : contrato.EstadoContrato == "Finalizado" ? "fila-finalizado" : "")">
             <td>@contrato.IdContrato</td>
             <td>@contrato.DireccionInmueble</td>
             <td>@contrato.NombreInquilino</td>
             <td>@contrato.FechaInicio.ToShortDateString()</td>
             <td>@contrato.FechaFin.ToShortDateString()</td>
             <td class="bold-importe">
-                @contrato.MontoMensual.ToString("C")
-                <i class="fas fa-money-bill-wave-alt ms-2"></i>
-              </td>
-
-              <td>
+              @contrato.MontoMensual.ToString("C")
+              <i class="fas fa-money-bill-wave-alt ms-2"></i>
+            </td>
+            <td>
               @if (contrato.EstadoContrato == "PendienteAnulacion")
                 {
                   <span style="color: #ff8800;" data-bs-toggle="tooltip" title="Contrato pendiente de anulación">
@@ -100,9 +83,8 @@
                   </span>
                 }
               </td>
-
               <td>
-                @if (contrato.EstadoContrato! == "PendienteAnulacion" || contrato.EstadoContrato == "Anulado")
+                @if (contrato.EstadoContrato != "Vigente")
                 {
                   <span>@contrato.FechaRescision?.ToString("dd/MM/yyyy")</span>
                 }
@@ -111,18 +93,14 @@
                   <span>-</span>
                 }
               </td>
-
               <td class="text-center">
-                <!-- Detalles (siempre disponible) -->
                 <a asp-action="Details" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Ver detalles del contrato">
+                  title="Ver detalles del contrato">
                   <i class="fas fa-eye"></i>
                 </a>
-
-                <!-- Editar -->
                 @if (contrato.EstadoContrato == "Finalizado" || contrato.EstadoContrato == "Anulado")
                 {
-                  <span class="btn-link disabled-action" data-bs-toggle="tooltip" data-bs-placement="top"
+                  <span class="btn-link disabled-action" data-bs-toggle="tooltip"
                     title="No se puede editar un contrato @contrato.EstadoContrato.ToLower()">
                     <i class="fas fa-edit"></i>
                   </span>
@@ -130,22 +108,20 @@
                 else
                 {
                   <a asp-action="Edit" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
-                    data-bs-placement="top" title="Editar contrato">
+                    title="Editar contrato">
                     <i class="fas fa-edit"></i>
                   </a>
                 }
-
-                <!-- Anular -->
                 @if (contrato.EstadoContrato == "Vigente")
                 {
                   <a asp-action="Anular" asp-route-id="@contrato.IdContrato" class="btn-link" data-bs-toggle="tooltip"
-                    data-bs-placement="top" title="Anular contrato">
+                    title="Anular contrato">
                     <i class="fa-solid fa-ban"></i>
                   </a>
                 }
                 else
                 {
-                  <span class="btn-link disabled-action" data-bs-toggle="tooltip" data-bs-placement="top"
+                  <span class="btn-link disabled-action" data-bs-toggle="tooltip"
                     title="No se puede anular un contrato @contrato.EstadoContrato.ToLower()">
                     <i class="fa-solid fa-ban"></i>
                   </span>
@@ -156,15 +132,59 @@
         </tbody>
       </table>
     </div>
+
+    <!-- PAGINACIÓN -->
+    <nav aria-label="Page navigation"></nav>
+    <ul class="pagination justify-content-center mt-4">
+      @if (ViewBag.PaginaActual > 1)
+      {
+        <li class="page-item">
+          <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">Anterior</a>
+        </li>
+      }
+      else
+      {
+        <li class="page-item disabled">
+          <span class="page-link">Anterior</span>
+        </li>
+      }
+
+      @for (int i = 1; i <= ViewBag.TotalPaginas; i++)
+      {
+        <li class="page-item @(i == ViewBag.PaginaActual ? "active" : "")">
+          <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+        </li>
+      }
+
+      @if (ViewBag.PaginaActual < ViewBag.TotalPaginas)
+      {
+        <li class="page-item">
+          <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">Siguiente</a>
+        </li>
+      }
+      else
+      {
+        <li class="page-item disabled">
+          <span class="page-link">Siguiente</span>
+        </li>
+      }
+    </ul>
+
   </div>
 </div>
 
 @section Scripts {
   <script>
-    // Activar tooltips de Bootstrap
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (tooltipTriggerEl) {
       new bootstrap.Tooltip(tooltipTriggerEl);
     });
   </script>
+  <style>
+    .disabled-action {
+      pointer-events: none;
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
 }

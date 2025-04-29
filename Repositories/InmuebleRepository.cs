@@ -9,12 +9,15 @@ namespace InmobiliariaLopez.Repositories
     public class InmuebleRepository : IRepositorioInmueble
     {
         private readonly DatabaseConnection _dbConnection;
-        private readonly int _registrosPorPagina = 10; // Define la cantidad de registros por página
+        private readonly int _registrosPorPagina = 10;
 
         public InmuebleRepository(DatabaseConnection dbConnection)
         {
             _dbConnection = dbConnection;
         }
+
+        // Propiedad pública para acceder a la cantidad de registros por página
+        public int RegistrosPorPagina => _registrosPorPagina;
 
         // Lista todos los Inmuebles con paginación
         public IList<Inmueble> Index(int pagina = 1)
@@ -77,7 +80,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener inmuebles paginados: {ex.Message}");
                     throw;
                 }
             }
@@ -105,7 +107,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener el total de inmuebles: {ex.Message}");
                     throw;
                 }
             }
@@ -164,7 +165,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener inmueble por ID: {ex.Message}");
                     throw;
                 }
             }
@@ -217,7 +217,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al agregar inmueble: {ex.Message}");
                     throw;
                 }
             }
@@ -226,13 +225,11 @@ namespace InmobiliariaLopez.Repositories
         // Actualiza un inmueble existente
         public int Edit(Inmueble entidad)
         {
-            Console.WriteLine($"[DEBUG] Editando inmueble con ID: {entidad.IdInmueble}");
             using (var connection = _dbConnection.CreateConnection())
             {
                 try
                 {
                     connection.Open();
-                    Console.WriteLine("Conexión abierta con la base de datos.");
 
                     using (var command = new MySqlCommand())
                     {
@@ -249,8 +246,6 @@ namespace InmobiliariaLopez.Repositories
                             Estado = @Estado,
                             IdPropietario = @IdPropietario
                         WHERE IdInmueble = @IdInmueble";
-
-                        Console.WriteLine("Comando SQL preparado.");
 
                         command.Parameters.AddWithValue("@IdInmueble", entidad.IdInmueble);
                         command.Parameters.AddWithValue("@Direccion", entidad.Direccion);
@@ -275,12 +270,11 @@ namespace InmobiliariaLopez.Repositories
                         command.Parameters.AddWithValue("@IdPropietario", entidad.IdPropietario);
 
                         int filasAfectadas = command.ExecuteNonQuery();
-                        Console.WriteLine($"[DEBUG] Filas afectadas: {filasAfectadas}");
 
                         if (filasAfectadas == 0)
                         {
-                            Console.WriteLine(
-                                $"[ADVERTENCIA] No se actualizó ningún registro con ID {entidad.IdInmueble}"
+                            throw new InvalidOperationException(
+                                $"No se actualizó ningún registro con ID {entidad.IdInmueble}"
                             );
                         }
 
@@ -289,7 +283,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Error al actualizar inmueble: {ex.Message}");
                     throw;
                 }
             }
@@ -316,7 +309,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al eliminar inmueble: {ex.Message}");
                     throw;
                 }
             }
@@ -369,7 +361,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener inmuebles por propietario: {ex.Message}");
                     throw;
                 }
             }
@@ -406,9 +397,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(
-                        $"Error al verificar disponibilidad de inmueble: {ex.Message}"
-                    );
                     throw;
                 }
             }
@@ -448,7 +436,6 @@ namespace InmobiliariaLopez.Repositories
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error al obtener tipos de inmuebles: {ex.Message}");
                     throw;
                 }
             }
