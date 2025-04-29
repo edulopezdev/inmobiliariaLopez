@@ -16,18 +16,40 @@ namespace InmobiliariaLopez.Controllers
         }
 
         // GET: Inquilinos
-        [HttpGet]
-        public IActionResult Index(int pagina = 1)
+        public IActionResult Index(string dni, string apellido, string nombre, int pagina = 1)
         {
             try
             {
-                var Inquilinos = _inquilinoRepository.Index(pagina);
-                int totalRegistros = _inquilinoRepository.ObtenerTotal();
-                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
+                // Definir cantidad de registros por página
+                int cantidadPorPagina = 10;
+
+                // Llamar al repositorio con los filtros aplicados
+                var inquilinos = _inquilinoRepository.ObtenerPorFiltro(
+                    dni,
+                    apellido,
+                    nombre,
+                    pagina,
+                    cantidadPorPagina
+                );
+
+                // Obtener el total de registros que coinciden con los filtros
+                int totalRegistros = _inquilinoRepository.ObtenerTotalPorFiltro(
+                    dni,
+                    apellido,
+                    nombre
+                );
+
+                // Calcular el total de páginas
+                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / cantidadPorPagina);
+
+                // Pasar los datos a la vista
                 ViewBag.PaginaActual = pagina;
                 ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.FiltroDni = dni;
+                ViewBag.FiltroApellido = apellido;
+                ViewBag.FiltroNombre = nombre;
 
-                return View(Inquilinos);
+                return View(inquilinos);
             }
             catch (Exception ex)
             {

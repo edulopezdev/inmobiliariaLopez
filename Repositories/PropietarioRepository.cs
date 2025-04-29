@@ -283,5 +283,112 @@ namespace InmobiliariaLopez.Repositories
             }
             return propietario;
         }
+
+        public IList<Propietario> ObtenerPorFiltro(
+            string dni,
+            string apellido,
+            string nombre,
+            int pagina,
+            int cantidadPorPagina
+        )
+        {
+            var propietarios = new List<Propietario>();
+            int offset = (pagina - 1) * cantidadPorPagina;
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (var command = new MySqlCommand())
+                {
+                    command.Connection = (MySqlConnection)connection;
+
+                    var sql =
+                        @"SELECT IdPropietario, DNI, Apellido, Nombre, Telefono, Email
+                        FROM propietario
+                        WHERE Activo = 1";
+
+                    if (!string.IsNullOrEmpty(dni))
+                    {
+                        sql += " AND DNI LIKE @DNI";
+                        command.Parameters.AddWithValue("@DNI", $"%{dni}%");
+                    }
+                    if (!string.IsNullOrEmpty(apellido))
+                    {
+                        sql += " AND Apellido LIKE @Apellido";
+                        command.Parameters.AddWithValue("@Apellido", $"%{apellido}%");
+                    }
+                    if (!string.IsNullOrEmpty(nombre))
+                    {
+                        sql += " AND Nombre LIKE @Nombre";
+                        command.Parameters.AddWithValue("@Nombre", $"%{nombre}%");
+                    }
+
+                    sql += " LIMIT @Limit OFFSET @Offset";
+                    command.CommandText = sql;
+
+                    command.Parameters.AddWithValue("@Limit", cantidadPorPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            propietarios.Add(
+                                new Propietario
+                                {
+                                    IdPropietario = reader.GetInt32("IdPropietario"),
+                                    DNI = reader.GetString("DNI"),
+                                    Apellido = reader.GetString("Apellido"),
+                                    Nombre = reader.GetString("Nombre"),
+                                    Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono"))
+                                        ? string.Empty
+                                        : reader.GetString("Telefono"),
+                                    Email = reader.GetString("Email"),
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+            return propietarios;
+        }
+
+        public int ObtenerTotalPorFiltro(string dni, string apellido, string nombre)
+        {
+            int total = 0;
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (var command = new MySqlCommand())
+                {
+                    command.Connection = (MySqlConnection)connection;
+
+                    var sql = "SELECT COUNT(*) FROM propietario WHERE Activo = 1";
+
+                    if (!string.IsNullOrEmpty(dni))
+                    {
+                        sql += " AND DNI LIKE @DNI";
+                        command.Parameters.AddWithValue("@DNI", $"%{dni}%");
+                    }
+                    if (!string.IsNullOrEmpty(apellido))
+                    {
+                        sql += " AND Apellido LIKE @Apellido";
+                        command.Parameters.AddWithValue("@Apellido", $"%{apellido}%");
+                    }
+                    if (!string.IsNullOrEmpty(nombre))
+                    {
+                        sql += " AND Nombre LIKE @Nombre";
+                        command.Parameters.AddWithValue("@Nombre", $"%{nombre}%");
+                    }
+
+                    command.CommandText = sql;
+                    total = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+
+            return total;
+        }
     }
 }

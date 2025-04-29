@@ -1,8 +1,9 @@
 @model IEnumerable<InmobiliariaLopez.Models.Inquilino>
+
 @{
   ViewData["Title"] = "Lista de Inquilinos";
 }
-<!-- Título -->
+
 <h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Lista de
   Inquilinos</h1>
 
@@ -13,19 +14,72 @@
   </div>
 }
 
-<!-- Card para envolver la tabla -->
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-gradient text-dark border-0 rounded-4">
     <h5 class="mb-0" style="font-family: 'Roboto', sans-serif; font-size: 1.25rem;">Inquilinos</h5>
   </div>
   <div class="card-body" style="padding: 0.5rem 1rem;"> <!-- Reducido padding -->
-    <!-- Botón "Agregar Inquilino" en la parte superior derecha -->
-    <div class="d-flex justify-content-end mb-3">
-      <a asp-action="Create" class="btn btn-primary btn-sm">
+
+    <!-- Filtros de Búsqueda -->
+    <div class="d-flex justify-content-between mb-4">
+      <form asp-action="Index" method="get" class="w-75">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+              <input type="text" name="dni" value="@ViewBag.FiltroDni" class="form-control"
+                placeholder="Buscar por DNI" />
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input type="text" name="apellido" value="@ViewBag.FiltroApellido" class="form-control"
+                placeholder="Buscar por Apellido" />
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+              <input type="text" name="nombre" value="@ViewBag.FiltroNombre" class="form-control"
+                placeholder="Buscar por Nombre" />
+            </div>
+          </div>
+
+          <!-- Contenedor d-flex para los botones de búsqueda y limpiar -->
+          <div class="col-md-3 d-flex">
+            <!-- Botón de búsqueda -->
+            <button type="submit" class="btn btn-success btn-sm d-flex align-items-center justify-content-center"
+              style="width: 40px; height: 40px; border-radius: 50%;">
+              <i class="fas fa-search"></i>
+            </button>
+
+            <!-- Botón Limpiar Filtros (Solo visible si se aplicaron filtros) -->
+            @if (!string.IsNullOrEmpty(ViewBag.FiltroDni) || !string.IsNullOrEmpty(ViewBag.FiltroApellido) ||
+                        !string.IsNullOrEmpty(ViewBag.FiltroNombre))
+            {
+              <a href="@Url.Action("Index", "Inquilinos")"
+                class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+                style="width: 40px; height: 40px; border-radius: 50%; margin-left: 10px;" data-bs-toggle="tooltip"
+                data-bs-placement="top" title="Limpiar Filtros">
+                <i class="fas fa-broom"></i>
+              </a>
+            }
+          </div>
+
+        </div>
+      </form>
+
+      <!-- Botón de Nuevo Inquilino -->
+      <a asp-action="Create" class="btn btn-primary btn-sm d-flex align-items-center" style="height: 38px;">
         <i class="fas fa-plus-circle me-2"></i> Nuevo Inquilino
       </a>
+
     </div>
 
+    <!-- Tabla de resultados -->
     <div class="table-responsive">
       <table class="table table-hover table-bordered" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">

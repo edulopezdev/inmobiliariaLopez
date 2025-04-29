@@ -279,5 +279,117 @@ namespace InmobiliariaLopez.Repositories
             }
             return inquilino;
         }
+
+        // Método ObtenerPorFiltro con paginación
+        public IList<Inquilino> ObtenerPorFiltro(
+            string dni,
+            string apellido,
+            string nombre,
+            int pagina,
+            int cantidadPorPagina
+        )
+        {
+            var inquilinos = new List<Inquilino>();
+            int offset = (pagina - 1) * cantidadPorPagina;
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (var command = new MySqlCommand())
+                {
+                    command.Connection = (MySqlConnection)connection;
+
+                    var sql =
+                        @"SELECT IdInquilino, DNI, Apellido, Nombre, Telefono, Email
+                                FROM Inquilino
+                                WHERE Activo = 1";
+
+                    // Agregar filtros si son proporcionados
+                    if (!string.IsNullOrEmpty(dni))
+                    {
+                        sql += " AND DNI LIKE @DNI";
+                        command.Parameters.AddWithValue("@DNI", $"%{dni}%");
+                    }
+                    if (!string.IsNullOrEmpty(apellido))
+                    {
+                        sql += " AND Apellido LIKE @Apellido";
+                        command.Parameters.AddWithValue("@Apellido", $"%{apellido}%");
+                    }
+                    if (!string.IsNullOrEmpty(nombre))
+                    {
+                        sql += " AND Nombre LIKE @Nombre";
+                        command.Parameters.AddWithValue("@Nombre", $"%{nombre}%");
+                    }
+
+                    // Agregar paginación
+                    sql += " LIMIT @Limit OFFSET @Offset";
+                    command.CommandText = sql;
+
+                    command.Parameters.AddWithValue("@Limit", cantidadPorPagina);
+                    command.Parameters.AddWithValue("@Offset", offset);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            inquilinos.Add(
+                                new Inquilino
+                                {
+                                    IdInquilino = reader.GetInt32("IdInquilino"),
+                                    DNI = reader.GetString("DNI"),
+                                    Apellido = reader.GetString("Apellido"),
+                                    Nombre = reader.GetString("Nombre"),
+                                    Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono"))
+                                        ? string.Empty
+                                        : reader.GetString("Telefono"),
+                                    Email = reader.GetString("Email"),
+                                }
+                            );
+                        }
+                    }
+                }
+            }
+
+            return inquilinos;
+        }
+
+        // ** Método ObtenerTotalPorFiltro **
+        public int ObtenerTotalPorFiltro(string dni, string apellido, string nombre)
+        {
+            int total = 0;
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                connection.Open();
+                using (var command = new MySqlCommand())
+                {
+                    command.Connection = (MySqlConnection)connection;
+
+                    var sql = "SELECT COUNT(*) FROM Inquilino WHERE Activo = 1";
+
+                    // Agregar filtros si son proporcionados
+                    if (!string.IsNullOrEmpty(dni))
+                    {
+                        sql += " AND DNI LIKE @DNI";
+                        command.Parameters.AddWithValue("@DNI", $"%{dni}%");
+                    }
+                    if (!string.IsNullOrEmpty(apellido))
+                    {
+                        sql += " AND Apellido LIKE @Apellido";
+                        command.Parameters.AddWithValue("@Apellido", $"%{apellido}%");
+                    }
+                    if (!string.IsNullOrEmpty(nombre))
+                    {
+                        sql += " AND Nombre LIKE @Nombre";
+                        command.Parameters.AddWithValue("@Nombre", $"%{nombre}%");
+                    }
+
+                    command.CommandText = sql;
+                    total = Convert.ToInt32(command.ExecuteScalar());
+                }
+            }
+
+            return total;
+        }
     }
 }

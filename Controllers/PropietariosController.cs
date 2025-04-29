@@ -17,22 +17,43 @@ namespace InmobiliariaLopez.Controllers
 
         // GET: Propietarios
         [HttpGet]
-        public IActionResult Index(int pagina = 1)
+        public IActionResult Index(string dni, string apellido, string nombre, int pagina = 1)
         {
             try
             {
-                var propietarios = _propietarioRepository.Index(pagina);
-                int totalRegistros = _propietarioRepository.ObtenerTotal();
-                int totalPaginas = (int)Math.Ceiling((double)totalRegistros / _registrosPorPagina);
+                int cantidadPorPagina = _registrosPorPagina;
+
+                // Llama a un nuevo método del repositorio (lo haremos después)
+                var propietarios = _propietarioRepository.ObtenerPorFiltro(
+                    dni,
+                    apellido,
+                    nombre,
+                    pagina,
+                    cantidadPorPagina
+                );
+
+                // Total filtrado, también con un nuevo método
+                int totalFiltrados = _propietarioRepository.ObtenerTotalPorFiltro(
+                    dni,
+                    apellido,
+                    nombre
+                );
+                int totalPaginas = (int)Math.Ceiling((double)totalFiltrados / cantidadPorPagina);
+
                 ViewBag.PaginaActual = pagina;
                 ViewBag.TotalPaginas = totalPaginas;
 
-                return View(propietarios); // La vista ahora recibirá una lista de Propietario
+                // Guardar filtros para reutilizar en la vista
+                ViewBag.FiltroDni = dni;
+                ViewBag.FiltroApellido = apellido;
+                ViewBag.FiltroNombre = nombre;
+
+                return View(propietarios);
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error al cargar los propietarios: {ex.Message}";
-                return RedirectToAction("Error"); // Asegúrate de tener una acción "Error"
+                return RedirectToAction("Error");
             }
         }
 
