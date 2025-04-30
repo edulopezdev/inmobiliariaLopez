@@ -442,5 +442,67 @@ namespace InmobiliariaLopez.Repositories
 
             return tiposInmuebles;
         }
+
+        public IList<Inmueble> ObtenerTodosActivos()
+        {
+            var inmuebles = new List<Inmueble>();
+
+            using (var connection = _dbConnection.CreateConnection())
+            {
+                try
+                {
+                    connection.Open();
+                    using (
+                        var command = new MySqlCommand(
+                            @"SELECT i.*, t.Nombre AS TipoNombre, p.Apellido AS PropietarioApellido, p.Nombre AS PropietarioNombre
+                      FROM inmueble i
+                      JOIN tipoinmueble t ON i.IdTipoInmueble = t.IdTipoInmueble
+                      JOIN propietario p ON i.IdPropietario = p.IdPropietario
+                      WHERE i.Activo = 1 AND p.Activo = 1;",
+                            (MySqlConnection)connection
+                        )
+                    )
+                    {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                inmuebles.Add(
+                                    new Inmueble(
+                                        reader.GetString("Direccion"),
+                                        reader.GetString("Uso"),
+                                        reader.GetString("Estado")
+                                    )
+                                    {
+                                        IdInmueble = reader.GetInt32("IdInmueble"),
+                                        IdTipoInmueble = reader.GetInt32("IdTipoInmueble"),
+                                        TipoNombre = reader.GetString("TipoNombre"),
+                                        Ambientes = reader.GetInt32("Ambientes"),
+                                        Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud"))
+                                            ? (decimal?)null
+                                            : Convert.ToDecimal(reader.GetDouble("Latitud")),
+                                        Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud"))
+                                            ? (decimal?)null
+                                            : Convert.ToDecimal(reader.GetDouble("Longitud")),
+                                        Precio = reader.GetDecimal("Precio"),
+                                        IdPropietario = reader.GetInt32("IdPropietario"),
+                                        PropietarioApellido = reader.GetString(
+                                            "PropietarioApellido"
+                                        ),
+                                        PropietarioNombre = reader.GetString("PropietarioNombre"),
+                                    }
+                                );
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+
+            return inmuebles;
+        }
     }
 }

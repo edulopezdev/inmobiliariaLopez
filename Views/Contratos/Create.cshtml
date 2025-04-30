@@ -4,8 +4,15 @@
   ViewData["Title"] = "Crear Contrato";
 }
 
-<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">Crear Contrato
+@{
+  bool esRenovacion = ViewBag.EsRenovacion != null && (bool)ViewBag.EsRenovacion;
+  string titulo = esRenovacion ? "Renovar Contrato" : "Nuevo Contrato";
+}
+
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">
+  @titulo
 </h1>
+
 
 <div class="card shadow-lg border-0 rounded-4">
   <div class="card-header bg-gradient text-dark border-0 rounded-4">
@@ -18,10 +25,12 @@
       <div class="form-group mb-3">
         <label class="control-label">Inmueble</label>
         <select asp-for="IdInmueble" class="form-control" asp-items="ViewBag.Inmuebles">
-          <option value="">Seleccione un inmueble</option>
+          <option>Seleccione un inmueble</option>
         </select>
         <span asp-validation-for="IdInmueble" class="text-danger"></span>
       </div>
+
+
 
       <div class="form-group mb-3">
         <label class="control-label">Inquilino</label>

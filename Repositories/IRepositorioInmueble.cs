@@ -13,5 +13,6 @@ namespace InmobiliariaLopez.Repositories
 
         // Método específico: Obtener tipos de inmuebles
         IEnumerable<TipoInmueble> ObtenerTiposInmuebles(); // Solo la firma, sin implementación
+        IList<Inmueble> ObtenerTodosActivos();
     }
 }

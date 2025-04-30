@@ -69,6 +69,14 @@ namespace InmobiliariaLopez.Controllers
         [HttpPost]
         public IActionResult Create(Contrato contrato)
         {
+            Console.WriteLine("[CREATE - POST] Datos recibidos del formulario:");
+            Console.WriteLine($"  IdInquilino = {contrato.IdInquilino}");
+            Console.WriteLine($"  IdInmueble = {contrato.IdInmueble}");
+            Console.WriteLine($"  MontoMensual = {contrato.MontoMensual}");
+            Console.WriteLine($"  FechaInicio = {contrato.FechaInicio}");
+            Console.WriteLine($"  FechaFin = {contrato.FechaFin}");
+            Console.WriteLine($"  EstadoContrato = {contrato.EstadoContrato}");
+            Console.WriteLine($"  Activo = {contrato.Activo}");
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -263,7 +271,7 @@ namespace InmobiliariaLopez.Controllers
                     );
                 }
 
-                // ✅ Obtener ID del usuario logueado desde los claims
+                // Obtener ID del usuario logueado desde los claims
                 var idUsuarioClaim = User.FindFirst("IdUsuario");
                 if (idUsuarioClaim == null)
                 {
@@ -301,23 +309,24 @@ namespace InmobiliariaLopez.Controllers
         // Método privado para cargar el ViewBag con los datos necesarios
         private void CargarViewBag(int? inmuebleId = null, int? inquilinoId = null)
         {
-            ViewBag.Inmuebles = new SelectList(
-                _repositorioInmueble.Index(),
-                "IdInmueble",
-                "Direccion",
-                inmuebleId // Pasamos el ID seleccionado para que se mantenga en el dropdown
-            );
+            var inmuebles = _repositorioInmueble.ObtenerTodosActivos();
+            Console.WriteLine("[CargarViewBag] Inmuebles:");
+            foreach (var i in inmuebles)
+            {
+                Console.WriteLine($"  Id={i.IdInmueble}, Direccion={i.Direccion}");
+            }
+
+            ViewBag.Inmuebles = new SelectList(inmuebles, "IdInmueble", "Direccion", inmuebleId);
+
+            var inquilinos = _repositorioInquilino
+                .Index()
+                .Select(i => new { i.IdInquilino, NombreCompleto = $"{i.Nombre} {i.Apellido}" });
+
             ViewBag.Inquilinos = new SelectList(
-                _repositorioInquilino
-                    .Index()
-                    .Select(i => new
-                    {
-                        i.IdInquilino,
-                        NombreCompleto = $"{i.Nombre} {i.Apellido}",
-                    }),
+                _repositorioInquilino.Index(),
                 "IdInquilino",
                 "NombreCompleto",
-                inquilinoId // Pasamos el ID seleccionado para que se mantenga en el dropdown
+                inquilinoId
             );
         }
 
@@ -360,6 +369,41 @@ namespace InmobiliariaLopez.Controllers
             }
 
             return Json(new { success = true });
+        }
+
+        // GET: Contratos/Renovar/5
+        public IActionResult Renovar(int id)
+        {
+            var contratoAnterior = _repositorioContrato.Details(id);
+            if (contratoAnterior == null || contratoAnterior.EstadoContrato != "Finalizado")
+            {
+                return NotFound("El contrato no existe o no está finalizado.");
+            }
+
+            var nuevoContrato = new Contrato
+            {
+                IdInquilino = contratoAnterior.IdInquilino,
+                IdInmueble = contratoAnterior.IdInmueble,
+                MontoMensual = contratoAnterior.MontoMensual,
+                FechaInicio = contratoAnterior.FechaFin.AddDays(1),
+                FechaFin = contratoAnterior.FechaFin.AddYears(1),
+                EstadoContrato = "Vigente",
+                Activo = true,
+            };
+
+            // Mostrar los datos que se están pasando a la vista
+            Console.WriteLine($"[RENOVAR] Datos del nuevo contrato:");
+            Console.WriteLine($"  IdInquilino = {nuevoContrato.IdInquilino}");
+            Console.WriteLine($"  IdInmueble = {nuevoContrato.IdInmueble}");
+            Console.WriteLine($"  MontoMensual = {nuevoContrato.MontoMensual}");
+            Console.WriteLine($"  FechaInicio = {nuevoContrato.FechaInicio}");
+            Console.WriteLine($"  FechaFin = {nuevoContrato.FechaFin}");
+            Console.WriteLine($"  EstadoContrato = {nuevoContrato.EstadoContrato}");
+            Console.WriteLine($"  Activo = {nuevoContrato.Activo}");
+
+            CargarViewBag(nuevoContrato.IdInmueble, nuevoContrato.IdInquilino);
+            ViewBag.EsRenovacion = true;
+            return View("Create", nuevoContrato);
         }
     }
 }
