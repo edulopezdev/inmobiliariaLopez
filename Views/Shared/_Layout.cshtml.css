@@ -1,25 +1,29 @@
 ﻿/* Estilos para el Sidebar */
 /* Sidebar Profesional y Corporativo */
 .sidebar {
+  display: flex;
+
+  flex-direction: column;
   height: 100vh;
   width: 250px;
-  display: flex;
-  flex-direction: column;
   position: fixed;
   top: 0;
   left: 0;
-  background: #2c3e50; /* Fondo azul oscuro */
+  background: #2c3e50;
   color: #fff;
-  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2); /* Sombra sutil */
-  padding: 20px;
-  transition: all 0.3s ease; /* Transición suave para la apertura/cierre */
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+  padding: 20px 0;
+  overflow: hidden;
+  align-items: center;
 }
+
 
 .sidebar a.nav-link {
   color: #bdc3c7; /* Enlaces en gris claro */
   text-decoration: none;
   padding: 12px 15px;
-  margin: 8px 0;
+  margin: 12px 0;
+  margin-left: 18px;
   border-radius: 6px;
   font-weight: 500; /* Peso de fuente un poco más fuerte */
   transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave para el hover */
@@ -31,7 +35,7 @@
 }
 
 .sidebar h4 {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   font-weight: 600;
   font-size: 1.5rem; /* Título más grande */
   margin-bottom: 20px;
@@ -42,7 +46,9 @@
 .main-content {
   margin-left: 250px; /* Deja espacio para el sidebar */
   padding: 20px;
-  min-height: calc(100vh - 60px); /* Ajusta la altura mínima para empujar el footer */
+  min-height: calc(
+    100vh - 60px
+  ); /* Ajusta la altura mínima para empujar el footer */
 }
 
 /* Footer */
@@ -80,4 +86,12 @@
     margin-left: 0;
     width: 100%;
   }
+}
+
+.sidebar-logo {
+  text-align: center;
+  padding-bottom: 40px;
+  width: 100%;
+  max-width: 250px;
+  overflow: hidden;
 }

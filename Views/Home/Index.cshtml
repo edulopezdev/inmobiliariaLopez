@@ -1,7 +1,14 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+  ViewData["Title"] = "Inicio";
+  var userName = User.Identity?.Name ?? "usuario";
 }
 
-<div class="text-center">
-    <h1 class="display-4">¡Bienvenidos!</h1>
+<div class="container-fluid position-relative bg-cover" style="background-image: url('/images/background.jpg'); background-size: cover; height: 100vh;">
+  <!-- Div solo con el mensaje centrado -->
+  <div class="d-flex align-items-center justify-content-center position-absolute w-100 h-100">
+    <div class="text-center text-white p-4 rounded shadow-lg" style="max-width: 600px; background-color: rgba(253, 253, 253, 0.5);">
+      <h1 class="display-4 fw-bold text-black">¡Bienvenido, @userName!</h1>
+      <p class="lead" style="font-size: 1.2rem; color: #333;">Estás ingresando al panel de gestión de Inmobiliaria López. Aquí podrás gestionar todas las propiedades, inquilinos y clientes. ¡Esperamos que tengas un excelente día!</p>
+    </div>
+  </div>
 </div>

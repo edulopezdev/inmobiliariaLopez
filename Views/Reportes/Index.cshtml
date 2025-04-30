@@ -1,0 +1,269 @@
+@{
+  ViewData["Title"] = "Reportes";
+}
+
+<!-- Encabezado -->
+<h1 class="mb-4 text-center" style="font-family: 'Roboto', sans-serif; font-size: 2rem; color: #343a40;">
+  Lista de Reportes
+</h1>
+
+<!-- Reportes Card -->
+<div class="card shadow-lg border-0 rounded-4">
+
+  <!-- Pestañas -->
+  <ul class="nav nav-tabs" id="reportesTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="inmuebles-tab" data-bs-toggle="tab" href="#inmuebles" role="tab"
+        aria-controls="inmuebles" aria-selected="true">
+        <i class="bi bi-building me-1"></i>Inmuebles
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="contratos-tab" data-bs-toggle="tab" href="#contratos" role="tab" aria-controls="contratos"
+        aria-selected="false">
+        <i class="bi bi-file-earmark-text me-1"></i>Contratos
+      </a>
+    </li>
+  </ul>
+
+  <!-- Contenido de pestañas -->
+  <div class="tab-content p-3">
+
+    <!-- INMUEBLES -->
+    <div class="tab-pane fade show active" id="inmuebles" role="tabpanel" aria-labelledby="inmuebles-tab">
+      <div class="row mt-4">
+        <div class="col-md-4 d-flex align-items-center">
+          <div class="card w-100">
+            <div class="card-header bg-white d-flex align-items-center">
+              <i class="bi bi-house-door me-2" style="font-size: 1.5rem; color: #28a745;"></i>
+              <span class="fw-semibold">Inmuebles Disponibles</span>
+            </div>
+            <div class="card-body text-center">
+              <div class="stat fs-2" style="color: #28a745;">15</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-center">
+          <div class="card w-100">
+            <div class="card-header bg-white d-flex align-items-center">
+              <i class="bi bi-house-door-fill me-2" style="font-size: 1.5rem; color: #dc3545;"></i>
+              <span class="fw-semibold">Inmuebles Ocupados</span>
+            </div>
+            <div class="card-body text-center">
+              <div class="stat fs-2" style="color: #dc3545;">25</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 d-flex align-items-center">
+          <div class="card w-100">
+            <div class="card-header bg-white d-flex align-items-center">
+              <i class="bi bi-house-door me-2" style="font-size: 1.5rem; color: #007bff;"></i>
+              <span class="fw-semibold">Inmuebles Totales</span>
+            </div>
+            <div class="card-body text-center">
+              <div class="stat fs-2" style="color: #007bff;">40</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de inmuebles -->
+      <div class="table-responsive mt-3">
+        <div class="card-header">
+          <i class="bi bi-people-fill me-2"></i>Inmuebles con Propietarios
+        </div>
+        <div class="card-body" id="inmuebles-contenedor">
+          <div class="text-center">Cargando inmuebles...</div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <!-- Primer gráfico -->
+        <div class="col-md-6">
+          <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white fw-semibold">
+              <i class="bi bi-pie-chart-fill me-2"></i>Distribución de Inmuebles
+            </div>
+            <div class="card-body">
+              <canvas id="graficoInmuebles" class="grafico-tamaño"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segundo gráfico -->
+        <div class="col-md-6">
+          <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-header bg-white fw-semibold">
+              <i class="bi bi-bar-chart-fill me-2"></i>Inmuebles Ocupados por Mes
+            </div>
+            <div class="card-body">
+              <canvas id="graficoOcupacionMes" class="grafico-tamaño"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTRATOS -->
+    <div class="tab-pane fade" id="contratos" role="tabpanel" aria-labelledby="contratos-tab">
+      <div class="table-responsive mt-3">
+        <div class="card-header">
+          <i class="bi bi-file-earmark-check-fill me-2"></i>Contratos Vigentes
+        </div>
+        <div class="card-body" id="contratos-contenedor">
+          <div class="text-center">Cargando contratos...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- ICONOS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+@section Scripts {
+  <!-- Bootstrap + jQuery + Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      // Cargar contenido dinámico
+      $("#inmuebles-contenedor").load("/Reportes/Inmuebles?page=1");
+
+      // Cargar contratos inmediatamente al cargar la página
+      $("#contratos-contenedor").load("/Reportes/Contratos?page=1");
+
+      // Función para cargar más inmuebles
+      $(document).on('click', '.page-inmuebles', function (e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        $("#inmuebles-contenedor").load("/Reportes/Inmuebles?page=" + page);
+      });
+
+      // Función para cargar más contratos
+      $(document).on('click', '.page-contratos', function (e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        $("#contratos-contenedor").load("/Reportes/Contratos?page=" + page);
+      });
+
+      // Gráfico tipo doughnut (ocupados vs disponibles)
+      const ctxInmuebles = document.getElementById('graficoInmuebles').getContext('2d');
+      const graficoInmuebles = new Chart(ctxInmuebles, {
+        type: 'doughnut',
+        data: {
+          labels: ['Ocupados', 'Disponibles'],
+          datasets: [{
+            data: [25, 15], // Reemplazá con datos reales si querés
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.7)',    // Ocupados - rojo suave
+              'rgba(75, 192, 192, 0.7)'     // Disponibles - verde agua
+            ],
+            borderColor: ['#fff', '#fff'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                font: {
+                  family: 'Roboto',
+                  size: 14
+                },
+                color: '#343a40'
+              }
+            },
+            tooltip: {
+              backgroundColor: '#f8f9fa',
+              titleColor: '#343a40',
+              bodyColor: '#495057',
+              borderColor: '#dee2e6',
+              borderWidth: 1
+            }
+          }
+        }
+      });
+
+      // Segundo gráfico: Ocupación de Inmuebles por mes (gráfico de barras)
+      const ctxOcupacionMes = document.getElementById('graficoOcupacionMes').getContext('2d');
+      const graficoOcupacionMes = new Chart(ctxOcupacionMes, {
+        type: 'bar',
+        data: {
+          labels: ['Enero', 'Febrero', 'Marzo', 'Abril'], // Meses
+          datasets: [{
+            label: 'Inmuebles Ocupados',
+            data: [12, 19, 14, 20], // Cantidad de inmuebles ocupados
+            backgroundColor: 'rgba(75, 192, 192, 0.8)',
+            borderRadius: 5,
+            borderColor: '#5bc0de',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                  family: 'Roboto',
+                  size: 14
+                },
+                color: '#343a40'
+              }
+            },
+            tooltip: {
+              backgroundColor: '#f8f9fa',
+              titleColor: '#343a40',
+              bodyColor: '#495057',
+              borderColor: '#dee2e6',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#6c757d'
+              },
+              grid: {
+                color: 'rgba(0,0,0,0.05)'
+              }
+            },
+            x: {
+              ticks: {
+                color: '#6c757d'
+              },
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+  <style>
+    .grafico-tamaño {
+      height: 300px;
+      /* Ajusta la altura de los gráficos */
+      width: 100% !important;
+      /* Asegura que se adapten al 100% de su contenedor */
+    }
+  </style>
+
+}

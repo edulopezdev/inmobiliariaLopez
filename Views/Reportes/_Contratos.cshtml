@@ -1,0 +1,46 @@
+@model InmobiliariaLopez.Models.ReportesViewModel
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Inmueble</th>
+      <th>Inquilino</th>
+      <th>Fecha Inicio</th>
+      <th>Fecha Fin</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var contrato in Model.ContratosVigentes)
+    {
+      <tr>
+        <td>@contrato.InmuebleDireccion</td>
+        <td>@contrato.InquilinoNombre</td>
+        <td>@contrato.FechaInicio.ToShortDateString()</td>
+        <td>@contrato.FechaFin.ToShortDateString()</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<nav class="d-flex justify-content-center">
+  <ul class="pagination">
+    <!-- Botón Anterior -->
+    <li class="page-item @(Model.CurrentPage > 1 ? "" : "disabled")">
+      <a class="page-link page-contratos" data-page="@(Model.CurrentPage - 1)" href="#">Anterior</a>
+    </li>
+
+    <!-- Números de Página -->
+    @for (int i = 1; i <= Math.Ceiling((double)Model.TotalItems / Model.PageSize); i++)
+    {
+      <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+        <a class="page-link page-contratos" data-page="@i" href="#">@i</a>
+      </li>
+    }
+
+    <!-- Botón Siguiente -->
+    <li
+      class="page-item @(Model.CurrentPage < Math.Ceiling((double)Model.TotalItems / Model.PageSize) ? "" : "disabled")">
+      <a class="page-link page-contratos" data-page="@(Model.CurrentPage + 1)" href="#">Siguiente</a>
+    </li>
+  </ul>
+</nav>

@@ -7,6 +7,19 @@ body {
   background: url("/images/fondo_app.jpg") no-repeat center center fixed;
   background-size: cover; /* Hace que la imagen cubra todo el fondo */
   color: #333; /* Asegura que el texto sea legible */
+  position: relative;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit; /* Hereda el fondo de la imagen */
+  filter: blur(10px); /* Ajusta el desenfoque (puedes aumentar el valor) */
+  z-index: -1; /* Hace que el filtro quede detrás del contenido */
 }
 
 /* Estilos de los títulos principales */

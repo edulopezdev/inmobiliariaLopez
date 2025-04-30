@@ -101,7 +101,7 @@ namespace InmobiliariaLopez.Controllers
                 );
 
                 // Redirigir al usuario a la página de inicio de Inmuebles (puedes cambiarlo por la ruta que desees)
-                return RedirectToAction("Index", "Inmuebles");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {

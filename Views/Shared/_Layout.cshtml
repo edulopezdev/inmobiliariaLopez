@@ -4,6 +4,8 @@
 <html lang="es">
 
 <head>
+  <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -29,12 +31,15 @@
 
   <!-- Renderizar la sección Styles (si está definida en las vistas) -->
   @RenderSection("Styles", required: false)
+
+  <link href="~/css/reporte.css" rel="stylesheet" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
   <header>
     <!-- Top Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light position-fixed w-100 top-0" style="z-index: 1050;">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Inmobiliaria López</a>
 
@@ -53,14 +58,21 @@
     </nav>
 
     <!-- Sidebar Vertical -->
-    <nav class="sidebar">
-      <h4 class="text-center mb-4">Menú</h4>
+    <nav class="sidebar" style="z-index: 1060;">
+      <div class="sidebar-logo">
+        <img src="~/images/INMOBILIARIALOPEZ-WHITE.png" alt="Logo Inmobiliaria López" class="img-fluid d-block mx-auto"
+          style="max-height: 100px;" />
+      </div>
+
+
+
       <ul class="nav flex-column w-100 flex-grow-1">
         <li class="nav-item">
-          <a class="nav-link text-white" href="/">
+          <a class="nav-link text-white" href="/Home/Index">
             <i class="fas fa-home me-2"></i> Inicio
           </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link text-white" href="/Propietarios/Index">
             <i class="fas fa-user-tie me-2"></i> Propietarios
@@ -98,6 +110,11 @@
                 <li class="nav-item">
                   <a class="nav-link text-white" href="/Usuarios/Index">
                     <i class="fas fa-users-cog me-2"></i> Usuarios
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link text-white" href="/Reportes/Index">
+                    <i class="fas fa-chart-bar me-2"></i> Reportes
                   </a>
                 </li>
                 <!-- Otros elementos de administración aquí -->
@@ -175,6 +192,7 @@
     });
   </script>
   <script src="~/js/layout.js" asp-append-version="true"></script>
+  <script src="_framework/aspnetcore-browser-refresh.js"></script>
 </body>
 
 </html>

@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // 1. Registrar DatabaseConnection como un servicio
-builder.Services.AddSingleton<DatabaseConnection>();
+builder.Services.AddScoped<DatabaseConnection>();
 
 // 2. Registrar los repositorios para Propietario e Inquilino
 builder.Services.AddScoped<IRepositorioPropietario, PropietarioRepository>();
@@ -21,6 +21,7 @@ builder.Services.AddScoped<IRepositorioContrato, ContratoRepository>();
 builder.Services.AddScoped<IRepositorioImagen, ImagenRepository>();
 builder.Services.AddScoped<IRepositorioPago, PagoRepository>();
 builder.Services.AddScoped<IRepositorioUsuario, UsuarioRepository>();
+builder.Services.AddScoped<IRepositorioReporte, ReporteRepository>();
 
 // 3. Registrar el servicio de autenticación
 builder

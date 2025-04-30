@@ -1,0 +1,48 @@
+@model InmobiliariaLopez.Models.ReportesViewModel
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Dirección</th>
+      <th>Uso</th>
+      <th>Tipo</th>
+      <th>Precio</th>
+      <th>Propietario</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var i in Model.InmueblesConPropietarios)
+    {
+      <tr>
+        <td>@i.Direccion</td>
+        <td>@i.Uso</td>
+        <td>@i.TipoInmueble</td>
+        <td>@i.Precio</td>
+        <td>@i.PropietarioNombre @i.PropietarioApellido</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<nav class="d-flex justify-content-center">
+  <ul class="pagination">
+    <!-- Botón Anterior -->
+    <li class="page-item @(Model.CurrentPage > 1 ? "" : "disabled")">
+      <a class="page-link page-inmuebles" data-page="@(Model.CurrentPage - 1)" href="#">Anterior</a>
+    </li>
+
+    <!-- Números de Página -->
+    @for (int i = 1; i <= Math.Ceiling((double)Model.TotalItems / Model.PageSize); i++)
+    {
+      <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+        <a class="page-link page-inmuebles" data-page="@i" href="#">@i</a>
+      </li>
+    }
+
+    <!-- Botón Siguiente -->
+    <li
+      class="page-item @(Model.CurrentPage < Math.Ceiling((double)Model.TotalItems / Model.PageSize) ? "" : "disabled")">
+      <a class="page-link page-inmuebles" data-page="@(Model.CurrentPage + 1)" href="#">Siguiente</a>
+    </li>
+  </ul>
+</nav>
