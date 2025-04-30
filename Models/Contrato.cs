@@ -14,7 +14,6 @@ namespace InmobiliariaLopez.Models
         public int? IdUsuarioAnula { get; set; }
         public DateTime? FechaRescision { get; set; }
 
-        // ¡Aquí faltaba la propiedad FechaUsuarioAnula!
         public DateTime? FechaUsuarioAnula { get; set; }
 
         public int IdInmueble { get; set; }
@@ -38,7 +37,6 @@ namespace InmobiliariaLopez.Models
         [MaxLength(500)]
         public string? Observaciones { get; set; }
 
-        // Extras para mostrar en la vista (NO agregar [Required] aquí)
         public string? DireccionInmueble { get; set; }
         public string? NombreInquilino { get; set; }
 

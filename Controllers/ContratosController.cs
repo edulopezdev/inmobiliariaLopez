@@ -69,14 +69,6 @@ namespace InmobiliariaLopez.Controllers
         [HttpPost]
         public IActionResult Create(Contrato contrato)
         {
-            Console.WriteLine("[CREATE - POST] Datos recibidos del formulario:");
-            Console.WriteLine($"  IdInquilino = {contrato.IdInquilino}");
-            Console.WriteLine($"  IdInmueble = {contrato.IdInmueble}");
-            Console.WriteLine($"  MontoMensual = {contrato.MontoMensual}");
-            Console.WriteLine($"  FechaInicio = {contrato.FechaInicio}");
-            Console.WriteLine($"  FechaFin = {contrato.FechaFin}");
-            Console.WriteLine($"  EstadoContrato = {contrato.EstadoContrato}");
-            Console.WriteLine($"  Activo = {contrato.Activo}");
             if (!ModelState.IsValid)
             {
                 var errors = ModelState
@@ -310,11 +302,6 @@ namespace InmobiliariaLopez.Controllers
         private void CargarViewBag(int? inmuebleId = null, int? inquilinoId = null)
         {
             var inmuebles = _repositorioInmueble.ObtenerTodosActivos();
-            Console.WriteLine("[CargarViewBag] Inmuebles:");
-            foreach (var i in inmuebles)
-            {
-                Console.WriteLine($"  Id={i.IdInmueble}, Direccion={i.Direccion}");
-            }
 
             ViewBag.Inmuebles = new SelectList(inmuebles, "IdInmueble", "Direccion", inmuebleId);
 
@@ -390,16 +377,6 @@ namespace InmobiliariaLopez.Controllers
                 EstadoContrato = "Vigente",
                 Activo = true,
             };
-
-            // Mostrar los datos que se están pasando a la vista
-            Console.WriteLine($"[RENOVAR] Datos del nuevo contrato:");
-            Console.WriteLine($"  IdInquilino = {nuevoContrato.IdInquilino}");
-            Console.WriteLine($"  IdInmueble = {nuevoContrato.IdInmueble}");
-            Console.WriteLine($"  MontoMensual = {nuevoContrato.MontoMensual}");
-            Console.WriteLine($"  FechaInicio = {nuevoContrato.FechaInicio}");
-            Console.WriteLine($"  FechaFin = {nuevoContrato.FechaFin}");
-            Console.WriteLine($"  EstadoContrato = {nuevoContrato.EstadoContrato}");
-            Console.WriteLine($"  Activo = {nuevoContrato.Activo}");
 
             CargarViewBag(nuevoContrato.IdInmueble, nuevoContrato.IdInquilino);
             ViewBag.EsRenovacion = true;

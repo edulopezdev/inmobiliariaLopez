@@ -18,7 +18,6 @@ namespace InmobiliariaLopez.Models
         // Propiedad solo para mostrar el nombre completo en la UI
         public string NombreCompleto => $"{Nombre} {Apellido}";
 
-        // El teléfono puede ser nullable
         public string? Telefono { get; set; }
 
         [EmailAddress(ErrorMessage = "El email no es válido.")]

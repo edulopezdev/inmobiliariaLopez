@@ -9,7 +9,6 @@ namespace InmobiliariaLopez.Models
         public IList<ContratoViewModel> ContratosVigentes { get; set; }
         public IList<InmuebleDesocupadoViewModel> InmueblesDesocupados { get; set; }
 
-        // Nuevas propiedades para paginación
         public int TotalItems { get; set; }
         public int PageSize { get; set; }
         public int CurrentPage { get; set; }
@@ -32,7 +31,6 @@ namespace InmobiliariaLopez.Models
         public string PropietarioTelefono { get; set; }
     }
 
-    // Considera también estos modelos (ContratoViewModel e InmuebleDesocupadoViewModel)
     public class ContratoViewModel
     {
         public int IdContrato { get; set; }

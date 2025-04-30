@@ -273,7 +273,7 @@ namespace InmobiliariaLopez.Repositories
                                 nuevoIdPago = Convert.ToInt32(command.ExecuteScalar());
                             }
 
-                            // 🔁 Si es un pago de multa, marcamos esa multa como pagada
+                            // Si es un pago de multa, marcamos esa multa como pagada
                             if (entidad.IdMulta.HasValue)
                             {
                                 using (
@@ -552,12 +552,6 @@ namespace InmobiliariaLopez.Repositories
                         command.Parameters.AddWithValue("@MotivoAnulacion", motivoAnulacion ?? "");
 
                         int result = command.ExecuteNonQuery();
-
-                        // Log para depuración
-                        if (result == 0)
-                        {
-                            throw new Exception("No se pudo actualizar el pago.");
-                        }
 
                         return result;
                     }

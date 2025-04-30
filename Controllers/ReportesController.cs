@@ -51,18 +51,9 @@ namespace InmobiliariaLopez.Controllers
         public IActionResult Contratos(int page = 1, int pageSize = 10)
         {
             var contratos = _repositorioReporte.ObtenerContratosVigentes();
-            Console.WriteLine($"Total contratos obtenidos: {contratos.Count}");
 
             var totalItems = contratos.Count;
             var pagedContratos = contratos.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-
-            Console.WriteLine($"Mostrando contratos de la página {page}");
-            foreach (var contrato in pagedContratos)
-            {
-                Console.WriteLine(
-                    $"Contrato ID: {contrato.IdContrato}, Inquilino: {contrato.InquilinoNombre}, Inmueble: {contrato.InmuebleDireccion}"
-                );
-            }
 
             var viewModel = new ReportesViewModel
             {
