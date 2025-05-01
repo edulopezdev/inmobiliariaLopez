@@ -25,11 +25,12 @@ body {
 
 /* Estilo del contenedor del formulario */
 .login-container {
+
   background-color: rgba(
     255,
     255,
     255,
-    0.9
+    0.7
   ); /* Fondo blanco semi-transparente */
   padding: 40px;
   border-radius: 8px;
@@ -62,7 +63,7 @@ h2 {
 
 /* Evitar que el fondo desenfocado cambie en hover */
 .login-container:hover {
-  background-color: rgba(255, 255, 255, 0.9); /* Mantener el fondo igual */
+  background-color: rgba(255, 255, 255, 0.6); /* Mantener el fondo igual */
 }
 /* Botón moderno, sin borde negro, con fondo sólido */
 .btn-modern {

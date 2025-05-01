@@ -59,17 +59,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-      // Mostrar el mensaje de error si el ModelState tiene errores
-      @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
-        {
-          <text>
-            Swal.fire({
-              icon: 'error',
-            title: 'Oops...',
-            text: 'El correo o la contraseña son incorrectos.',
-                  });
-          </text>
-      }
     </script>
   }
 </body>
