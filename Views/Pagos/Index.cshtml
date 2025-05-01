@@ -29,19 +29,26 @@
       <table class="table table-hover table-bordered" style="font-family: 'Roboto', sans-serif;">
         <thead class="bg-primary text-white">
           <tr>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">#PAGO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              #PAGO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">FECHA
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              FECHA
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">CONCEPTO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              CONCEPTO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ESTADO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              ESTADO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">IMPORTE
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              IMPORTE
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">#CONTRATO
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              #CONTRATO
             </th>
-            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">ACCIONES
+            <th style="font-family: 'Poppins', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;">
+              ACCIONES
             </th>
           </tr>
         </thead>
@@ -125,11 +132,14 @@
                     <i class="fas fa-ban"></i>
                   </a>
                 }
+                @if (User.IsInRole("Administrador"))
+                {
+                  <a asp-action="Delete" asp-route-id="@pago.IdPago" class="btn-link" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Eliminar pago">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                }
 
-                <a asp-action="Delete" asp-route-id="@pago.IdPago" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Eliminar pago">
-                  <i class="fas fa-trash-alt"></i>
-                </a>
               </td>
             </tr>
           }

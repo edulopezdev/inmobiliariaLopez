@@ -123,10 +123,13 @@
                   <i class="fas fa-edit"></i>
                 </a>
                 <!-- Eliminar -->
-                <a asp-action="Delete" asp-route-id="@inquilino.IdInquilino" class="btn-link" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="Eliminar inquilino">
-                  <i class="fas fa-trash-alt"></i>
-                </a>
+                @if (User.IsInRole("Administrador"))
+                {
+                  <a asp-action="Delete" asp-route-id="@inquilino.IdInquilino" class="btn-link" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="Eliminar inquilino">
+                    <i class="fas fa-trash-alt"></i>
+                  </a>
+                }
               </td>
             </tr>
           }
