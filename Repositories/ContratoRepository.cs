@@ -40,7 +40,7 @@ namespace InmobiliariaLopez.Repositories
                         FROM contrato c
                         JOIN inmueble i ON c.IdInmueble = i.IdInmueble
                         JOIN inquilino q ON c.IdInquilino = q.IdInquilino
-                        WHERE c.Activo = 1
+                        WHERE (c.Activo = 1 OR c.EstadoContrato = 'Anulado')
                           AND i.Activo = 1
                           AND q.Activo = 1
                           AND c.EstadoContrato IN ('Vigente', 'PendienteAnulacion', 'Anulado', 'Finalizado')
